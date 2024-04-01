@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+fastapi = "*"
+sqlalchemy = "*"
+uvicorn = "*"
+pydantic-settings = "*"
+pydantic = {extras = ["email"] }
+asyncpg = "*"
+aiomysql = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"
