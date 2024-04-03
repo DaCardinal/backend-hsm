@@ -11,6 +11,7 @@ pydantic-settings = "*"
 pydantic = {extras = ["email"] }
 asyncpg = "*"
 aiomysql = "*"
+greenlet = "*"
 
 [dev-packages]
 

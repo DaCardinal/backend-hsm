@@ -8,7 +8,7 @@ logger = AppLogger().get_logger()
 
 # Get DB Info
 db_manager = DBManager()
-get_db = db_manager.db_module.get_db
+get_db = db_manager.initialize_db_module().get_db
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

@@ -2,7 +2,7 @@ from typing import List, Optional
 from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.user import UserModel
+from app.models.user import User
 from app.router.base_router import BaseCRUDRouter
 from app.dao.user_dao import UserDAO
 from app.schema.user import UserSchema
@@ -10,7 +10,7 @@ from app.utils.lifespan import get_db, db_manager as database_manager
 
 class UserRouter(BaseCRUDRouter):
 
-    def __init__(self, dao: UserDAO = UserDAO(UserModel), prefix: str = "", tags: List[str] = []):
+    def __init__(self, dao: UserDAO = UserDAO(User), prefix: str = "", tags: List[str] = []):
         super().__init__(
             dao=dao,
             schemas=UserSchema,
@@ -30,7 +30,7 @@ class UserRouter(BaseCRUDRouter):
         
         @self.router.post("/test/")
         async def create_user(user: self.create_schema , db: AsyncSession = Depends(get_db)):
-            new_user = UserModel(first_name=user.first_name, last_name=user.last_name, email=user.email)
+            new_user = User(first_name=user.first_name, last_name=user.last_name, email=user.email)
             created_user = await database_manager.db_module.add_instance(new_user)
             return {"first_name": new_user.first_name, "last_name": new_user.last_name, "email": new_user.email}
 
@@ -38,21 +38,21 @@ class UserRouter(BaseCRUDRouter):
         async def read_users(filter_by_name: Optional[str] = None, db: AsyncSession = Depends(get_db)):
 
             if filter_by_name is not None:
-                users = await database_manager.db_module.get_instances_by_filter(UserModel, first_name=filter_by_name)
+                users = await database_manager.db_module.get_instances_by_filter(User, first_name=filter_by_name)
             else:
-                users = await database_manager.db_module.get_instances(UserModel)
+                users = await database_manager.db_module.get_instances(User)
             return users
 
         @self.router.patch("/test/{user_id}")
         async def update_user(user_id: int, user_updates: self.update_schema, db: AsyncSession = Depends(get_db)):
-            updated_user = await database_manager.db_module.update_instance(UserModel, user_id, **user_updates.dict(exclude_unset=True))
+            updated_user = await database_manager.db_module.update_instance(User, user_id, **user_updates.dict(exclude_unset=True))
             if updated_user is not None:
                 return updated_user
             raise HTTPException(status_code=404, detail="User not found")
 
         @self.router.delete("/tset/{user_id}")
         async def delete_user(user_id: int, db: AsyncSession = Depends(get_db)):
-            deleted_user = await database_manager.db_module.delete_instance(UserModel, user_id)
+            deleted_user = await database_manager.db_module.delete_instance(User, user_id)
             if deleted_user is not None:
                 return {"detail": "User deleted"}
             raise HTTPException(status_code=404, detail="User not found")

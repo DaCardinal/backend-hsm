@@ -1,8 +1,6 @@
 from sqlalchemy import Column, DateTime, func
 from sqlalchemy.ext.declarative import declared_attr
-from app.db.dbModule import DBModule
-
-Base = DBModule.get_declarative_base()
+from app.db.dbModule import Base
 
 class BaseModel(Base):
     __abstract__ = True

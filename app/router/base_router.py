@@ -1,13 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
-from app.utils.lifespan import db_manager
 from typing import Generic, TypeVar, List
 
 from app.dao.base_dao import BaseDAO
+from app.utils.lifespan import get_db
 from app.schema.base_schema import SchemasDictType
 
 DBModelType = TypeVar("DBModelType")
-get_db = db_manager.db_module.get_db
 
 class BaseCRUDRouter(Generic[DBModelType]):
     def __init__(
@@ -29,6 +28,9 @@ class BaseCRUDRouter(Generic[DBModelType]):
         self.add_create_route()
         self.add_update_route()
         self.add_delete_route()
+    
+    def get_session_db(request: Request):
+        return request.state.db
 
     def add_get_all_route(self):
         @self.router.get("/", response_model=List[self.create_schema])
@@ -41,13 +43,10 @@ class BaseCRUDRouter(Generic[DBModelType]):
     def add_get_route(self):
         @self.router.get("/{id}", response_model=self.create_schema)
         async def get(id: int, db: Session = Depends(self.get_db)):
-            # async def inner_get(id=id, db=db):
-                item = await self.dao.get(db_session=db, item_id=id)
-                if item is None:
-                    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
-                return item
-
-            # return await inner_get()
+            item = await self.dao.get(db_session=db, item_id=id)
+            if item is None:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
+            return item
 
     def add_create_route(self):
         @self.router.post("/", response_model=self.create_schema, status_code=status.HTTP_201_CREATED)

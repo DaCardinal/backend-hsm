@@ -4,7 +4,18 @@ from fastapi import FastAPI, Response, Request
 import time
 
 from app.utils.lifespan import logger
+from app.utils.lifespan import get_db
 
+class SessionMiddleware(BaseHTTPMiddleware):
+    async def db_session_middleware(request: Request, call_next):
+        response = Response("Internal server error", status_code=500)
+        try:
+            request.state.db = get_db
+            response = await call_next(request)
+        finally:
+            request.state.db.close()
+        return response
+        
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         start_time = time.time()

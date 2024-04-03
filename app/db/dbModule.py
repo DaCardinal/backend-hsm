@@ -4,17 +4,19 @@ from typing import Any, Callable, Type,TypeVar, AsyncIterator
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.future import select
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 
 from urllib.parse import quote
-from contextlib import contextmanager
 
 import app.db.dbExceptions as DBExceptions
 
+Base = declarative_base()
+
 class DBModule:
-    _base: Any = declarative_base()
-    T = TypeVar('T', bound=_base)
+    _base: Any = Base
+    T = TypeVar('T', bound=Base)
     _models_generated: bool = False
 
     def __init__(self, **kwargs):
@@ -30,9 +32,14 @@ class DBModule:
 
     def get_engine(self):
         return self.engine
-
+    
     def dispose(self):
         self.engine["write"].dispose()
+
+    async def check_models_generated(self):
+        if not self._models_generated:
+            await self.create_all_tables()
+            self._models_generated = True
 
     def get_engine_setup_func(cls, engine):
         supporting_rdbms = {
@@ -49,6 +56,10 @@ class DBModule:
         host = credentials.get("host")
         port = credentials.get("port", 3306)
         db = credentials.get("db")
+        conn_string = f"postgresql+asyncpg://{user}:{quote(pswd)}@{host}:{port}/{db}"
+        
+        # create database if it doesn't exist
+        cls.create_postgres_database_if_not_exist(conn_string)
 
         if not all([user, host, db]):
             raise DBExceptions.DatabaseCredentialException(
@@ -56,18 +67,29 @@ class DBModule:
             )
 
         return {
-            "write": create_async_engine(
-                f"postgresql+asyncpg://{user}:{quote(pswd)}@{host}:{port}/{db}",
-                future=True,
-                echo=False,
-            ),
-            "read": create_async_engine(
-                f"postgresql+asyncpg://{user}:{quote(pswd)}@{host}:{port}/{db}",
-                future=True,
-                echo=False,
-            ),
+            "write": create_async_engine(conn_string, future=True, echo=False),
+            "read": create_async_engine(conn_string, future=True, echo=False),
         }
     
+    def create_postgres_database_if_not_exist(cls, database_url: str, default_database: str = "postgresql://postgres:toor@localhost/postgres"):
+        engine = create_engine(default_database)
+        db_name = database_url.split("/")[-1]
+        conn = engine.connect()
+
+        try:
+            conn.execute(text("commit"))
+            db_exists = conn.execute(text(f"SELECT 1 FROM pg_database WHERE datname='{db_name}'")).scalar()
+            
+            if not db_exists:
+                conn.execute(text(f"CREATE DATABASE {db_name}"))
+                print(f"Database {db_name} created successfully.")
+            else:
+                print(f"Database {db_name} already exists.")
+        except SQLAlchemyError as e:
+            print(f"An error occurred: {e}")
+        finally:
+            conn.close()
+            
     def setup_mysql(cls, credentials: dict):
         user = credentials.get("user")
         pswd = credentials.get("pswd", "")
@@ -117,8 +139,6 @@ class DBModule:
     
     @classmethod
     def get_declarative_base(self):
-        if self._base is None:
-            self._base = declarative_base()
         return self._base
 
     async def get_db(self) -> AsyncIterator[AsyncSession]:
@@ -126,7 +146,6 @@ class DBModule:
             yield session
      
     async def create_all_tables(self):
-
         engine : AsyncEngine = self.engine["write"]
 
         async with engine.begin() as conn:
@@ -176,11 +195,6 @@ class DBModule:
                 return obj
             else:
                 return None
-            
-    async def check_models_generated(self):
-        if not self._models_generated:
-            await self.create_all_tables()
-            self._models_generated = True
 
     def db_session_commit_rollback(db_session_func: Callable[..., AsyncSession]):
         @wraps(db_session_func)
