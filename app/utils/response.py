@@ -1,5 +1,5 @@
 from typing import TypeVar, Generic, Optional
-from pydantic import BaseModel, ValidationError, validator
+from pydantic import BaseModel, ValidationError
 
 T = TypeVar("T")
 

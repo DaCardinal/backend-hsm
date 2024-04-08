@@ -1,10 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
-from typing import Generic, TypeVar, List, Union
+from typing import Generic, TypeVar, List
 
 from app.dao.base_dao import BaseDAO
-from app.models.user import User
-from app.schema.schemas import User as UserSchema
 from app.utils.lifespan import get_db
 from app.schema.base_schema import SchemasDictType
 

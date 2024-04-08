@@ -1,7 +1,7 @@
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.exc import NoResultFound
-from typing import Type, Optional, Union, overload, override
+from typing import Type, Optional, Union, override
 
 from app.dao.base_dao import BaseDAO
 from app.dao.address_dao import AddressDAO
@@ -15,7 +15,7 @@ class UserDAO(BaseDAO[User]):
     def __init__(self, model: Type[User]):
         super().__init__(model)
         self.primary_key = "user_id"
-
+    
     @override
     async def create(self, db_session: AsyncSession, obj_in: UserCreateSchema):
         return await self.add_new_user(db_session=db_session, user_data=obj_in)
@@ -50,11 +50,12 @@ class UserDAO(BaseDAO[User]):
                     new_user: User = await self.add_emergency_info(db_session=db_session, user_id=new_user.user_id, emergency_info = validated_emergency_info)
                 except ValidationError as e:
                     return DAOResponse[User](success=False, validation_error=e)
-
-            return DAOResponse[User](success=True, data=new_user.to_dict())
+            
+            # TODO: Change DAO response to parse object corectly
+            return DAOResponse[dict](success=True, data=new_user.to_dict())
         except Exception as e:
             await db_session.rollback()
-            return DAOResponse[User](success=False, error="An unexpected error occurred")
+            return DAOResponse[User](success=False, error=f"An unexpected error occurred {e}")
 
     async def add_user_role(self, db_session: AsyncSession, user_id: str, role_alias: str) -> Optional[User]:
         role_dao = RoleDAO()
