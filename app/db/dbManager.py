@@ -15,23 +15,6 @@ class DBManager:
     def db_module(self):
         return self.get_db_module()
 
-    def initialize_db_module(self, **credentials):
-        if not self._db_module:
-            try:
-                self._db_module = DBModule(**credentials)
-            except Exception as e:
-                raise RuntimeError(f"Failed to initialize DBModule: {e}")
-        return self._db_module
-
-    @classmethod
-    def get_db_module(self):
-        if not self._db_module:
-            try:
-                self.initialize_db_module(self, **self.get_credentials_from_env())
-            except Exception as e:
-                raise RuntimeError(f"DBModule not initialized: {e}")
-        return self._db_module
-    
     @staticmethod
     def get_credentials_from_env():
         user = settings.DB_USER
@@ -49,3 +32,24 @@ class DBManager:
             "db": database,
             "engine": engine,
         }
+    
+    def initialize_db_module(self, **credentials):
+        
+        if not credentials:
+            credentials = self.get_credentials_from_env()
+
+        if not self._db_module:
+            try:
+                self._db_module = DBModule(**credentials)
+            except Exception as e:
+                raise RuntimeError(f"Failed to initialize DBModule: {e}")
+        return self._db_module
+
+    @classmethod
+    def get_db_module(self):
+        if not self._db_module:
+            try:
+                self.initialize_db_module(self, **self.get_credentials_from_env())
+            except Exception as e:
+                raise RuntimeError(f"DBModule not initialized: {e}")
+        return self._db_module

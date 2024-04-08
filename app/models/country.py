@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, Text
 from sqlalchemy.dialects.postgresql import UUID
+
 from app.models.model_base import BaseModel as Base
 
 class Country(Base):

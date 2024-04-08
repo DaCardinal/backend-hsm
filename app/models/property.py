@@ -1,9 +1,9 @@
-from sqlalchemy import Numeric, create_engine, Column, ForeignKey, Boolean, DateTime, Enum, Integer, String, Text
+from sqlalchemy import Numeric, Column, ForeignKey, Boolean, Enum, Integer, String, Text
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from app.models.model_base import BaseModel as Base
 import enum
+
+from app.models.model_base import BaseModel as Base
 
 class PropertyStatus(enum.Enum):
     lease = 'lease'
@@ -21,7 +21,7 @@ class Property(Base):
     __tablename__ = 'property'
     property_id = Column(UUID(as_uuid=True), primary_key=True)
     name = Column(String(255))
-    city_id = Column(UUID(as_uuid=True), ForeignKey('city.city_id'))
+    address_id = Column(UUID(as_uuid=True), ForeignKey('addresses.address_id'))
     property_type_id = Column(UUID(as_uuid=True), ForeignKey('property_type.property_type_id'))
     amount = Column(Numeric(10, 2))
     security_deposit = Column(Numeric(10, 2))
@@ -35,3 +35,10 @@ class Property(Base):
     pets_allowed = Column(Boolean, default=False)
     description = Column(Text)
     property_status = Column(Enum(PropertyStatus))
+
+    addresses = relationship('Addresses', backref='properties')
+    property_type = relationship('PropertyType', back_populates='properties')
+    units = relationship("Units",
+                         secondary="property_unit_assoc",
+                         primaryjoin="and_(PropertyUnitAssoc.property_id==Property.property_id)",
+                         back_populates="properties")

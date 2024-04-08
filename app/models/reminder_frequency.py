@@ -1,7 +1,7 @@
-from sqlalchemy import create_engine, Column, ForeignKey, Boolean, DateTime, Enum, Integer, String, Text
+from sqlalchemy import Column, Boolean, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+
 from app.models.model_base import BaseModel as Base
 
 
@@ -11,3 +11,5 @@ class ReminderFrequency(Base):
     title = Column(String(50))
     frequency = Column(Integer)
     is_active = Column(Boolean, default=False)
+
+    messages = relationship('Message', back_populates='reminder_frequency')

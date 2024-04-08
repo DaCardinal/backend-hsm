@@ -22,3 +22,7 @@ class Invoice(Base):
     billing_date = Column(DateTime)
     date_paid = Column(DateTime)
     status = Column(Enum(PaymentStatusEnum))
+    transaction_id = Column(UUID(as_uuid=True), ForeignKey('transaction.transaction_id'))
+
+    contracts = relationship('Contract', secondary='contract_invoice', back_populates='invoices')
+    transaction = relationship('Transaction', back_populates='invoice_number')

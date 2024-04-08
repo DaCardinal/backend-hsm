@@ -1,6 +1,6 @@
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+
 from app.models.model_base import BaseModel as Base
 
 class UserRoles(Base):

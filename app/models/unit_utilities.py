@@ -1,9 +1,8 @@
-from sqlalchemy import Numeric, create_engine, Column, ForeignKey, Boolean, DateTime, Enum, Integer, String, Text
+from sqlalchemy import Column, ForeignKey, Boolean, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+
 from app.models.model_base import BaseModel as Base
-import enum
 
 class UnitUtilities(Base):
     __tablename__ = 'unit_utilities'
@@ -13,3 +12,5 @@ class UnitUtilities(Base):
     property_unit_assoc = Column(UUID(as_uuid=True), ForeignKey('property_unit_assoc.property_unit_assoc'))
     utility_value = Column(String(128))
     apply_to_units = Column(Boolean, default=False)
+
+    payment_type = relationship('PaymentTypes', back_populates='unit_utilities')

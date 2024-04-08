@@ -1,10 +1,8 @@
-from sqlalchemy import Numeric, create_engine, Column, ForeignKey, Boolean, DateTime, Enum, Integer, String, Text
+from sqlalchemy import Column, ForeignKey, Boolean
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from app.models.model_base import BaseModel as Base
-import enum
 
+from app.models.model_base import BaseModel as Base
 
 class MessageRecipient(Base):
     __tablename__ = 'message_recipient'
@@ -13,3 +11,7 @@ class MessageRecipient(Base):
     recipient_group_id = Column(UUID(as_uuid=True), ForeignKey('property_unit_assoc.property_unit_assoc'))
     message_id = Column(UUID(as_uuid=True), ForeignKey('message.message_id'))
     is_read = Column(Boolean)
+
+    receipient = relationship('User', back_populates='received_messages')
+    message = relationship('Message', back_populates='recipients')
+    message_group = relationship('PropertyUnitAssoc', back_populates="messages_recipients")

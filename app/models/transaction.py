@@ -1,9 +1,10 @@
-from sqlalchemy import Numeric, create_engine, Column, ForeignKey, Boolean, DateTime, Enum, Integer, String, Text
+from sqlalchemy import Column, ForeignKey, DateTime, Enum, String, Text
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from app.models.model_base import BaseModel as Base
 import enum
+
+from app.models.model_base import BaseModel as Base
+
 class PaymentStatusEnum(enum.Enum):
     pending = "pending"
     completed = "completed"
@@ -19,3 +20,11 @@ class Transaction(Base):
     transaction_details = Column(Text)
     payment_method = Column(String)
     transaction_status = Column(Enum(PaymentStatusEnum))
+    invoice_number = Column(UUID(as_uuid=True), ForeignKey('invoice.invoice_number'))
+
+    transaction_type = relationship('TransactionType', back_populates='transactions')
+
+    client_offered_transaction = relationship('User', foreign_keys=[client_offered], back_populates='transaction_as_client_offered')
+    client_requested_transaction = relationship('User', foreign_keys=[client_requested], back_populates='transaction_as_client_requested')
+
+    invoice_number = relationship('Invoice', back_populates='transaction')

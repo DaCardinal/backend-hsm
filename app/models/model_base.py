@@ -9,8 +9,8 @@ class BaseModel(Base):
     def __tablename__(cls):
         return cls.__name__.lower()
 
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), default=func.now())
+    updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
 
     def to_dict(self):
         """Converts the object instance to a Python dictionary."""
