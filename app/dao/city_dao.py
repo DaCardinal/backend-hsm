@@ -1,6 +1,4 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
-from typing import Type, Optional
+from typing import Type
 
 from app.dao.base_dao import BaseDAO
 from app.models import City

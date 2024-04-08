@@ -1,7 +1,7 @@
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.exc import NoResultFound
-from typing import Type, Optional, Union, overload
+from typing import Type, Optional, Union, overload, override
 
 from app.dao.base_dao import BaseDAO
 from app.dao.address_dao import AddressDAO
@@ -16,6 +16,7 @@ class UserDAO(BaseDAO[User]):
         super().__init__(model)
         self.primary_key = "user_id"
 
+    @override
     async def create(self, db_session: AsyncSession, obj_in: UserCreateSchema):
         return await self.add_new_user(db_session=db_session, user_data=obj_in)
     
@@ -60,7 +61,7 @@ class UserDAO(BaseDAO[User]):
 
         try:
             user : User = await self.query(db_session=db_session, filters={f"{self.primary_key}": user_id}, single=True)
-            role : Role = role_dao.query(db_session=db_session, filters={"alias": role_alias}, single=True)
+            role : Role = await role_dao.query(db_session=db_session, filters={"alias": role_alias}, single=True)
 
             # attach role to user
             user.roles.append(role)
