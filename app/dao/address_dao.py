@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Type, overload
+from typing import Type, override
 
 from app.dao.base_dao import BaseDAO
 from app.dao.city_dao import CityDAO
@@ -11,7 +11,7 @@ class AddressDAO(BaseDAO[Addresses]):
     def __init__(self, model: Type[Addresses]):
         super().__init__(model)
 
-    @overload
+    @override
     async def create(self, db_session: AsyncSession, address_data: AddressCreateSchema):
         city_dao = CityDAO()
         
