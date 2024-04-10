@@ -27,10 +27,10 @@ class UserDAO(BaseDAO[User]):
             employment_info_data = {key: user_data[key] for key in user_data if key in UserEmployerInfo.model_fields}
 
             # check if user exists
-            existing_user = await self.query(db_session=db_session, filters={"email": user_data.get('email')}, single=True)
+            existing_user : User = await self.query(db_session=db_session, filters={"email": user_data.get('email')}, single=True)
 
             if existing_user:
-                return DAOResponse[User](success=False, error="User already exists")  
+                return DAOResponse[dict](success=True, data=existing_user.to_dict(), error=f"User already exists with email {existing_user.email}")  
             
             # Create a new User instance
             new_user: User = await super().create(db_session=db_session, obj_in=user_base_info_data)
@@ -43,7 +43,7 @@ class UserDAO(BaseDAO[User]):
                 except ValidationError as e:
                     return DAOResponse[User](success=False, validation_error=e)
 
-            # Add emergency info
+            # Add emergency info, if present
             if emergency_info_data:
                 try:
                     validated_emergency_info = UserEmergencyInfo(**emergency_info_data)

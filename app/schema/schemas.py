@@ -32,15 +32,7 @@ class UserEmployerInfo(BaseModel):
     class Config: 
         from_attributes = True
 
-class UserBase(BaseModel):
-    first_name: str = Field(..., max_length=128)
-    last_name: str = Field(..., max_length=128)
-    email: EmailStr = Field(...)
-    phone_number: str = Field(..., max_length=50)
-    password_hash: str = Field(..., max_length=128)
-    identification_number: str = Field(..., max_length=80)
-    photo_url: str = Field(..., max_length=128)
-    gender: GenderEnum = Field(...)
+class UserAuthInfo(BaseModel):
     login_provider: str = Field(..., max_length=128)
     reset_token: Optional[str] = Field(None, max_length=128)
     verification_token: Optional[str] = Field(None, max_length=128)
@@ -53,9 +45,23 @@ class UserBase(BaseModel):
 
     class Config:
         from_attributes = True
+
+class UserBase(BaseModel):
+    first_name: str = Field(..., max_length=128)
+    last_name: str = Field(..., max_length=128)
+    email: EmailStr = Field(...)
+    phone_number: str = Field(..., max_length=50)
+    password_hash: str = Field(..., max_length=128)
+    identification_number: str = Field(..., max_length=80)
+    photo_url: str = Field(..., max_length=128)
+    gender: GenderEnum = Field(...)
+    
+    class Config:
+        from_attributes = True
         use_enum_values = True
 
-class User(UserBase, UserEmergencyInfo, UserEmployerInfo):
+
+class User(UserBase, UserAuthInfo, UserEmergencyInfo, UserEmployerInfo):
     user_id: UUID = Field(...)
 
     class Config:

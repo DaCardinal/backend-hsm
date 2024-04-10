@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any, TypeVar, AsyncIterator
 
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, AsyncSession
@@ -5,7 +6,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import create_engine, text
-
+from threading import Thread
 from urllib.parse import quote
 
 import app.db.dbExceptions as DBExceptions
@@ -92,12 +93,12 @@ class DBModule:
             )
 
         return {
-            "write": create_engine(
+            "write": create_async_engine(
                 f"mysql+asyncmy://{user}:{quote(pswd)}@{host}:{port}/{db}",
                 future=True,
                 echo=False,
             ),
-            "read": create_engine(
+            "read": create_async_engine(
                 f"mysql+asyncmy://{user}:{quote(pswd)}@{read_host}:{port}/{db}",
                 future=True,
                 echo=False,
@@ -106,10 +107,10 @@ class DBModule:
 
     def setup_memory(cls, credentials = ':memory:'):
         return {
-            "write": create_engine(
+            "write": create_async_engine(
                 f"sqlite+pysqlite:///{credentials}", future=True, echo=True
             ),
-            "read": create_engine(
+            "read": create_async_engine(
                 f"sqlite+pysqlite:///{credentials}", future=True, echo=True
             ),
         }
@@ -117,14 +118,14 @@ class DBModule:
     def setup_sqlite(self, credentials = None, db_path="app.db"):
        
         return {
-            "write": create_engine(
-                f"sqlite+pysqlite:///{db_path}", echo=False, future=True
+            "write": create_async_engine(
+                f"sqlite+aiosqlite:///{db_path}", echo=False, future=True
             ),
-            "read": create_engine(
-                f"sqlite+pysqlite:///{db_path}", echo=False, future=True
+            "read": create_async_engine(
+                f"sqlite+aiosqlite:///{db_path}", echo=False, future=True
             ),
         }
-    
+
     def create_postgres_database_if_not_exist(cls, database_url: str, default_database: str = f"postgresql://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}/{settings.DB_DATABASE_DEFAULT}"):
         engine = create_engine(default_database)
         db_name = database_url.split("/")[-1]
@@ -146,7 +147,7 @@ class DBModule:
 
     async def create_all_tables(self):
         engine : AsyncEngine = self.engine["write"]
-
+        
         async with engine.begin() as conn:
             await conn.run_sync(self._base.metadata.create_all)
 

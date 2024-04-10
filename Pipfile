@@ -13,6 +13,7 @@ asyncpg = "*"
 aiomysql = "*"
 greenlet = "*"
 psycopg2 = "*"
+aiosqlite = "*"
 
 [dev-packages]
 
