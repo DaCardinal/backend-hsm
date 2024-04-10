@@ -15,7 +15,7 @@ class CreateMixin:
             await db.commit()
             await db.refresh(db_obj)
         return db_obj
-
+    
 class ReadMixin:
     async def get(self, db_session: AsyncSession, id: int) -> DBModelType:
         async with db_session as db:
@@ -30,13 +30,19 @@ class ReadMixin:
             q = await db.execute(select(self.model).offset(skip).limit(limit))
         return q.scalars().all()
 
+    async def get_single(db_session: AsyncSession, user_id: int) -> DBModelType:
+        user = (await db_session.scalars(select(DBModelType).where(DBModelType.id == user_id))).first()
+        if not user:
+            raise NoResultFound
+        return user
+    
     async def query(self, db_session: AsyncSession, filters: Dict[str, Any], single = False) -> list[DBModelType]:
         async with db_session as db:
             conditions = [getattr(self.model, k) == v for k, v in filters.items()]
             query = select(self.model).filter(and_(*conditions))
             result = await db.execute(query)
             
-            return result.scalar_one_or_none() if single else result.scalars().all()
+        return result.scalar_one_or_none() if single else result.scalars().all()
 
 class UpdateMixin:
     async def update(self, db_session: AsyncSession, db_obj: DBModelType, obj_in) -> DBModelType:
@@ -51,14 +57,14 @@ class UpdateMixin:
             db.add(db_obj)
             await db.commit()
             await db.refresh(db_obj)
-            return db_obj
+        return db_obj
 
 class DeleteMixin:
     async def delete(self, db_session: AsyncSession, db_obj: DBModelType) -> DBModelType:
         async with db_session as db:
             await db.delete(db_obj)
             await db.commit()
-            return db_obj
+        return db_obj
 
 class DBOperations(CreateMixin, ReadMixin, UpdateMixin, DeleteMixin):
     def __init__(self, model: Generic[DBModelType]):

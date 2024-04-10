@@ -1,8 +1,13 @@
+import uuid
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.future import select
 from typing import Type, Optional, Union, override
 
+from app.db.dbManager import DBManager
+from app.utils.core import DBSessionDep
 from app.dao.base_dao import BaseDAO
 from app.dao.address_dao import AddressDAO
 from app.dao.entity_dao import EntityDAO
@@ -10,6 +15,7 @@ from app.dao.role_dao import RoleDAO
 from app.utils.response import DAOResponse
 from app.models import User, Addresses, Role
 from app.schema.schemas import AddressCreateSchema, UserCreateSchema, UserEmergencyInfo, UserBase, UserEmployerInfo
+
 
 class UserDAO(BaseDAO[User]):
     def __init__(self, model: Type[User]):
@@ -57,20 +63,47 @@ class UserDAO(BaseDAO[User]):
             await db_session.rollback()
             return DAOResponse[User](success=False, error=f"An unexpected error occurred {e}")
 
-    async def add_user_role(self, db_session: AsyncSession, user_id: str, role_alias: str) -> Optional[User]:
-        role_dao = RoleDAO()
+    async def add_user_role(self, db_session: AsyncSession, user_id: str, role_alias: str) -> Optional[dict]:
+        role_dao = RoleDAO(Role)
 
         try:
-            user : User = await self.query(db_session=db_session, filters={f"{self.primary_key}": user_id}, single=True)
-            role : Role = await role_dao.query(db_session=db_session, filters={"alias": role_alias}, single=True)
+            async with db_session as session:
+                # user_r: User = await session.execute(select(User).options(selectinload(User.roles)).filter_by(user_id=user_id))
+                # user_r: User = await session.execute(select(User).filter_by(user_id=user_id))
+                # user_r : User = await self.query(db_session=session, filters={f"{self.primary_key}": user_id}, single=True)
+                # role : Role = await role_dao.query(db_session=session, filters={"alias": role_alias}, single=True)
 
-            # attach role to user
-            user.roles.append(role)
+                # user: User = await session.execute(select(User).filter_by(user_id=user_id))
+                # role: User = await session.execute(select(Role).filter_by(alias=role_alias))
+                # user_r: User = user.scalar_one_or_none()
+                # role_r: User = role.scalar_one_or_none()
+                # print(user_r)
+                # print(role_r)
 
+                user = await session.get(User, user_id)
+                role = await session.get(Role, role_alias)
+                # role: User = await session.execute(select(Role).filter_by(alias=role_alias))
+                # user_r : User = user_r.scalars().all()[0]
+                # await user_r.roles.append(role_r)
+                # await session.commit()
+                
+            t = await self.add_role(db_session=db_session, user=user, role=role)
+            return t 
+
+        except NoResultFound:
+            pass
+    
+    async def add_role(self, db_session: AsyncSession, user: User, role: Role) -> Optional[dict]:
+        db_manager = DBManager()
+        get_db = db_manager.initialize_db_module()
+        try:
+            async with get_db.Session() as session:
+                await user.roles.append(role)
+                session.add(role)
+                await session.commit()
             return user
         except NoResultFound:
             pass
-
     async def add_employment_info(self, db_session: AsyncSession, user_id: str, employee_info: UserEmployerInfo) -> Optional[User]:
         try:
             user : User = await self.query(db_session=db_session, filters={f"{self.primary_key}": user_id}, single=True)

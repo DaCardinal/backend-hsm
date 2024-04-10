@@ -1,4 +1,5 @@
 from typing import List
+from uuid import UUID
 from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,6 +19,13 @@ class UserRouter(BaseCRUDRouter):
         @self.router.get("/by-email/{email}", response_model=self.model_schema)
         async def read_user_by_email(email: str, db: AsyncSession = Depends(self.get_db)):
             user = await self.dao.query(db_session=db, filters={"email": email})
+            if user is None:
+                raise HTTPException(status_code=404, detail="User not found")
+            return user
+        
+        @self.router.get("/add_user_role/{user_id}")
+        async def add_user_role(user_id: UUID, role: UUID, db: AsyncSession = Depends(self.get_db)):
+            user = await self.dao.add_user_role(db_session=db, user_id=user_id, role_alias=role)
             if user is None:
                 raise HTTPException(status_code=404, detail="User not found")
             return user
