@@ -1,3 +1,4 @@
+from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 from typing import Generic, TypeVar, List
@@ -43,7 +44,7 @@ class BaseCRUDRouter(Generic[DBModelType]):
 
     def add_get_route(self):
         @self.router.get("/{id}")
-        async def get(id: str, db: Session = Depends(self.get_db)):
+        async def get(id: UUID, db: Session = Depends(self.get_db)):
             item = await self.dao.query(db_session=db, filters={f"{self.model_pk[0]}": id}, single=True)
             if item is None:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
@@ -59,7 +60,7 @@ class BaseCRUDRouter(Generic[DBModelType]):
 
     def add_update_route(self):
         @self.router.put("/{id}")
-        async def update(id: str, item: self.create_schema, db: Session = Depends(self.get_db)):
+        async def update(id: UUID, item: self.create_schema, db: Session = Depends(self.get_db)):
             db_item = await self.dao.query(db_session=db, filters={f"{self.model_pk[0]}": id}, single=True)
             if not db_item:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
@@ -70,7 +71,7 @@ class BaseCRUDRouter(Generic[DBModelType]):
 
     def add_delete_route(self):
         @self.router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-        async def delete(id: str, db: Session = Depends(self.get_db)):
+        async def delete(id: UUID, db: Session = Depends(self.get_db)):
             db_item = await self.dao.query(db_session=db, filters={f"{self.model_pk[0]}": id}, single=True)
 
             if not db_item:

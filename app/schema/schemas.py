@@ -67,7 +67,7 @@ class User(UserBase, UserAuthInfo, UserEmergencyInfo, UserEmployerInfo):
     class Config:
         from_attributes = True
 
-class UserCreateSchema(UserBase, UserEmergencyInfo, UserEmployerInfo):
+class UserCreateSchema(UserBase, UserAuthInfo, UserEmergencyInfo, UserEmployerInfo):
     class Config:
         from_attributes = True
 
