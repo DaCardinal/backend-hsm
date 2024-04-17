@@ -36,7 +36,21 @@ class ReadMixin:
             raise NoResultFound
         return user
     
-    async def query(self, db_session: AsyncSession, filters: Dict[str, Any], single = False) -> list[DBModelType]:
+    async def query(self, db_session: AsyncSession, filters: Dict[str, Any], single=False, options=None) -> list[DBModelType]:
+        async with db_session as db:
+            conditions = [getattr(self.model, k) == v for k, v in filters.items()]
+            query = select(self.model).filter(and_(*conditions))
+            
+            # Apply options if provided
+            if options:
+                for option in options:
+                    query = query.options(option)
+            
+            result = await db.execute(query)
+            
+            return result.scalar_one_or_none() if single else result.scalars().all()
+        
+    async def query2(self, db_session: AsyncSession, filters: Dict[str, Any], single = False) -> list[DBModelType]:
         async with db_session as db:
             conditions = [getattr(self.model, k) == v for k, v in filters.items()]
             query = select(self.model).filter(and_(*conditions))

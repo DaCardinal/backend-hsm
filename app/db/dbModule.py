@@ -1,7 +1,7 @@
 import asyncio
 from typing import Any, TypeVar, AsyncIterator
 
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import SQLAlchemyError
@@ -28,7 +28,7 @@ class DBModule:
         self.engine: AsyncEngine = self.engine_setup_func(self.credentials)
 
         # create session
-        self.Session: AsyncSession = sessionmaker(autocommit=False, autoflush=False, bind=self.engine["write"], class_=AsyncSession)
+        self.Session: AsyncSession = async_sessionmaker(autocommit=False, autoflush=False, bind=self.engine["write"], class_=AsyncSession)
 
     @classmethod
     def get_declarative_base(self):
