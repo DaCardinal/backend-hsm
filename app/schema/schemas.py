@@ -16,7 +16,7 @@ class GenderEnum(str, Enum):
 
 class UserEmergencyInfo(BaseModel):
     emergency_contact_name: Optional[str] = Field(None, max_length=128)
-    emergency_contact_email: Optional[EmailStr] = None
+    emergency_contact_email: Optional[EmailStr] = Field(...)
     emergency_contact_relation: Optional[str] = Field(None, max_length=128)
     emergency_contact_number: Optional[str] = Field(None, max_length=128)
     emergency_address_hash: Optional[UUID] = None
@@ -25,8 +25,7 @@ class UserEmergencyInfo(BaseModel):
         from_attributes = True
 
 class UserEmployerInfo(BaseModel):
-    
-    __allow_unmapped__ = True
+
     employer_name: Optional[str]
     occupation_status: Optional[str]
     occupation_location: Optional[str]
@@ -70,7 +69,10 @@ class User(UserBase, UserAuthInfo, UserEmergencyInfo, UserEmployerInfo):
     class Config:
         from_attributes = True
 
-class UserCreateSchema(UserBase, UserAuthInfo, UserEmergencyInfo, UserEmployerInfo):
+class UserCreateSchema(UserBase):
+    user_auth_info: Optional[UserAuthInfo]
+    user_emergency_info: Optional[UserEmergencyInfo]
+    user_employer_info: Optional[UserEmployerInfo]
     class Config:
         from_attributes = True
 

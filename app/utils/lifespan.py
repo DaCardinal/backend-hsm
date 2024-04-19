@@ -26,4 +26,5 @@ async def lifespan(app: FastAPI):
     yield
 
     # TODO: Add tear down items
+    # await db_manager.db_module.drop_all_tables()
     logger.info("Shutting down")
