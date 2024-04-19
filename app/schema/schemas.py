@@ -25,11 +25,14 @@ class UserEmergencyInfo(BaseModel):
         from_attributes = True
 
 class UserEmployerInfo(BaseModel):
-    employer_name: Optional[str] = Field(None, max_length=128)
-    occupation_status: Optional[str] = Field(None, max_length=128)
-    occupation_location: Optional[str] = Field(None, max_length=128)
+    
+    __allow_unmapped__ = True
+    employer_name: Optional[str]
+    occupation_status: Optional[str]
+    occupation_location: Optional[str]
 
     class Config: 
+        __allow_unmapped__ = True
         from_attributes = True
 
 class UserAuthInfo(BaseModel):

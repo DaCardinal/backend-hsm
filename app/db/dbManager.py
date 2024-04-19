@@ -1,55 +1,47 @@
 from app.db.dbModule import DBModule
 from app.utils.settings import settings
+import threading
 
 class DBManager:
     _instance = None
-    _db_module = None
+    _lock = threading.Lock()
 
     def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super().__new__(cls)
-            cls._instance._db_module = None
+        if cls._instance is None:
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = super().__new__(cls)
+                    cls._instance._db_module = None
         return cls._instance
 
     @property
     def db_module(self):
-        return self.get_db_module()
+        if self._db_module is None:
+            self._initialize_db_module()
+        return self._db_module
 
-    @staticmethod
-    def get_credentials_from_env():
-        user = settings.DB_USER
-        password = settings.DB_PASSWORD
-        host = settings.DB_HOST
-        port = settings.DB_PORT
-        database = settings.DB_DATABASE
-        engine = settings.DB_ENGINE
-
+    def _get_credentials_from_env(self):
         return {
-            "user": user,
-            "pswd": password,
-            "host": host,
-            "port": port,
-            "db": database,
-            "engine": engine,
+            "user": settings.DB_USER,
+            "pswd": settings.DB_PASSWORD,
+            "host": settings.DB_HOST,
+            "port": settings.DB_PORT,
+            "db": settings.DB_DATABASE,
+            "engine": settings.DB_ENGINE,
         }
-    
-    def initialize_db_module(self, **credentials):
-        
-        if not credentials:
-            credentials = self.get_credentials_from_env()
 
-        if not self._db_module:
+    def _initialize_db_module(self):
+        if self._db_module is None:
+            credentials = self._get_credentials_from_env()
             try:
                 self._db_module = DBModule(**credentials)
             except Exception as e:
                 raise RuntimeError(f"Failed to initialize DBModule: {e}")
-        return self._db_module
 
     @classmethod
-    def get_db_module(self):
-        if not self._db_module:
-            try:
-                self.initialize_db_module(self, **self.get_credentials_from_env())
-            except Exception as e:
-                raise RuntimeError(f"DBModule not initialized: {e}")
-        return self._db_module
+    def get_instance(cls):
+        if cls._instance is None:
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = cls()
+        return cls._instance

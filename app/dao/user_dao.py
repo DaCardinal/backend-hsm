@@ -12,6 +12,7 @@ from app.dao.base_dao import BaseDAO
 from app.dao.address_dao import AddressDAO
 from app.dao.entity_dao import EntityDAO
 from app.dao.role_dao import RoleDAO
+from app.models.model_base import BaseModel
 from app.utils.response import DAOResponse
 from app.models import User, Addresses, Role
 from app.schema.schemas import AddressCreateSchema, UserCreateSchema, UserEmergencyInfo, UserBase, UserEmployerInfo
@@ -40,8 +41,27 @@ class UserDAO(BaseDAO[User]):
             
             # Create a new User instance
             new_user: User = await super().create(db_session=db_session, obj_in=user_base_info_data)
+            # print(employment_info_data)
+            # # Define a Pydantic schema
+            # class Item(BaseModel):
+            #     __allow_unmapped__ = True  # Allow legacy annotations
+            #     name: str
+            #     description: Optional[str] = None
+            #     price: float
+            #     tax: Optional[float] = None
 
-            # Add employment info, if present
+            # # Define a JSON data
+            # json_data = {
+            #     "name": "Example Item",
+            #     "description": "This is an example description.",
+            #     "price": 19.99,
+            #     "tax": 1.99
+            # }
+
+            # # Create an instance of the Item model and pass the JSON data
+            # item_instance = Item(**json_data)
+
+            # # Add employment info, if present
             if employment_info_data:
                 try:
                     validated_employment_info = UserEmployerInfo(**employment_info_data)
@@ -49,13 +69,13 @@ class UserDAO(BaseDAO[User]):
                 except ValidationError as e:
                     return DAOResponse[User](success=False, validation_error=e)
 
-            # Add emergency info, if present
-            if emergency_info_data:
-                try:
-                    validated_emergency_info = UserEmergencyInfo(**emergency_info_data)
-                    new_user: User = await self.add_emergency_info(db_session=db_session, user_id=new_user.user_id, emergency_info = validated_emergency_info)
-                except ValidationError as e:
-                    return DAOResponse[User](success=False, validation_error=e)
+            # # Add emergency info, if present
+            # if emergency_info_data:
+            #     try:
+            #         validated_emergency_info = UserEmergencyInfo(**emergency_info_data)
+            #         new_user: User = await self.add_emergency_info(db_session=db_session, user_id=new_user.user_id, emergency_info = validated_emergency_info)
+            #     except ValidationError as e:
+            #         return DAOResponse[User](success=False, validation_error=e)
             
             # TODO: Change DAO response to parse object corectly
             return DAOResponse[dict](success=True, data=new_user.to_dict())
@@ -116,17 +136,6 @@ class UserDAO(BaseDAO[User]):
         except Exception as e:
             return DAOResponse[User](success=False, error=str(e))
         
-    async def add_role(self, db_session: AsyncSession, user: User, role: Role) -> Optional[dict]:
-        db_manager = DBManager()
-        get_db = db_manager.initialize_db_module()
-        try:
-            async with get_db.Session() as session:
-                await user.roles.append(role)
-                session.add(role)
-                await session.commit()
-            return user
-        except NoResultFound:
-            pass
     async def add_employment_info(self, db_session: AsyncSession, user_id: str, employee_info: UserEmployerInfo) -> Optional[User]:
         try:
             user : User = await self.query(db_session=db_session, filters={f"{self.primary_key}": user_id}, single=True)
