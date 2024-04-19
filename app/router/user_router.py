@@ -4,6 +4,7 @@ from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import User
+from app.utils.lifespan import AppLogger
 from app.dao.user_dao import UserDAO
 from app.schema.user import UserSchema
 from app.schema.schemas import UserCreateSchema
@@ -20,6 +21,7 @@ class UserRouter(BaseCRUDRouter):
 
     def register_routes(self):
         @self.router.get("/add_user_role/{user_id}")
+        @AppLogger.log_decorator
         async def add_user_role(user_id: UUID, role: str, db: AsyncSession = Depends(self.get_db)):
             user = await self.dao.add_user_role(db_session=db, user_id=user_id, role_alias=role)
             

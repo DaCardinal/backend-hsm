@@ -6,11 +6,6 @@ from app.router.permission_router import PermissionRouter
 
 router = APIRouter()
 
-@router.get("/logs")
-@AppLogger.log_decorator
-async def read_root(request: Request):
-    return {"Hello": "World"}
-
 def configure_routes(app: FastAPI):
     app.include_router(router)
 

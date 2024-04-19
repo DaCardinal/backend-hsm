@@ -17,8 +17,6 @@ class RoleDAO(BaseDAO[Role]):
         permission_dao = PermissionDAO(Permissions)
 
         try:
-            print("Session ID ROLE before query:", id(db_session))
-
             async with db_session as db:
                 role: Role = await self.query(db_session=db, filters={f"alias": role_alias}, single=True, options=[selectinload(Role.permissions)])
                 
@@ -26,9 +24,12 @@ class RoleDAO(BaseDAO[Role]):
                     return DAOResponse[Role](success=False, error="Role not found")
                 
                 permission: Permissions = await permission_dao.query(db_session=db, filters={f"alias": permission_alias}, single=True)
-
+                
                 if permission is None:
                     return DAOResponse[Permissions](success=False, error="Permission not found")
+                
+                if permission in role.permissions:
+                    return DAOResponse[dict](success=False, error="Permission already exists for the role")
                 
                 db.add(role)
                 role.permissions.append(permission)

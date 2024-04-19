@@ -16,7 +16,7 @@ class RoleRouter(BaseCRUDRouter):
         self.register_routes()
 
     def register_routes(self):
-        @self.router.get("/add_permission/{role_alias}", response_model=self.model_schema)
+        @self.router.post("/add_permission/{role_alias}")
         async def add_permission(role_alias: str, permission_alias: str, db: AsyncSession = Depends(self.get_db)):
             role = await self.dao.add_role_permission(db_session=db,  role_alias=role_alias, permission_alias=permission_alias)
 

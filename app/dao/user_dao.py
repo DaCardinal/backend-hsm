@@ -86,6 +86,9 @@ class UserDAO(BaseDAO[User]):
                 if role is None:
                     return DAOResponse[Role](success=False, error="Role not found")
 
+                if role in user.roles:
+                    return DAOResponse[dict](success=False, error="Role already exists for the user", data=user.to_dict())
+                
                 print("Session ID before commit:", id(db_session))
 
                 db.add(user)
