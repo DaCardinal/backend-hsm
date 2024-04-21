@@ -4,7 +4,7 @@ from sqlalchemy import UUID, Boolean, Column, DateTime, Enum, String, func, sele
 from sqlalchemy import Column
 from sqlalchemy.orm import relationship, selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from sqlalchemy import event
 
 from app.models.address import Addresses
 from app.models.entity_address import EntityAddress
@@ -29,7 +29,7 @@ class User(Base):
     photo_url = Column(String(128))
     gender = Column(Enum(GenderEnum))
 
-    # # Authentication info
+    # Authentication info
     login_provider = Column(String(128))
     reset_token = Column(String(128))      
     verification_token = Column(String(128))    
@@ -52,8 +52,17 @@ class User(Base):
     emergency_contact_number = Column(String(128))
     emergency_address_hash = Column(UUID(as_uuid=True))
 
-    roles = relationship('Role', secondary='user_roles', back_populates='users')
-    company = relationship('Company', secondary='users_company', back_populates='users')
+    addresses = relationship(
+        'Addresses',
+        secondary='entity_address',
+        primaryjoin="and_(User.user_id==EntityAddress.entity_id, EntityAddress.entity_type=='User')",
+        secondaryjoin="EntityAddress.address_id==Addresses.address_id",
+        overlaps="address,entity_addresses",
+        back_populates="users",
+        lazy="selectin"
+    )
+    roles = relationship('Role', secondary='user_roles', back_populates='users', lazy="selectin")
+    company = relationship('Company', secondary='users_company', back_populates='users', lazy="selectin")
     documents = relationship('Documents', back_populates='users')
     sent_messages = relationship('Message', back_populates='sender')
     received_messages = relationship('MessageRecipient', back_populates='receipient')
@@ -90,7 +99,7 @@ class User(Base):
                 result = await session.execute(
                     select(Addresses).options(selectinload(Addresses.entity_addresses))
                     .join(EntityAddress, EntityAddress.address_id == Addresses.address_id)
-                    .filter(EntityAddress.entity_id == self.user_id, EntityAddress.entity_type == 'user')
+                    .filter(EntityAddress.entity_id == self.user_id, EntityAddress.entity_type == 'User')
                 )
                 account_addresses = result.scalars().all()
                 return account_addresses

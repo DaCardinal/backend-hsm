@@ -14,13 +14,12 @@ class UserRouter(BaseCRUDRouter):
 
     def __init__(self, dao: UserDAO = UserDAO(User), prefix: str = "", tags: List[str] = []):
         self.dao = dao
-        # Override default user create schema
         UserSchema["create_schema"] = UserCreateSchema
         super().__init__(dao=dao, schemas=UserSchema, prefix=prefix,tags = tags)
         self.register_routes()
 
     def register_routes(self):
-        @self.router.get("/add_user_role/{user_id}")
+        @self.router.post("/add_user_role/{user_id}")
         @AppLogger.log_decorator
         async def add_user_role(user_id: UUID, role: str, db: AsyncSession = Depends(self.get_db)):
             user = await self.dao.add_user_role(db_session=db, user_id=user_id, role_alias=role)

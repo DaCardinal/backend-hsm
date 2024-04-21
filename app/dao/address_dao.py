@@ -1,10 +1,14 @@
+import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Type, override
 
 from app.dao.base_dao import BaseDAO
-from app.dao.city_dao import CityDAO
-from app.models import Addresses
-from app.models.city import City
+from app.dao.addr_country_dao import CountryDAO
+from app.dao.addr_region_dao import RegionDAO
+from app.dao.addr_city_dao import CityDAO
+from app.models import Addresses, City
+from app.models.country import Country
+from app.models.region import Region
 from app.schema.schemas import AddressCreateSchema
 
 class AddressDAO(BaseDAO[Addresses]):
@@ -13,16 +17,23 @@ class AddressDAO(BaseDAO[Addresses]):
 
     @override
     async def create(self, db_session: AsyncSession, address_data: AddressCreateSchema):
-        city_dao = CityDAO()
-        
-        # check if city exists
-        city_info : City = city_dao.query(db_session=db_session, filters={'city_name': address_data.city_name})
+        city_dao = CityDAO(City)
+        region_dao = RegionDAO(Region)
+        country_dao = CountryDAO(Country)
 
-        if city_info:
-            address_data.city_id = city_info.city_id
-        else:
-            # create new city
-            new_city : City = city_dao.create(db_session=db_session, obj_in={"city_name": address_data.city_name})
-            address_data.city_id = new_city.city_id
+        # check if country exists
+        country_info : Country = await country_dao.query_on_create(db_session=db_session, filters={'country_name': address_data.country}, single=True, create_if_not_exist=True)
+        address_data.country = country_info
+
+        # check if region exists
+        region_info : Region = await region_dao.query_on_create(db_session=db_session, filters={'country_id':country_info.country_id, 'region_name': address_data.region}, single=True, create_if_not_exist=True)
+        address_data.region = region_info
+
+        # check if city exists
+        city_info : City = await city_dao.query_on_create(db_session=db_session, filters={'region_id':region_info.region_id, 'city_name': address_data.city}, single=True, create_if_not_exist=True)
+        address_data.city = city_info
         
-        return super().create(db_session=db_session, obj_in=address_data)
+        address_data.address_type = address_data.address_type.value
+        result = await super().create(db_session=db_session, obj_in={**address_data.model_dump()})
+
+        return result if result else None

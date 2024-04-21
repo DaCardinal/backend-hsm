@@ -4,6 +4,7 @@ from app.models.company import Company
 
 from app.models.country import Country
 from app.models.city import City
+from app.models.region import Region
 from app.models.address import Addresses
 from app.models.entity_address import EntityAddress
 

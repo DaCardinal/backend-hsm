@@ -1,8 +1,9 @@
 from sqlalchemy import Column, DateTime, func
 from sqlalchemy.ext.declarative import declared_attr
 from app.db.dbModule import Base
+from sqlalchemy.ext.asyncio import AsyncAttrs
 
-class BaseModel(Base):
+class BaseModel(AsyncAttrs, Base):
     __abstract__ = True
 
     @declared_attr

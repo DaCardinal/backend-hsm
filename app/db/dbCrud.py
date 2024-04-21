@@ -2,7 +2,7 @@ from typing import Type, TypeVar, Generic, Dict, Any
 from sqlalchemy import and_
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from sqlalchemy.orm.exc import NoResultFound
 
 DBModelType = TypeVar("DBModelType")
 
@@ -14,7 +14,6 @@ class CreateMixin:
         db_session.add(db_obj)
         await db_session.commit()
         await db_session.refresh(db_obj)
-
         return db_obj
     
 class ReadMixin:
@@ -37,10 +36,24 @@ class ReadMixin:
         
         if options:
             query = query.options(*options)
-        result = await db_session.execute(query)
+        query_result = await db_session.execute(query)
 
-        return result.scalar_one_or_none() if single else result.scalars().all()
+        return query_result.scalar_one_or_none() if single else query_result.scalars().all()
 
+    async def query_on_create(self, db_session: AsyncSession, filters: Dict[str, Any], single=False, options=None, create_if_not_exist = False):
+        
+        result = await self.query(db_session, filters, single, options)
+
+        if result:
+            return result
+        elif create_if_not_exist:
+            db_obj = self.model(**filters)
+            db_session.add(db_obj)
+            await db_session.commit()
+            await db_session.refresh(db_obj)
+
+            return db_obj
+        
 class UpdateMixin:
     model: Type[DBModelType]
 
@@ -62,6 +75,11 @@ class DeleteMixin:
         await db_session.delete(db_obj)
         await db_session.commit()
 
-class DBOperations(CreateMixin, ReadMixin, UpdateMixin, DeleteMixin):
+class UtilsMixin:
+    async def commit_and_refresh(self, db_session: AsyncSession, obj: DBModelType):
+        await db_session.commit()
+        await db_session.refresh(obj)
+
+class DBOperations(CreateMixin, ReadMixin, UpdateMixin, DeleteMixin, UtilsMixin):
     def __init__(self, model: Generic[DBModelType]):
         self.model = model

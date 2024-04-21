@@ -12,4 +12,4 @@ class Role(Base):
     description = Column(Text)
 
     users = relationship('User', secondary='user_roles', back_populates='roles')
-    permissions = relationship('Permissions', secondary='role_permissions', back_populates='roles')
+    permissions = relationship('Permissions', secondary='role_permissions', back_populates='roles', lazy="selectin")
