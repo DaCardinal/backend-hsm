@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from sqlalchemy.orm.exc import NoResultFound
 from typing import Type
 
 # local imports
@@ -18,26 +19,20 @@ class RoleDAO(BaseDAO[Role]):
 
         try:
             async with db_session as db:
-                role: Role = await self.query(db_session=db, filters={f"alias": role_alias}, single=True, options=[selectinload(Role.permissions)])
-                
-                if not role:
-                    return DAOResponse[Role](success=False, error="Role not found")
-                
+                role: Role = await self.query(db_session=db, filters={f"alias": role_alias},single=True,options=[selectinload(Role.permissions)])
                 permission: Permissions = await permission_dao.query(db_session=db, filters={f"alias": permission_alias}, single=True)
-                
-                if permission is None:
-                    return DAOResponse[Permissions](success=False, error="Permission not found")
-                
-                if permission in role.permissions:
-                    return DAOResponse[dict](success=False, error="Permission already exists for the role")
-                
-                db.add(role)
-                role.permissions.append(permission)
 
-                await db.commit()
-                await db.refresh(role)
+                if role is None or permission is None:
+                    raise NoResultFound()
+        
+                if permission in role.permissions:
+                    return DAOResponse[dict](success=False, error="Permission already exists for the role", data=role.to_dict())
+                
+                role.permissions.append(permission)
+                await self.commit_and_refresh(db, role)
 
                 return DAOResponse[dict](success=True, data=role.to_dict())
-            
+        except NoResultFound as e:
+            return DAOResponse[dict](success=False, error="Permission or Role not found")
         except Exception as e:
             return DAOResponse[Role](success=False, error=str(e))
