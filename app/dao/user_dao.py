@@ -77,6 +77,7 @@ class UserDAO(BaseDAO[User]):
             if existing_user:
                 return DAOResponse[UserResponse](success=False, error="User already exists", data=UserResponse.from_orm_model(existing_user))
 
+            # extract base information
             user_info = self._extract_data(user_data, UserBase)
 
             # create new user

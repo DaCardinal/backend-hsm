@@ -73,7 +73,7 @@ class UpdateMixin:
     model: Type[DBModelType]
 
     async def update(self, db_session: AsyncSession, db_obj: DBModelType, obj_in: Dict[str, Any]) -> DBModelType:
-        for field, value in obj_in.items():
+        for field, value in obj_in:
             if hasattr(db_obj, field):
                 setattr(db_obj, field, value)
 

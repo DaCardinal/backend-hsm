@@ -1,7 +1,7 @@
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Generic, TypeVar, List
+from typing import Any, Generic, TypeVar, List
 
 from app.dao.base_dao import BaseDAO
 from app.utils.response import DAOResponse
