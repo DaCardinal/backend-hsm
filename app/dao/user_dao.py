@@ -23,6 +23,26 @@ class UserDAO(BaseDAO[User]):
         return await self.add_new_user(db_session, obj_in)
     
     @override
+    async def update(self, db_session: AsyncSession, db_obj: User, obj_in: UserCreateSchema) -> DAOResponse[UserResponse]:
+        try:
+            # update user info
+            existing_user : User = await super().update(db_session=db_session, db_obj=db_obj, obj_in=obj_in)
+            user_id = existing_user.user_id
+
+            # add additional info if exists
+            await self._handle_user_details(db_session, user_id, obj_in.model_dump())
+            
+            # commit object to db session
+            await self.commit_and_refresh(db_session, existing_user)
+            return DAOResponse[UserResponse](success=True, data=UserResponse.from_orm_model(existing_user))
+        
+        except ValidationError as e:
+            return DAOResponse(success=False, validation_error=str(e))
+        except Exception as e:
+            await db_session.rollback()
+            return DAOResponse[UserResponse](success=False, error=f"Fatal {str(e)}")
+    
+    @override
     async def get_all(self, db_session: AsyncSession) -> DAOResponse[List[UserResponse]]:
         result = await super().get_all(db_session=db_session)
         
@@ -59,7 +79,7 @@ class UserDAO(BaseDAO[User]):
         
         for detail_key, (method, schema) in details_methods.items():
             detail_data = self._extract_data(user_data, schema, nested_key=detail_key)
-            
+
             if detail_data is not None:
                 results[detail_key] = await method(db_session, user_id, schema(**detail_data))
         return results
@@ -129,7 +149,7 @@ class UserDAO(BaseDAO[User]):
     async def add_employment_info(self, db_session: AsyncSession, user_id: str, employee_info: UserEmployerInfo) -> Optional[User]:
         try:
             user : User = await self.query(db_session=db_session, filters={f"{self.primary_key}": user_id}, single=True)
-            updated_user : User = await self.update(db_session=db_session, db_obj=user, obj_in={**employee_info.model_dump()})
+            updated_user : User = await super().update(db_session=db_session, db_obj=user, obj_in=employee_info)
 
             return updated_user
         except NoResultFound:
@@ -138,7 +158,7 @@ class UserDAO(BaseDAO[User]):
     async def add_emergency_info(self, db_session: AsyncSession, user_id: str,  emergency_info: UserEmergencyInfo) -> Optional[User]:
         try:
             user : User = await self.query(db_session=db_session, filters={f"{self.primary_key}": user_id}, single=True)
-            updated_user : User = await self.update(db_session=db_session, db_obj=user, obj_in={**emergency_info.model_dump()})
+            updated_user : User = await super().update(db_session=db_session, db_obj=user, obj_in=emergency_info)
 
             return updated_user
         except NoResultFound:
@@ -147,7 +167,7 @@ class UserDAO(BaseDAO[User]):
     async def add_auth_info(self, db_session: AsyncSession, user_id: str,  auth_info: UserAuthInfo) -> Optional[User]:
         try:
             user : User = await self.query(db_session=db_session, filters={f"{self.primary_key}": user_id}, single=True)
-            updated_user : User = await self.update(db_session=db_session, db_obj=user, obj_in={**auth_info.model_dump()})
+            updated_user : User = await super().update(db_session=db_session, db_obj=user, obj_in=auth_info)
 
             return updated_user
         except NoResultFound:
