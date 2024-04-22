@@ -1,9 +1,10 @@
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Generic, TypeVar, List
 
 from app.dao.base_dao import BaseDAO
+from app.utils.response import DAOResponse
 from app.utils.lifespan import get_db
 from app.schema.base_schema import SchemasDictType
 
@@ -35,8 +36,8 @@ class BaseCRUDRouter(Generic[DBModelType]):
         return request.state.db
 
     def add_get_all_route(self):
-        @self.router.get("/")
-        async def get_all(db: Session = Depends(self.get_db)):
+        @self.router.get("/", response_model=DAOResponse)
+        async def get_all(db: AsyncSession = Depends(self.get_db)):
             item = await self.dao.get_all(db_session=db)
             if item is None:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No items found")
@@ -44,7 +45,7 @@ class BaseCRUDRouter(Generic[DBModelType]):
 
     def add_get_route(self):
         @self.router.get("/{id}")
-        async def get(id: UUID, db: Session = Depends(self.get_db)):
+        async def get(id: UUID, db: AsyncSession = Depends(self.get_db)):
             # item = await self.dao.query(db_session=db, filters={f"{self.model_pk[0]}": id}, single=True)
             item = await self.dao.get(db_session=db, id=id)
             if item is None:
@@ -53,7 +54,7 @@ class BaseCRUDRouter(Generic[DBModelType]):
 
     def add_create_route(self):
         @self.router.post("/", status_code=status.HTTP_201_CREATED)
-        async def create(item: self.create_schema, db: Session = Depends(self.get_db)):
+        async def create(item: self.create_schema, db: AsyncSession = Depends(self.get_db)):
             try:
                 return await self.dao.create(db_session=db, obj_in=item.dict())
             except Exception as e:
@@ -61,7 +62,7 @@ class BaseCRUDRouter(Generic[DBModelType]):
 
     def add_update_route(self):
         @self.router.put("/{id}")
-        async def update(id: UUID, item: self.create_schema, db: Session = Depends(self.get_db)):
+        async def update(id: UUID, item: self.create_schema, db: AsyncSession = Depends(self.get_db)):
             db_item = await self.dao.query(db_session=db, filters={f"{self.model_pk[0]}": id}, single=True)
             if not db_item:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
@@ -72,7 +73,7 @@ class BaseCRUDRouter(Generic[DBModelType]):
 
     def add_delete_route(self):
         @self.router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-        async def delete(id: UUID, db: Session = Depends(self.get_db)):
+        async def delete(id: UUID, db: AsyncSession = Depends(self.get_db)):
             db_item = await self.dao.query(db_session=db, filters={f"{self.model_pk[0]}": id}, single=True)
 
             if not db_item:

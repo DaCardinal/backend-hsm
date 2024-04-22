@@ -4,6 +4,7 @@ from sqlalchemy import and_
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import inspect
+from sqlalchemy.orm import selectinload
 
 DBModelType = TypeVar("DBModelType")
 
@@ -30,6 +31,15 @@ class ReadMixin:
         return q.scalar_one_or_none()
 
     async def get_all(self, db_session: AsyncSession, skip=0, limit=100) -> list[DBModelType]:
+
+        # # Dynamically access the relationship attribute using getattr
+        # relationship_attr = getattr(self.model, relationships)
+        # query = (
+        #     select(self.model)
+        #     .options(selectinload(relationship_attr))
+        #     .offset(skip)
+        #     .limit(limit)
+        # )
         query = select(self.model).offset(skip).limit(limit)
         result = await db_session.execute(query)
 

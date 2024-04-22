@@ -13,13 +13,14 @@ def generate_schemas_for_sqlalchemy_model(model: Type[DeclarativeMeta], excludes
     columns = {c.name: (c.type.python_type, ...) for c in inspect(model).c}
     primary_keys = [key.name for key in inspect(model).primary_key]
 
+    default_excludes : List[str] = ['created_at', 'updated_at']
+    
     model_schema = create_model(
         f"{model.__name__}ModelSchema",
-        **{name: (typ, None) for name, (typ, _) in columns.items()},
+        **{name: (typ, None) for name, (typ, _) in columns.items()if name not in default_excludes},
         __base__=BaseModel
     )
 
-    default_excludes : List[str] = ['created_at', 'updated_at']
     default_excludes.extend(excludes)
     
     create_schema_fields = {name: (typ, ...) for name, (typ, _) in columns.items() if name not in default_excludes}
