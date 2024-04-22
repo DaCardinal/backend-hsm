@@ -45,7 +45,8 @@ class BaseCRUDRouter(Generic[DBModelType]):
     def add_get_route(self):
         @self.router.get("/{id}")
         async def get(id: UUID, db: Session = Depends(self.get_db)):
-            item = await self.dao.query(db_session=db, filters={f"{self.model_pk[0]}": id}, single=True)
+            # item = await self.dao.query(db_session=db, filters={f"{self.model_pk[0]}": id}, single=True)
+            item = await self.dao.get(db_session=db, id=id)
             if item is None:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
             return item

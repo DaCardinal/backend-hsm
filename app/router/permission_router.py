@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Permissions
 from app.dao.permission_dao import PermissionDAO
-from app.schema.user import PermissionSchema
+from app.schema import PermissionSchema
 from app.router.base_router import BaseCRUDRouter
 
 class PermissionRouter(BaseCRUDRouter):

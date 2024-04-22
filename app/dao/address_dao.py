@@ -9,7 +9,7 @@ from app.dao.addr_city_dao import CityDAO
 from app.models import Addresses, City
 from app.models.country import Country
 from app.models.region import Region
-from app.schema.schemas import AddressCreateSchema
+from app.schema import AddressCreateSchema
 
 class AddressDAO(BaseDAO[Addresses]):
     def __init__(self, model: Type[Addresses]):

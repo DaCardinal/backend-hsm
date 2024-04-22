@@ -1,8 +1,9 @@
-from typing import Type, TypeVar, Generic, Dict, Any
+from typing import Type, TypeVar, Generic, Dict, Any, Union
+from uuid import UUID
 from sqlalchemy import and_
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy import inspect
 
 DBModelType = TypeVar("DBModelType")
 
@@ -19,8 +20,12 @@ class CreateMixin:
 class ReadMixin:
     model: Type[DBModelType]
 
-    async def get(self, db_session: AsyncSession, id: int) -> DBModelType:
-        q = await db_session.execute(select(self.model).filter(self.model.id == id))
+    async def get(self, db_session: AsyncSession, id: Union[UUID | Any | int]) -> DBModelType:
+        # find primary key
+        primary_keys = [(key.name, key) for key in inspect(self.model).primary_key]
+        primary_key = primary_keys[0]
+
+        q = await db_session.execute(select(self.model).filter(primary_key[1] == id))
 
         return q.scalar_one_or_none()
 

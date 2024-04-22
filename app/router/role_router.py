@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.utils.lifespan import AppLogger
 from app.models import Role
 from app.dao.role_dao import RoleDAO
-from app.schema.user import RoleSchema
+from app.schema import RoleSchema
 from app.router.base_router import BaseCRUDRouter
 
 class RoleRouter(BaseCRUDRouter):

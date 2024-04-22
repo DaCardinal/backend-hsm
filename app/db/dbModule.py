@@ -1,12 +1,10 @@
-import asyncio
 from typing import Any, TypeVar, AsyncIterator
 
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, AsyncSession, async_sessionmaker
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import create_engine, text
-from threading import Thread
 from urllib.parse import quote
 
 import app.db.dbExceptions as DBExceptions
