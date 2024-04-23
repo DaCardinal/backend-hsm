@@ -37,20 +37,20 @@ class AddressTypeEnum(str, Enum):
 class AddressBase(BaseModel):
     address_type: AddressTypeEnum
     primary: Optional[bool] = True
-    address_1: str
+    address_1: Optional[str]
     address_2: Optional[str] = None
     city: str|UUID|Any
     region: str|UUID|Any
     country: str|UUID|Any
-    address_postalcode: str
-
+    address_postalcode: Optional[str]
+    
 class AddressCreateSchema(AddressBase):
 
     class Config:
         from_attributes = True
 
 class Address(AddressBase):
-    address_id: Optional[str]
+    address_id: Optional[UUID]
 
     class Config:
         from_attributes = True

@@ -33,7 +33,7 @@ class UserEmployerInfo(BaseModel):
         from_attributes = True
 
 class UserAuthInfo(BaseModel):
-    login_provider: str = Field(..., max_length=128)
+    login_provider: Optional[str] = Field(..., max_length=128)
     reset_token: Optional[str] = Field(None, max_length=128)
     verification_token: Optional[str] = Field(None, max_length=128)
     is_subscribed_token: Optional[str] = Field(None, max_length=128)
@@ -69,6 +69,15 @@ class UserCreateSchema(UserBase):
     class Config:
         from_attributes = True
 
+class UserUpdateSchema(UserBase):
+    address: Optional[Address] = None
+    user_auth_info: Optional[UserAuthInfo] = None
+    user_emergency_info: Optional[UserEmergencyInfo] = None
+    user_employer_info: Optional[UserEmployerInfo] = None
+    
+    class Config:
+        from_attributes = True
+
 class User(UserBase, UserAuthInfo, UserEmergencyInfo, UserEmployerInfo):
     user_id: UUID = Field(...)
     addresses: Optional[AddressBase]
@@ -87,7 +96,7 @@ class UserResponse(BaseModel):
     photo_url: str = Field(..., max_length=128)
     gender: GenderEnum = Field(...)
     roles: Optional[List[Role]]
-    address: Optional[List[AddressBase]] = None
+    address: Optional[List[Address] | Address] = None
     user_auth_info: Optional[UserAuthInfo] = None
     user_emergency_info: Optional[UserEmergencyInfo] = None
     user_employer_info: Optional[UserEmployerInfo] = None
@@ -102,7 +111,7 @@ class UserResponse(BaseModel):
             addr_country : Country = addr.country
 
             result.append(Address(
-                address_id = addr.address_2,
+                address_id = addr.address_id,
                 address_type = addr.address_type,
                 primary = addr.primary,
                 address_1 = addr.address_1,

@@ -36,7 +36,7 @@ class BaseCRUDRouter(Generic[DBModelType]):
         return request.state.db
 
     def add_get_all_route(self):
-        @self.router.get("/", response_model=DAOResponse)
+        @self.router.get("/")
         async def get_all(db: AsyncSession = Depends(self.get_db)):
             item = await self.dao.get_all(db_session=db)
             if item is None:
@@ -62,7 +62,7 @@ class BaseCRUDRouter(Generic[DBModelType]):
 
     def add_update_route(self):
         @self.router.put("/{id}")
-        async def update(id: UUID, item: self.create_schema, db: AsyncSession = Depends(self.get_db)):
+        async def update(id: UUID, item: self.update_schema, db: AsyncSession = Depends(self.get_db)):
             db_item = await self.dao.query(db_session=db, filters={f"{self.model_pk[0]}": id}, single=True)
             if not db_item:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")

@@ -37,3 +37,7 @@ class AddressDAO(BaseDAO[Addresses]):
         result = await super().create(db_session=db_session, obj_in={**address_data.model_dump()})
 
         return result if result else None
+    
+    @override
+    async def update(self, db_session: AsyncSession, address_data: AddressCreateSchema):
+        pass

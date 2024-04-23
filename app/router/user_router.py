@@ -6,8 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import User
 from app.utils.lifespan import AppLogger
 from app.dao.user_dao import UserDAO
-from app.schema import UserSchema
-from app.schema import UserCreateSchema
+from app.schema import UserSchema, UserCreateSchema, UserUpdateSchema
 from app.router.base_router import BaseCRUDRouter
 
 class UserRouter(BaseCRUDRouter):
@@ -15,6 +14,7 @@ class UserRouter(BaseCRUDRouter):
     def __init__(self, dao: UserDAO = UserDAO(User), prefix: str = "", tags: List[str] = []):
         self.dao = dao
         UserSchema["create_schema"] = UserCreateSchema
+        UserSchema["update_schema"] = UserUpdateSchema
         super().__init__(dao=dao, schemas=UserSchema, prefix=prefix,tags = tags)
         self.register_routes()
 
