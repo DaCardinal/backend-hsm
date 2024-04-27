@@ -26,7 +26,7 @@ class DBModule:
         self.engine: AsyncEngine = self.engine_setup_func(self.credentials)
 
         # create session
-        self.Session: AsyncSession = async_sessionmaker(autocommit=False, autoflush=False, bind=self.engine["write"], class_=AsyncSession)
+        self.Session: AsyncSession = async_sessionmaker(autocommit=False, expire_on_commit=False, autoflush=True, bind=self.engine["write"], class_=AsyncSession)
 
     @classmethod
     def get_declarative_base(self):

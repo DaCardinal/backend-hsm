@@ -72,7 +72,7 @@ class UserDAO(BaseDAO[User]):
             return DAOResponse(success=False, validation_error=str(e))
         except Exception as e:
             await db_session.rollback()
-            return DAOResponse[UserResponse](success=False, error=f"Fatal {str(e)}")
+            return DAOResponse[UserResponse](success=False, error=f"Fatal Update {str(e)}")
     
     @override
     async def get_all(self, db_session: AsyncSession) -> DAOResponse[List[UserResponse]]:
@@ -180,17 +180,15 @@ class UserDAO(BaseDAO[User]):
         try:
             # Check if the address already exists
             address_key = "address_id"
-            existing_address = await address_dao.query(db_session=db_session, filters={address_key: address_obj.address_id}, single=True) if address_key in address_obj.model_fields else None
+            existing_address = await address_dao.query(db_session=db_session, filters={address_key: address_obj.address_id}, single=True, options=[selectinload(Addresses.users)]) if address_key in address_obj.model_fields else None
             
             if existing_address:
                 # Update the existing address
                 obj_data = self._extract_data(address_obj.model_dump(), Address)
                 addr_data = Address(**obj_data)
                 
-                # address : Addresses = await address_dao.update(db_session=db_session, db_obj=existing_address, obj_in=addr_data.model_dump())
+                address : Addresses = await address_dao.update(db_session=db_session, db_obj=existing_address, obj_in=addr_data.model_dump())
 
-                # TODO: Add update to address_dao
-                address = existing_address
             else:
                 # Create a new Address instance from the validated address_data
                 address : Addresses = await address_dao.create(db_session=db_session, address_data=address_obj)
