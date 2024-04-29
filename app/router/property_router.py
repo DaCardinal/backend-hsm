@@ -1,0 +1,22 @@
+from typing import List
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models import Property
+from app.dao.property_dao import PropertyDAO
+from app.schema import PropertySchema, Property
+from app.router.base_router import BaseCRUDRouter
+
+class PropertyRouter(BaseCRUDRouter):
+
+    def __init__(self, dao: PropertyDAO = PropertyDAO(Property), prefix: str = "", tags: List[str] = []):
+        PropertySchema["create_schema"] = Property
+        super().__init__(dao=dao, schemas=PropertySchema, prefix=prefix,tags = tags)
+        self.dao = dao
+        self.register_routes()
+
+    def register_routes(self):
+        @self.router.get("/property_units", response_model=self.model_schema)
+        async def property_units(db: AsyncSession = Depends(self.get_db)):
+            print("This is a test")
+            pass

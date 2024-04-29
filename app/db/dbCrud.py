@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import inspect
 from sqlalchemy.orm import selectinload
 
+from app.utils.response import DAOResponse
+
 DBModelType = TypeVar("DBModelType")
 
 class CreateMixin:
@@ -92,9 +94,14 @@ class DeleteMixin:
 
 class UtilsMixin:
     async def commit_and_refresh(self, db_session: AsyncSession, obj: DBModelType):
-        await db_session.commit()
-        await db_session.refresh(obj)
-
+        try:
+            await db_session.commit()
+            await db_session.refresh(obj)
+            return obj
+        except Exception as e:
+            db_session.rollback()
+            return DAOResponse(success=False, error=f"Error committing data: {str(e)}")
+        
 class DBOperations(CreateMixin, ReadMixin, UpdateMixin, DeleteMixin, UtilsMixin):
     def __init__(self, model: Generic[DBModelType]):
         self.model = model
