@@ -1,10 +1,13 @@
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Response, Request
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 import time
 
 from app.utils.lifespan import logger
 from app.utils.lifespan import get_db
+from app.utils.response import DAOResponse
 
 class SessionMiddleware(BaseHTTPMiddleware):
     async def db_session_middleware(request: Request, call_next):
@@ -53,3 +56,12 @@ def configure_middleware(app: FastAPI):
         allow_headers=["*"],
         expose_headers=["Content-Disposition"],
     )
+
+    # custom handler to wrap around http response codes
+    @app.exception_handler(StarletteHTTPException)
+    async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content=DAOResponse[dict](success=False, error=exc.detail).model_dump()
+            # content={"success": False, "error": {"code": exc.status_code, "message": exc.detail}},
+        )

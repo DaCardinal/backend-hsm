@@ -141,7 +141,7 @@ class UserDAO(BaseDAO[User]):
 
                 return DAOResponse[dict](success=True, data=user.to_dict())
         except NoResultFound as e:
-            return DAOResponse[dict](success=False, error="User or Role not found")
+            return None
         except Exception as e:
             return DAOResponse[User](success=False, error=str(e))
         
