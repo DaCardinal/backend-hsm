@@ -10,17 +10,26 @@ from app.utils.response import DAOResponse
 
 DBModelType = TypeVar("DBModelType")
 
-class CreateMixin:
+class UtilsMixin:
+    async def commit_and_refresh(self, db_session: AsyncSession, obj: DBModelType):
+        try:
+            await db_session.commit()
+            await db_session.refresh(obj)
+            return obj
+        except Exception as e:
+            db_session.rollback()
+            return DAOResponse(success=False, error=f"Error committing data: {str(e)}")
+        
+class CreateMixin(UtilsMixin):
     model: Type[DBModelType]
     
     async def create(self, db_session: AsyncSession, obj_in) -> DBModelType:
         db_obj = self.model(**obj_in)
         db_session.add(db_obj)
-        await db_session.commit()
-        await db_session.refresh(db_obj)
-        return db_obj
+
+        return await self.commit_and_refresh(db_session=db_session, obj=db_obj)
     
-class ReadMixin:
+class ReadMixin(UtilsMixin):
     model: Type[DBModelType]
 
     async def get(self, db_session: AsyncSession, id: Union[UUID | Any | int]) -> DBModelType:
@@ -66,12 +75,10 @@ class ReadMixin:
         elif create_if_not_exist:
             db_obj = self.model(**filters)
             db_session.add(db_obj)
-            await db_session.commit()
-            await db_session.refresh(db_obj)
 
-            return db_obj
+            return await self.commit_and_refresh(db_session=db_session, obj=db_obj)
         
-class UpdateMixin:
+class UpdateMixin(UtilsMixin):
     model: Type[DBModelType]
 
     async def update(self, db_session: AsyncSession, db_obj: DBModelType, obj_in: Dict[str, Any]) -> DBModelType:
@@ -80,28 +87,16 @@ class UpdateMixin:
                 setattr(db_obj, field, value)
 
         db_session.add(db_obj)
-        await db_session.commit()
-        await db_session.refresh(db_obj)
+        
+        return await self.commit_and_refresh(db_session=db_session, obj=db_obj)
 
-        return db_obj
-
-class DeleteMixin:
+class DeleteMixin(UtilsMixin):
     model: Type[DBModelType]
     
     async def delete(self, db_session: AsyncSession, db_obj: DBModelType) -> DBModelType:
         await db_session.delete(db_obj)
         await db_session.commit()
-
-class UtilsMixin:
-    async def commit_and_refresh(self, db_session: AsyncSession, obj: DBModelType):
-        try:
-            await db_session.commit()
-            await db_session.refresh(obj)
-            return obj
-        except Exception as e:
-            db_session.rollback()
-            return DAOResponse(success=False, error=f"Error committing data: {str(e)}")
         
-class DBOperations(CreateMixin, ReadMixin, UpdateMixin, DeleteMixin, UtilsMixin):
+class DBOperations(CreateMixin, ReadMixin, UpdateMixin, DeleteMixin):
     def __init__(self, model: Generic[DBModelType]):
         self.model = model

@@ -1,3 +1,4 @@
+from functools import partial
 from uuid import UUID
 from pydantic import ValidationError, BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,6 +18,7 @@ class UserDAO(BaseDAO[User]):
     def __init__(self, model: Type[User]):
         super().__init__(model)
         self.primary_key = "user_id"
+        self.address_dao = AddressDAO(Addresses)
 
     @override
     async def create(self, db_session: AsyncSession, obj_in: Union[UserCreateSchema | Dict]) -> DAOResponse[UserResponse]:
@@ -29,7 +31,7 @@ class UserDAO(BaseDAO[User]):
                 return DAOResponse[UserResponse](success=False, error="User already exists", data=UserResponse.from_orm_model(existing_user))
 
             # extract base information
-            user_info = self._extract_data(user_data, UserBase)
+            user_info = self.extract_model_data(user_data, UserBase)
 
             # create new user
             new_user: User = await super().create(db_session=db_session, obj_in=user_info)
@@ -100,28 +102,25 @@ class UserDAO(BaseDAO[User]):
         return existing_user
 
     async def _handle_user_details(self, db_session: AsyncSession, user_id: UUID, user_data: UserSchema):
+                
+        # Determine the correct schema for the address
+        address_schema = Address if 'address' in user_data and user_data['address'] and 'address_id' in user_data['address'] else AddressBase
+
         details_methods = {
             'user_emergency_info': (self.add_emergency_info, UserEmergencyInfo),
             'user_employer_info': (self.add_employment_info, UserEmployerInfo),
             'user_auth_info': (self.add_auth_info, UserAuthInfo),
-            'address': (self.add_user_address, Address if 'address' in user_data and 'address_id' in user_data['address'] else AddressBase)
-        }
-
+            'address': (partial(self.address_dao.add_entity_address, entity_model=self.model.__name__), address_schema)
+        }       
         results = {}
-        
-        for detail_key, (method, schema) in details_methods.items():
-            detail_data = self._extract_data(user_data, schema, nested_key=detail_key)
 
+        for detail_key, (method, schema) in details_methods.items():
+            detail_data = self.extract_model_data(user_data, schema, nested_key=detail_key)
+            
             if detail_data is not None:
                 results[detail_key] = await method(db_session, user_id, schema(**detail_data))
-                
+        
         return results
-    
-    def _extract_data(self, data: dict, schema: Type[BaseModel], nested_key: Optional[str] = None) -> dict:
-        if nested_key:
-            data = data.get(nested_key, {})
-
-        return {key: data[key] for key in data if key in schema.model_fields} if data else None
     
     async def add_user_role(self, db_session: AsyncSession, user_id: str, role_alias: str) -> DAOResponse:
         role_dao = RoleDAO(Role)
@@ -172,37 +171,3 @@ class UserDAO(BaseDAO[User]):
             return updated_user
         except NoResultFound:
             pass
-
-    async def add_user_address(self, db_session: AsyncSession, entity_id: UUID, address_obj: Union[Address, AddressBase]) -> Optional[Addresses| dict]:
-        address_dao = AddressDAO(Addresses)
-        entity_address_dao = EntityDAO(EntityAddress)
-
-        try:
-            # Check if the address already exists
-            address_key = "address_id"
-            existing_address = await address_dao.query(db_session=db_session, filters={address_key: address_obj.address_id}, single=True, options=[selectinload(Addresses.users)]) if address_key in address_obj.model_fields else None
-            
-            if existing_address:
-                # Update the existing address
-                obj_data = self._extract_data(address_obj.model_dump(), Address)
-                addr_data = Address(**obj_data)
-                
-                address : Addresses = await address_dao.update(db_session=db_session, db_obj=existing_address, obj_in=addr_data.model_dump())
-
-            else:
-                # Create a new Address instance from the validated address_data
-                address : Addresses = await address_dao.create(db_session=db_session, address_data=address_obj)
-            
-                # Link user model to new addresses
-                await entity_address_dao.create(db_session = db_session, obj_in = {
-                    "entity_type": self.model.__name__,
-                    "entity_id": entity_id,
-                    "address_id": address.address_id,
-                    "emergency_address": False,
-                    "emergency_address_hash": ""
-                })
-
-            return address
-        
-        except Exception as e:
-            return DAOResponse[dict](success=False, error=f"An unexpected error occurred {e}")
