@@ -28,7 +28,7 @@ class Property(Base):
     commission = Column(Numeric(10, 2))
     floor_space = Column(Numeric(8, 2))
     num_balconies = Column(Integer)
-    num_unit_rooms = Column(Integer)
+    num_units = Column(Integer)
     num_bathrooms = Column(Integer)
     num_garages = Column(Integer)
     num_parking_space = Column(Integer)

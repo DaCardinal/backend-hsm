@@ -50,7 +50,7 @@ class User(Base):
     emergency_contact_email = Column(String(128))
     emergency_contact_relation = Column(String(128))
     emergency_contact_number = Column(String(128))
-    emergency_address_hash = Column(UUID(as_uuid=True))
+    emergency_address_hash = Column(UUID(as_uuid=True)) # TODO: Change to hash function
 
     addresses = relationship(
         'Addresses',
