@@ -13,4 +13,4 @@ class EntityAddress(Base):
     emergency_address = Column(Boolean, default=False, nullable=True)
     emergency_address_hash = Column(String(128), default="", nullable=True)
 
-    address = relationship('Addresses', back_populates='entity_addresses', overlaps="users")
+    address = relationship('Addresses', back_populates='entity_addresses', overlaps="users,properties")

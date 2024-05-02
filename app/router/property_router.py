@@ -4,13 +4,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Property
 from app.dao.property_dao import PropertyDAO
-from app.schema import PropertySchema, Property
+from app.schema import PropertySchema, PropertyCreateSchema
 from app.router.base_router import BaseCRUDRouter
 
 class PropertyRouter(BaseCRUDRouter):
 
     def __init__(self, dao: PropertyDAO = PropertyDAO(Property), prefix: str = "", tags: List[str] = []):
-        PropertySchema["create_schema"] = Property
+        PropertySchema["create_schema"] = PropertyCreateSchema
         super().__init__(dao=dao, schemas=PropertySchema, prefix=prefix,tags = tags)
         self.dao = dao
         self.register_routes()

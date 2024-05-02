@@ -57,7 +57,7 @@ class User(Base):
         secondary='entity_address',
         primaryjoin="and_(User.user_id==EntityAddress.entity_id, EntityAddress.entity_type=='User')",
         secondaryjoin="EntityAddress.address_id==Addresses.address_id",
-        overlaps="address,entity_addresses",
+        overlaps="address,entity_addresses,addresses,properties",
         back_populates="users",
         lazy="selectin"
     )

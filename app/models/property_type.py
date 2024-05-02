@@ -10,4 +10,4 @@ class PropertyType(Base):
     name = Column(String(128))
     description = Column(Text)
 
-    properties = relationship('Property', back_populates='property_type')
+    # properties = relationship('Property', back_populates='property_type')

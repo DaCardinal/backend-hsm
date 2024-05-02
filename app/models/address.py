@@ -29,7 +29,16 @@ class Addresses(Base):
         back_populates="addresses",
         lazy="selectin"
     )
+    properties = relationship(
+        'Property',
+        secondary='entity_address',
+        primaryjoin="EntityAddress.address_id==Addresses.address_id",
+        secondaryjoin="and_(EntityAddress.entity_id==Property.property_id, EntityAddress.entity_type=='Property')",
+        back_populates="addresses",
+        overlaps="users",
+        lazy="selectin"
+    )
     city = relationship('City', back_populates='addresses', lazy='joined')
     region = relationship('Region', back_populates='addresses', lazy='joined')
     country = relationship('Country', back_populates='addresses', lazy='joined')
-    entity_addresses = relationship('EntityAddress', overlaps="users", back_populates='address')
+    entity_addresses = relationship('EntityAddress', overlaps="users,properties", back_populates='address')
