@@ -1,6 +1,7 @@
 from typing import Type
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Type, override
+from typing import Type
+from typing_extensions import override
 
 from app.dao.base_dao import BaseDAO
 from app.dao.property_unit_assoc_dao import PropertyUnitAssocDAO

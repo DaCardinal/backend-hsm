@@ -1,7 +1,8 @@
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from typing import Any, Dict, Type, Optional, Union, override
+from typing import Any, Dict, Type, Optional, Union
+from typing_extensions import override
 
 from app.dao.base_dao import BaseDAO
 from app.dao.entity_dao import EntityDAO

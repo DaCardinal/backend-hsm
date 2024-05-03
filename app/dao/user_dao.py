@@ -4,7 +4,8 @@ from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import selectinload
-from typing import Any, Dict, List, Type, Optional, Union, override
+from typing import Any, Dict, List, Type, Optional, Union
+from typing_extensions import override
 
 from app.dao.base_dao import BaseDAO
 from app.dao.address_dao import AddressDAO
