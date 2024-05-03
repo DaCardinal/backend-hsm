@@ -44,8 +44,10 @@ class UserDAO(BaseDAO[User]):
                 'user_employer_info': (self.add_employment_info, UserEmployerInfo),
                 'user_auth_info': (self.add_auth_info, UserAuthInfo),
                 'address': (partial(self.address_dao.add_entity_address, entity_model=self.model.__name__), address_schema)
-            } 
-            await self.process_entity_details(db_session, user_id, user_data, details_methods)
+            }
+
+            if any(details_methods.keys() in user_data):
+                await self.process_entity_details(db_session, user_id, user_data, details_methods)
 
             user_load_addr: User = await self.query(
                 db_session=db_session,
@@ -83,8 +85,10 @@ class UserDAO(BaseDAO[User]):
                 'user_auth_info': (self.add_auth_info, UserAuthInfo),
                 'address': (partial(self.address_dao.add_entity_address, entity_model=self.model.__name__), address_schema)
             }
-            # # add additional info if exists
-            await self.process_entity_details(db_session, user_id, entity_data, details_methods)
+
+            # add additional info if exists
+            if any(details_methods.keys() in entity_data):
+                await self.process_entity_details(db_session, user_id, entity_data, details_methods)
             
             # commit object to db session
             await self.commit_and_refresh(db_session, existing_user)
