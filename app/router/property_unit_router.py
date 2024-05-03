@@ -17,7 +17,4 @@ class PropertyUnitRouter(BaseCRUDRouter):
         self.register_routes()
 
     def register_routes(self):
-        @self.router.get("/units", response_model=self.model_schema)
-        async def property_units(db: AsyncSession = Depends(self.get_db)):
-            print("This is a test")
-            pass
+        pass
