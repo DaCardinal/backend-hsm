@@ -15,6 +15,6 @@ class PermissionRouter(BaseCRUDRouter):
         self.register_routes()
 
     def register_routes(self):
-        @self.router.get("/remove_role/{role_alias}", response_model=self.model_schema)
+        @self.router.get("/remove_role", response_model=self.model_schema)
         async def remove_role(role_alias: str, permission_alias: str, db: AsyncSession = Depends(self.get_db)):
             pass

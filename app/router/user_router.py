@@ -19,7 +19,7 @@ class UserRouter(BaseCRUDRouter):
         self.register_routes()
 
     def register_routes(self):
-        @self.router.post("/add_user_role/{user_id}")
+        @self.router.post("/add_user_role")
         @AppLogger.log_decorator
         async def add_user_role(user_id: UUID, role: str, db: AsyncSession = Depends(self.get_db)):
             user = await self.dao.add_user_role(db_session=db, user_id=user_id, role_alias=role)
