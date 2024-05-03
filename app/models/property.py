@@ -50,4 +50,4 @@ class Property(Base):
     units = relationship("Units",
                          secondary="property_unit_assoc",
                          primaryjoin="and_(PropertyUnitAssoc.property_id==Property.property_id)",
-                         back_populates="properties")
+                         back_populates="properties", lazy="selectin")

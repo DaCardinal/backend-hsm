@@ -4,6 +4,7 @@ from app.router.user_router import UserRouter
 from app.router.role_router import RoleRouter
 from app.router.permission_router import PermissionRouter
 from app.router.property_router import PropertyRouter
+from app.router.property_unit_router import PropertyUnitRouter
 
 router = APIRouter()
 
@@ -21,3 +22,6 @@ def configure_routes(app: FastAPI):
     
     # Create an instance of PropertyDAO
     app.include_router(PropertyRouter(prefix="/property", tags=["Property"]).router)
+
+    # Create an instance of PropertyDAO
+    app.include_router(PropertyUnitRouter(prefix="/units", tags=["Units"]).router)

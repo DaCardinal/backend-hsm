@@ -1,4 +1,4 @@
-from app.models import User, Role, Permissions,EntityAddress, Addresses,Property
+from app.models import User, Role, Permissions,EntityAddress, Addresses,Property, Units
 from app.schema.base_schema import generate_schemas_for_sqlalchemy_model
 
 
@@ -8,3 +8,4 @@ PermissionSchema = generate_schemas_for_sqlalchemy_model(Permissions, excludes=[
 EntityAddressSchema =  generate_schemas_for_sqlalchemy_model(EntityAddress, excludes=["entity_assoc_id"])
 AddressSchema = generate_schemas_for_sqlalchemy_model(Addresses, excludes=['address_id'])
 PropertySchema = generate_schemas_for_sqlalchemy_model(Property, excludes=['property_id'])
+PropertyUnitSchema = generate_schemas_for_sqlalchemy_model(Units, excludes=['property_unit_id'])

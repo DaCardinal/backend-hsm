@@ -66,17 +66,29 @@ class UserDAO(BaseDAO[User]):
     @override
     async def update(self, db_session: AsyncSession, db_obj: User, obj_in: UserUpdateSchema) -> DAOResponse[UserResponse]:
         try:
+            # get the entity dump info
+            entity_data = obj_in.model_dump()
+
             # update user info
             existing_user : User = await super().update(db_session=db_session, db_obj=db_obj, obj_in=obj_in)
             user_id = existing_user.user_id
 
-            # add additional info if exists
-            await self.process_entity_details(db_session, user_id, obj_in.model_dump())
+            # add additional info if exists | Determine the correct schema for the address
+            address_schema = Address if 'address' in obj_in.model_fields and entity_data['address'] and 'address_id' in entity_data['address'] else AddressBase
+
+            details_methods = {
+                'user_emergency_info': (self.add_emergency_info, UserEmergencyInfo),
+                'user_employer_info': (self.add_employment_info, UserEmployerInfo),
+                'user_auth_info': (self.add_auth_info, UserAuthInfo),
+                'address': (partial(self.address_dao.add_entity_address, entity_model=self.model.__name__), address_schema)
+            }
+            # # add additional info if exists
+            await self.process_entity_details(db_session, user_id, entity_data, details_methods)
             
             # commit object to db session
             await self.commit_and_refresh(db_session, existing_user)
             return DAOResponse[UserResponse](success=True, data=UserResponse.from_orm_model(existing_user))
-        
+
         except ValidationError as e:
             return DAOResponse(success=False, validation_error=str(e))
         except Exception as e:

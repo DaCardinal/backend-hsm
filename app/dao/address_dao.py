@@ -15,6 +15,7 @@ from app.utils.response import DAOResponse
 class AddressDAO(BaseDAO[Addresses]):
     def __init__(self, model: Type[Addresses]):
         super().__init__(model)
+        self.primary_key = "address_id"
         
     async def _get_location_info(self, db_session: AsyncSession, address_data: AddressCreateSchema) -> AddressCreateSchema:
         country_dao = CountryDAO(Country)
@@ -57,8 +58,7 @@ class AddressDAO(BaseDAO[Addresses]):
 
         try:
             # Check if the address already exists
-            address_key = "address_id"
-            existing_address = await self.query(db_session=db_session, filters={address_key: address_obj.address_id}, single=True, options=[selectinload(Addresses.users)]) if address_key in address_obj.model_fields else None
+            existing_address = await self.query(db_session=db_session, filters={self.primary_key: address_obj.address_id}, single=True, options=[selectinload(Addresses.users)]) if self.primary_key in address_obj.model_fields else None
             
             if existing_address:
                 # Update the existing address

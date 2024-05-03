@@ -157,6 +157,7 @@ class UserResponse(BaseModel):
     
     @classmethod
     def from_orm_model(cls, user: UserModel):
+        print(user)
         t = cls(
             user_id=user.user_id,
             first_name=user.first_name,

@@ -3,7 +3,7 @@ from typing import List, Optional
 from enum import Enum
 from uuid import UUID
 
-from app.models import Property as PropertyModel, Addresses
+from app.models import Property as PropertyModel, Addresses, Units
 from app.schema import AddressBase, Address, City, Region, Country
 
 
@@ -17,6 +17,49 @@ class PropertyType(str, Enum):
     residential = 'residential'
     commercial = 'commercial'
     industrial = 'industrial'
+
+class PropertyType(str, Enum):
+    residential = 'residential'
+    commercial = 'commercial'
+    industrial = 'industrial'
+
+class PropertyUnitBase(BaseModel):
+    property_unit_code: str
+    property_unit_floor_space: Optional[int] = None
+    property_unit_amount: Optional[float] = None
+    property_floor_id: Optional[int] = None
+    property_unit_notes: Optional[str] = None
+    has_amenities: Optional[bool] = False
+
+    class Config:
+        from_attributes = True
+        use_enum_values = True
+
+class PropertyUnit(PropertyUnitBase):
+    property_unit_id: UUID = Field(...)
+
+    class Config:
+        from_attributes = True
+        use_enum_values = True
+
+class PropertyUnitResponse(PropertyUnit):
+
+    class Config:
+        from_attributes = True
+        use_enum_values = True
+
+class PropertyUnitCreateSchema(PropertyUnitBase):
+    property_id: UUID = Field(...)
+
+    class Config:
+        from_attributes = True
+        use_enum_values = True
+
+class PropertyUnitUpdateSchema(PropertyUnit):
+
+    class Config:
+        from_attributes = True
+        use_enum_values = True
 
 class PropertyBase(BaseModel):
     name: str
@@ -45,23 +88,23 @@ class PropertyCreateSchema(PropertyBase):
         from_attributes = True
         use_enum_values = True
 
-class PropertyResponse(BaseModel):
+class PropertyUpdateSchema(PropertyBase):
+    address: Optional[Address] = None
+
+    class Config:
+        from_attributes = True
+        use_enum_values = True
+
+class Property(PropertyBase):
     property_id: UUID = Field(...)
-    name: str
-    property_type: PropertyType = Field(...)
-    amount: float
-    security_deposit: Optional[float] = None
-    commission: Optional[float] = None
-    floor_space: Optional[float] = None
-    num_units: Optional[int] = None
-    num_bathrooms: Optional[int] = None
-    num_garages: Optional[int] = None
-    has_balconies: Optional[bool] = False
-    has_parking_space: Optional[bool] = False
-    pets_allowed: bool = False
-    description: Optional[str] = None
-    property_status: PropertyStatus = Field(...)
     address: Optional[List[Address] | Address] = None
+
+class PropertyResponse(Property):
+    units: Optional[List[PropertyUnit] | PropertyUnit]
+
+    class Config:
+        from_attributes = True
+        use_enum_values = True
 
     @classmethod
     def get_address_base(cls, address:List[Addresses]):
@@ -103,6 +146,7 @@ class PropertyResponse(BaseModel):
             pets_allowed = property.pets_allowed,
             description = property.description,
             property_status = property.property_status,
-            address=cls.get_address_base(property.addresses)
+            address=cls.get_address_base(property.addresses),
+            units =property.units
         ).model_dump()
         return t
