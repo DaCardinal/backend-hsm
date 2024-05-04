@@ -28,3 +28,9 @@ class Units(Base):
                          primaryjoin="and_(EntityMedia.entity_id==Units.property_unit_id, EntityMedia.entity_type=='Units')",
                          overlaps="entity_media,media",
                          lazy="selectin")
+    
+    # ammenities = relationship("UnitsAmenities",
+    #                     secondary="property_unit_assoc",
+    #                     primaryjoin="and_(PropertyUnitAssoc.property_id==Property.property_id, PropertyUnitAssoc.property_unit_id==Units.property_unit_id)",
+    #                     overlaps="entity_media,media,ammenities,properties,units",
+    #                     lazy="selectin")

@@ -8,10 +8,8 @@ from app.schema import AddressBase, Address, City, Region, Country, Media, Media
 
 
 class PropertyStatus(str, Enum):
-    lease = 'lease'
-    sold = 'sold'
-    bought = 'bought'
-    rent = 'rent'
+    available = "available"
+    unavailable = "unavailable"
 
 class PropertyType(str, Enum):
     residential = 'residential'

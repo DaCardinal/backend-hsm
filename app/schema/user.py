@@ -65,6 +65,7 @@ class UserCreateSchema(UserBase):
     user_auth_info: Optional[UserAuthInfo] = None
     user_emergency_info: Optional[UserEmergencyInfo] = None
     user_employer_info: Optional[UserEmployerInfo] = None
+    role: Optional[str] = None
     
     class Config:
         from_attributes = True

@@ -46,8 +46,12 @@ class UserDAO(BaseDAO[User]):
                 'address': (partial(self.address_dao.add_entity_address, entity_model=self.model.__name__), address_schema)
             }
 
-            if any(details_methods.keys() in user_data):
+            if set(details_methods.keys()).issubset(set(user_data.keys())):
                 await self.process_entity_details(db_session, user_id, user_data, details_methods)
+
+            # check if role is attached and create role for user
+            if 'role' in user_data.keys():
+                await self.add_user_role(db_session, user_id, user_data.get('role'))
 
             user_load_addr: User = await self.query(
                 db_session=db_session,
@@ -87,7 +91,7 @@ class UserDAO(BaseDAO[User]):
             }
 
             # add additional info if exists
-            if any(details_methods.keys() in entity_data):
+            if set(details_methods.keys()).issubset(set(entity_data.keys())):
                 await self.process_entity_details(db_session, user_id, entity_data, details_methods)
             
             # commit object to db session

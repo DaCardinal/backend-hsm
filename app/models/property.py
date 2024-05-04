@@ -8,11 +8,15 @@ from app.models.model_base import BaseModel as Base
 from app.utils.lifespan import get_db as async_session
 from app.models import Media, EntityMedia
 
+# class PropertyStatus(enum.Enum):
+    # lease = 'lease'
+    # sold = 'sold'
+    # bought = 'bought'
+    # rent = 'rent'
+
 class PropertyStatus(enum.Enum):
-    lease = 'lease'
-    sold = 'sold'
-    bought = 'bought'
-    rent = 'rent'
+    available = "available"
+    unavailable = "unavailable"
 
 class PropertyType(enum.Enum):
     residential = 'residential'
@@ -62,6 +66,7 @@ class Property(Base):
     ammenities = relationship("UnitsAmenities",
                          secondary="property_unit_assoc",
                          primaryjoin="and_(PropertyUnitAssoc.property_id==Property.property_id, PropertyUnitAssoc.property_unit_id==Property.property_id)",
+                         secondaryjoin="and_(PropertyUnitAssoc.property_unit_assoc_id==UnitsAmenities.property_unit_assoc_id)",
                          overlaps="entity_media,media,ammenities,properties,units",
                          lazy="selectin")
 
