@@ -1,4 +1,4 @@
-from typing import Optional, Type, TypeVar, Generic
+from typing import List, Optional, Type, TypeVar, Generic, Union
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
@@ -16,14 +16,23 @@ class BaseDAO(DBOperations, Generic[DBModelType]):
 
         for detail_key, (method, schema) in details_methods.items():
             detail_data = self.extract_model_data(entity_data, schema, nested_key=detail_key)
-            
-            if detail_data is not None:
-                results[detail_key] = await method(db_session, entity_id, schema(**detail_data))
+            if detail_data:
+                if isinstance(detail_data, list):
+                    for entity_item in detail_data:
+                        results[detail_key] = await method(db_session, entity_id, schema(**entity_item))
+                else:
+                    results[detail_key] = await method(db_session, entity_id, schema(**detail_data))
         
         return results
     
-    def extract_model_data(self, data: dict, schema: Type[BaseModel], nested_key: Optional[str] = None) -> dict:
-        if nested_key:
-            data = data.get(nested_key, {})
+    def extract_model_data(self, data: dict, schema: Type[BaseModel], nested_key: Optional[str] = None) -> Union[List[dict] | dict]:
+        data = data.get(nested_key, {}) if nested_key else data
+
+        # check if data key is null
+        if data is None:
+            return None
         
-        return {key: data[key] for key in data if key in schema.model_fields} if data else None
+        if isinstance(data, list):
+            return [{key: data_item[key] for key in data_item if key in schema.model_fields} for data_item in data]
+        
+        return {key: data[key] for key in data if key in schema.model_fields}

@@ -38,6 +38,7 @@ class Addresses(Base):
         overlaps="users",
         lazy="selectin"
     )
+    
     city = relationship('City', back_populates='addresses', lazy='joined')
     region = relationship('Region', back_populates='addresses', lazy='joined')
     country = relationship('Country', back_populates='addresses', lazy='joined')

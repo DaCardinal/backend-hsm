@@ -8,6 +8,8 @@ from app.models.region import Region
 from app.models.address import Addresses
 from app.models.entity_address import EntityAddress
 
+from app.models.media import Media
+from app.models.entity_media import EntityMedia
 
 from app.models.payment_type import PaymentTypes
 from app.models.contract_type import ContractType

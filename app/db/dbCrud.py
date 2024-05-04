@@ -67,8 +67,7 @@ class ReadMixin(UtilsMixin):
         return query_result.scalar_one_or_none() if single else query_result.scalars().all()
 
     async def query_on_create(self, db_session: AsyncSession, filters: Dict[str, Any], single=False, options=None, create_if_not_exist = False):
-        
-        result = await self.query(db_session, filters, single, options)
+        result = await self.query(db_session=db_session, filters=filters, single=single, options=options)
 
         if result:
             return result

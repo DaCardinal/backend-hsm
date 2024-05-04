@@ -1,10 +1,12 @@
-import uuid
-from sqlalchemy import Numeric, Column, ForeignKey, Boolean, Enum, Integer, String, Text
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
 import enum
+import uuid
+from sqlalchemy.orm import relationship, selectinload
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import Numeric, Column, ForeignKey, Boolean, Enum, Integer, String, Text, UUID,  select
 
 from app.models.model_base import BaseModel as Base
+from app.utils.lifespan import get_db as async_session
+from app.models import Media, EntityMedia
 
 class PropertyStatus(enum.Enum):
     lease = 'lease'
@@ -46,8 +48,33 @@ class Property(Base):
         back_populates="properties",
         lazy="selectin"
     )
-    # property_type = relationship('PropertyType', back_populates='properties')
     units = relationship("Units",
                          secondary="property_unit_assoc",
                          primaryjoin="and_(PropertyUnitAssoc.property_id==Property.property_id)",
                          back_populates="properties", lazy="selectin")
+
+    media = relationship("Media",
+                         secondary="entity_media",
+                         primaryjoin="and_(EntityMedia.entity_id==Property.property_id, EntityMedia.entity_type=='Property')",
+                         overlaps="entity_media,media",
+                         lazy="selectin")
+    
+    ammenities = relationship("UnitsAmenities",
+                         secondary="property_unit_assoc",
+                         primaryjoin="and_(PropertyUnitAssoc.property_id==Property.property_id, PropertyUnitAssoc.property_unit_id==Property.property_id)",
+                         overlaps="entity_media,media,ammenities,properties,units",
+                         lazy="selectin")
+
+    async def get_media(self):        
+        db_session : AsyncSession = async_session()
+
+        async with db_session as session:
+            async with session.begin():
+
+                result = await session.execute(
+                    select(Media).options(selectinload(Media.entity_media))
+                    .join(EntityMedia, EntityMedia.media_id == Media.media_id)
+                    .filter(EntityMedia.entity_id == self.property_id, EntityMedia.entity_type == 'Property')
+                )
+                property_media = result.scalars().all()
+                return property_media

@@ -1,10 +1,6 @@
 from fastapi import APIRouter, FastAPI, Request
 from app.utils.lifespan import AppLogger
-from app.router.user_router import UserRouter
-from app.router.role_router import RoleRouter
-from app.router.permission_router import PermissionRouter
-from app.router.property_router import PropertyRouter
-from app.router.property_unit_router import PropertyUnitRouter
+from app.router import *
 
 router = APIRouter()
 
@@ -25,3 +21,9 @@ def configure_routes(app: FastAPI):
 
     # Create an instance of PropertyDAO
     app.include_router(PropertyUnitRouter(prefix="/units", tags=["Units"]).router)
+
+    # Create an instance of AmmenitiesDAO
+    app.include_router(AmmenitiesRouter(prefix="/ammenities", tags=["Ammenities"]).router)
+
+        # Create an instance of AmmenitiesDAO
+    app.include_router(MediaRouter(prefix="/media", tags=["Media"]).router)

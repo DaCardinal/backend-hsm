@@ -8,7 +8,7 @@ class MessageRecipient(Base):
     __tablename__ = 'message_recipient'
     id = Column(UUID(as_uuid=True), primary_key=True)
     recipient_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'))
-    recipient_group_id = Column(UUID(as_uuid=True), ForeignKey('property_unit_assoc.property_unit_assoc'))
+    recipient_group_id = Column(UUID(as_uuid=True), ForeignKey('property_unit_assoc.property_unit_assoc_id'))
     message_id = Column(UUID(as_uuid=True), ForeignKey('message.message_id'))
     is_read = Column(Boolean)
 

@@ -13,7 +13,7 @@ class ContractStatusEnum(enum.Enum):
 class UnderContract(Base):
     __tablename__ = 'under_contract'
     id = Column(UUID(as_uuid=True), primary_key=True)
-    property_unit_assoc = Column(UUID(as_uuid=True), ForeignKey('property_unit_assoc.property_unit_assoc'))
+    property_unit_assoc_id = Column(UUID(as_uuid=True), ForeignKey('property_unit_assoc.property_unit_assoc_id'))
     contract_id = Column(UUID(as_uuid=True), ForeignKey('contract.contract_id'))
     contract_status = Column(Enum(ContractStatusEnum))
     client_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'))
