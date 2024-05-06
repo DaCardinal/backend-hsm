@@ -30,7 +30,7 @@ async def lifespan(app: FastAPI):
 
 
     # seed ammenities model
-    seeder = DataSeeder([AmmenityFactory(), UtilitiesFactory(), PaymentTypesFactory()])
+    seeder = DataSeeder([AmmenityFactory(), UtilitiesFactory(), PaymentTypesFactory(), MediaFactory()])
     await seeder.seed_data()
 
     yield

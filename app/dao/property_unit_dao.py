@@ -1,5 +1,6 @@
 from functools import partial
-from typing import Type
+from uuid import UUID
+from typing import Any, List, Type, Union
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -81,3 +82,24 @@ class PropertyUnitDAO(BaseDAO[Units]):
         except Exception as e:
             await db_session.rollback()
             return DAOResponse[PropertyUnitResponse](success=False, error=f"Fatal Update {str(e)}")
+        
+    @override
+    async def get_all(self, db_session: AsyncSession) -> DAOResponse[List[PropertyUnitResponse]]:
+        result = await super().get_all(db_session=db_session)
+        print(result)
+        # check if no result
+        if not result:
+            return DAOResponse(success=True, data=[])
+
+        return DAOResponse[List[PropertyUnitResponse]](success=True, data=[PropertyUnitResponse.from_orm_model(r) for r in result])
+    
+    @override
+    async def get(self, db_session: AsyncSession, id: Union[UUID | Any | int]) -> DAOResponse[PropertyUnitResponse]:
+
+        result : Units = await super().get(db_session=db_session, id=id)
+
+        # check if no result
+        if not result:
+            return DAOResponse(success=True, data={})
+
+        return DAOResponse[PropertyUnitResponse](success=True, data=PropertyUnitResponse.from_orm_model(result))

@@ -11,7 +11,6 @@ class Units(Base):
     __tablename__ = 'units'
     
     property_unit_id = Column(UUID(as_uuid=True), primary_key=True, unique=True, index=True, default=uuid.uuid4)
-    # property_unit_type = Column(UUID(as_uuid=True), ForeignKey('unit_type.unit_type_id'))
     property_unit_code = Column(String(128))
     property_unit_floor_space = Column(Integer)
     property_unit_amount = Column(Numeric(10, 2))
@@ -20,15 +19,34 @@ class Units(Base):
     has_amenities = Column(Boolean, default=False)
     property_id = Column(UUID(as_uuid=True), ForeignKey('property.property_id'))
 
-    property = relationship("Property", back_populates="units")
-    property_unit_assoc = relationship("PropertyUnitAssoc", back_populates="units")
+    # generate dynamic column property
     property_unit_assoc_id = column_property(
         select(PropertyUnitAssoc.property_unit_assoc_id)
-        .where(PropertyUnitAssoc.property_id == property_id)
+        .where(PropertyUnitAssoc.property_id == property_id & PropertyUnitAssoc.property_unit_id == property_unit_id)
         .correlate_except(PropertyUnitAssoc)
         .scalar_subquery()
     )
 
+    # relationship to link property unit and generate super key
+    property_unit_assoc = relationship("PropertyUnitAssoc", back_populates="units", overlaps="entity_amenities,units")
+    
+    # relationship to property
+    property = relationship("Property", back_populates="units", lazy="selectin")
+
+    # relationship with media
+    media = relationship("Media",
+                         secondary="entity_media",
+                         primaryjoin="and_(EntityMedia.media_assoc_id==Property.property_unit_assoc_id, EntityMedia.entity_type=='Units')",
+                         overlaps="entity_media,media",
+                         lazy="selectin", viewonly=True)
+    
+    # relationship to link amenities
+    entity_amenities = relationship("EntityAmenities", secondary="property_unit_assoc", viewonly=True)    
+    amenities = relationship("Amenities", secondary="entity_amenities",
+                             primaryjoin="Units.property_unit_assoc_id == EntityAmenities.property_unit_assoc_id",
+                             secondaryjoin="EntityAmenities.amenity_id == Amenities.amenity_id",
+                             lazy="selectin", viewonly=True)
+    
     # unit_type = relationship('UnitType', back_populates='units')
     # properties = relationship("Property",
     #                      secondary="property_unit_assoc",

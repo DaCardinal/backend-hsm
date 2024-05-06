@@ -13,7 +13,7 @@ class EntityAmenities(Base):
     property_unit_assoc_id = Column(UUID(as_uuid=True), ForeignKey('property_unit_assoc.property_unit_assoc_id'))
     apply_to_units = Column(Boolean, default=False)
 
-    amenity = relationship("Amenities")
+    amenity = relationship("Amenities", overlaps="amenities")
     media = relationship("Media", secondary="entity_media",
                             primaryjoin="EntityAmenities.entity_id == EntityMedia.media_assoc_id",
                             secondaryjoin="and_(EntityMedia.media_id == Media.media_id, EntityMedia.entity_type == 'Ammenities')",

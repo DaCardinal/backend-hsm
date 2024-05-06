@@ -42,6 +42,8 @@ class PropertyUnit(PropertyUnitBase):
         use_enum_values = True
 
 class PropertyUnitResponse(PropertyUnit):
+    property_id: UUID = Field(...)
+    media: Optional[List[MediaBase] | MediaBase] = None
 
     class Config:
         from_attributes = True
@@ -110,8 +112,8 @@ class Property(PropertyBase):
         use_enum_values = True
     
 class PropertyUnitResponse(PropertyUnit):
-    media: Optional[List[Media] | Media]
-    ammenities: Optional[List[Amenities] | Amenities] = None
+    # media: Optional[List[Media] | Media]
+    # ammenities: Optional[List[Amenities] | Amenities] = None
 
     class Config:
         from_attributes = True
@@ -161,21 +163,6 @@ class PropertyResponse(Property):
                 region = addr_region.region_name,
                 country = addr_country.country_name
             ))
-        return result
-    
-    @classmethod
-    def get_unit_ammenities(cls, unit_ammenities:List[EntityAmenitiesModel]):
-        result = []
-        
-        # for unit_ammenity in unit_ammenities:
-        #     ammenity : AmenitiesModel = unit_ammenity.ammenities
-        #     result.append(AmenitiesModel(
-        #         amenity_id = ammenity.amenity_id,
-        #         amenity_name = ammenity.amenity_name,
-        #         amenity_short_name = ammenity.amenity_short_name,
-        #         amenity_value_type =  ammenity.amenity_value_type,
-        #         media = unit_ammenity.media
-        #     ))
         return result
     
     @classmethod
