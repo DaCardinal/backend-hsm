@@ -35,15 +35,8 @@ class PropertyUnitBase(BaseModel):
         use_enum_values = True
 
 class PropertyUnit(PropertyUnitBase):
+    property_unit_assoc_id: Optional[UUID]
     property_unit_id: UUID = Field(...)
-
-    class Config:
-        from_attributes = True
-        use_enum_values = True
-
-class PropertyUnitResponse(PropertyUnit):
-    property_id: UUID = Field(...)
-    media: Optional[List[MediaBase] | MediaBase] = None
 
     class Config:
         from_attributes = True
@@ -52,6 +45,7 @@ class PropertyUnitResponse(PropertyUnit):
 class PropertyUnitCreateSchema(PropertyUnitBase):
     property_id: UUID = Field(...)
     media: Optional[List[MediaBase] | MediaBase] = None
+    ammenities: Optional[List[Amenities] | List[AmenitiesBase] | Amenities | AmenitiesBase] = None
 
     class Config:
         from_attributes = True
@@ -59,6 +53,7 @@ class PropertyUnitCreateSchema(PropertyUnitBase):
 
 class PropertyUnitUpdateSchema(PropertyUnit):
     media: Optional[List[Media] | Media] = None
+    ammenities: Optional[List[Amenities] | Amenities] = None
 
     class Config:
         from_attributes = True
@@ -86,8 +81,8 @@ class PropertyBase(BaseModel):
 
 class PropertyCreateSchema(PropertyBase):
     address: Optional[AddressBase] = None
-    media: Optional[List[MediaBase] | MediaBase] = None
-    ammenities: Optional[List[AmenitiesBase] | MediaBase] = None
+    media: Optional[List[Media] | List[MediaBase] | Media | MediaBase] = None
+    ammenities: Optional[List[Amenities] | List[AmenitiesBase] | Amenities | AmenitiesBase] = None
 
     class Config:
         from_attributes = True
@@ -112,8 +107,8 @@ class Property(PropertyBase):
         use_enum_values = True
     
 class PropertyUnitResponse(PropertyUnit):
-    # media: Optional[List[Media] | Media]
-    # ammenities: Optional[List[Amenities] | Amenities] = None
+    media: Optional[List[Media] | Media]
+    ammenities: Optional[List[Amenities] | Amenities] = None
 
     class Config:
         from_attributes = True
@@ -121,6 +116,12 @@ class PropertyUnitResponse(PropertyUnit):
     
     @classmethod
     def from_orm_model(cls, property_unit: UnitsModel):
+        print("property_id",property_unit.property_id)
+        print("property_unit_id",property_unit.property_unit_id)
+        print("property_unit_assoc_id",property_unit.property_unit_assoc_id)
+        print("media",property_unit.media)
+        print("amenities",property_unit.amenities)
+
         t = cls(
             property_unit_id = property_unit.property_unit_id,
             property_unit_code = property_unit.property_unit_code,
@@ -130,7 +131,9 @@ class PropertyUnitResponse(PropertyUnit):
             property_unit_notes = property_unit.property_unit_notes,
             has_amenities = property_unit.has_amenities,
             property_id = property_unit.property_id,
-            # media = property_unit.media
+            property_unit_assoc_id = property_unit.property_unit_assoc_id,
+            media = property_unit.media,
+            ammenities = property_unit.amenities
         ).model_dump()
         return t
     

@@ -68,6 +68,14 @@ class AddressDAO(BaseDAO[Addresses]):
                 
                 address : Addresses = await self.update(db_session=db_session, db_obj=existing_address, obj_in=addr_data.model_dump())
 
+                # Link user model to new addresses
+                await entity_address_dao.create(db_session = db_session, obj_in = {
+                    "entity_type": entity_model if entity_model else self.model.__name__,
+                    "entity_id": entity_id,
+                    "address_id": address.address_id,
+                    "emergency_address": False,
+                    "emergency_address_hash": ""
+                })
             else:
                 # Create a new Address instance from the validated address_data
                 address : Addresses = await self.create(db_session=db_session, address_data=address_obj)

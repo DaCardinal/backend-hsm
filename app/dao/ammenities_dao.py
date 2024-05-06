@@ -27,10 +27,11 @@ class AmenitiesDAO(BaseDAO[Amenities]):
         
         return result
     
-    async def link_property_to_ammenity(self, db_session: AsyncSession, property_unit_assoc_id: UUID, ammenity_id: UUID, entity_model=None):
+    async def _link_property_to_ammenity(self, db_session: AsyncSession, property_unit_assoc_id: UUID, ammenity_id: UUID, entity_model=None):
 
         result = await self.entity_ammenities_dao.create(db_session = db_session, obj_in = {
             "property_unit_assoc_id": property_unit_assoc_id,
+            "entity_type": entity_model if entity_model else self.model.__name__,
             "amenity_id": ammenity_id
         })
         
@@ -46,32 +47,35 @@ class AmenitiesDAO(BaseDAO[Amenities]):
             for ammenities_item in ammenities_info:
                 ammenities_item : Amenities = ammenities_item
 
-                # Check if the address already exists
-                existing_ammenities_item = await self.query(db_session=db_session, filters={f"{self.primary_key}": ammenities_item.amenity_id}, single=True, options=[selectinload(Amenities)]) if self.primary_key in ammenities_item.model_fields else None
+                # Check if the entity already exists
+                existing_ammenities_item = await self.query(db_session=db_session, filters={f"{self.primary_key}": ammenities_item.amenity_id}, single=True) if self.primary_key in ammenities_item.model_fields else None
 
                 if existing_ammenities_item:
-                        # Update the existing address
                         obj_data = self.extract_model_data(ammenities_item.model_dump(), Amenities)
                         ammenities_data = Amenities(**obj_data)
 
                         create_media_item : AmenitiesModel = await self.update(db_session=db_session, db_obj=existing_ammenities_item, obj_in=ammenities_data)
 
-                        await self.entity_ammenities_dao.create(db_session=db_session, obj_in={
-                            "property_unit_assoc_id": entity_assoc_id if entity_assoc_id else entity_id,
-                            "amenity_id": create_media_item.amenity_id
-                        })
+                        await self._link_property_to_ammenity(
+                            db_session=db_session, 
+                            property_unit_assoc_id=entity_assoc_id if entity_assoc_id else entity_id,
+                            ammenity_id=create_media_item.amenity_id,
+                            entity_model=entity_model if entity_model else self.model.__name__
+                        )
                 else :
-                    create_media_item : Amenities = await self.query(db_session=db_session, filters={**ammenities_item.model_dump()}, single=True)
+                    # Creating an ammenity
+                    create_media_item : Amenities = await self.query(db_session=db_session, filters={**ammenities_item.model_dump(exclude=['media'])}, single=True)
                     
                     if create_media_item is None:
                         create_media_item : Amenities = await self.create(db_session=db_session, obj_in=ammenities_item.model_dump())
 
-                    await self.entity_ammenities_dao.create(db_session=db_session, obj_in={
-                        "property_unit_assoc_id": entity_assoc_id if entity_assoc_id else entity_id,
-                        "amenity_id": create_media_item.amenity_id
-                    })
+                    await self._link_property_to_ammenity(
+                        db_session=db_session, 
+                        property_unit_assoc_id=entity_assoc_id if entity_assoc_id else entity_id,
+                        ammenity_id=create_media_item.amenity_id,
+                        entity_model=entity_model if entity_model else self.model.__name__
+                    )
                 results.append(create_media_item)
-            print(f"results {results}")
             return results
         except NoResultFound:
             pass

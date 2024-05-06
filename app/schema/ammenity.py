@@ -25,7 +25,7 @@ class AmenitiesBase(BaseModel):
     amenity_short_name: str
     amenity_value_type: str
     description: Optional[str]
-    media: Optional[List[Media] | Media] 
+    media: Optional[List[Media] | Media] = []
 
     class Config:
         from_attributes = True

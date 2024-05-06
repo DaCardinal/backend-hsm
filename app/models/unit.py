@@ -19,24 +19,24 @@ class Units(Base):
     has_amenities = Column(Boolean, default=False)
     property_id = Column(UUID(as_uuid=True), ForeignKey('property.property_id'))
 
+    # relationship to link property unit and generate super key
+    property_unit_assoc = relationship("PropertyUnitAssoc", back_populates="units", overlaps="entity_amenities,property,units")
+
     # generate dynamic column property
     property_unit_assoc_id = column_property(
         select(PropertyUnitAssoc.property_unit_assoc_id)
-        .where(PropertyUnitAssoc.property_id == property_id & PropertyUnitAssoc.property_unit_id == property_unit_id)
+        .where(PropertyUnitAssoc.property_unit_id == property_unit_id, PropertyUnitAssoc.property_id == property_id)
         .correlate_except(PropertyUnitAssoc)
         .scalar_subquery()
     )
 
-    # relationship to link property unit and generate super key
-    property_unit_assoc = relationship("PropertyUnitAssoc", back_populates="units", overlaps="entity_amenities,units")
-    
     # relationship to property
     property = relationship("Property", back_populates="units", lazy="selectin")
 
     # relationship with media
     media = relationship("Media",
                          secondary="entity_media",
-                         primaryjoin="and_(EntityMedia.media_assoc_id==Property.property_unit_assoc_id, EntityMedia.entity_type=='Units')",
+                         primaryjoin="and_(EntityMedia.media_assoc_id==Units.property_unit_assoc_id, EntityMedia.entity_type=='Units')",
                          overlaps="entity_media,media",
                          lazy="selectin", viewonly=True)
     
