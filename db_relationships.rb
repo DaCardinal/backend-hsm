@@ -28,12 +28,12 @@
 # unit_type.id < units.property_unit_type
 # payment_types.payment_type_id < unit_utilities.payment_type_id
 # utilities.utility_id < unit_utilities.utility_id | removed this
-# amenities.amenity_id < units_amenities.amenity_id | removed this
+# amenities.amenity_id < entity_amenities.amenity_id | removed this
 # property_unit_assoc.property_unit_assoc < unit_utilities.property_unit_assoc | added this
-# property_unit_assoc.property_unit_assoc < units_amenities.property_unit_assoc | added this
+# property_unit_assoc.property_unit_assoc < entity_amenities.property_unit_assoc | added this
 
 # units.property_unit_id < unit_utilities.property_unit_assoc | remove this
-# units.property_unit_id < units_amenities.property_unit_assoc | remove this
+# units.property_unit_id < entity_amenities.property_unit_assoc | remove this
 
 # Messages and Reminders
 

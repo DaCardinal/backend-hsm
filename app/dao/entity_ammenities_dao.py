@@ -1,8 +1,8 @@
 from typing import Type, Optional
 
 from app.dao.base_dao import BaseDAO
-from app.models.unit_ammenties import UnitsAmenities
+from app.models.entity_amenities import EntityAmenities
 
-class EntityAmmenitiesDAO(BaseDAO[UnitsAmenities]):
-    def __init__(self, model: Type[UnitsAmenities]):
+class EntityAmmenitiesDAO(BaseDAO[EntityAmenities]):
+    def __init__(self, model: Type[EntityAmenities]):
         super().__init__(model)

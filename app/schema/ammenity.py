@@ -1,19 +1,20 @@
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 from pydantic import BaseModel
+from app.schema import Media
 
-class UnitsAmenitiesBase(BaseModel):
+class EntityAmenitiesBase(BaseModel):
     amenity_id: UUID
     property_unit_assoc_id: UUID
     apply_to_units: bool
 
-class UnitsAmenitiesCreate(UnitsAmenitiesBase):
+class EntityAmenitiesCreate(EntityAmenitiesBase):
     pass
 
-class UnitsAmenitiesUpdate(UnitsAmenitiesBase):
+class EntityAmenitiesUpdate(EntityAmenitiesBase):
     pass
 
-class UnitsAmenities(UnitsAmenitiesBase):
+class EntityAmenities(EntityAmenitiesBase):
     id: UUID
 
     class Config:
@@ -24,6 +25,7 @@ class AmenitiesBase(BaseModel):
     amenity_short_name: str
     amenity_value_type: str
     description: Optional[str]
+    media: Optional[List[Media] | Media] 
 
     class Config:
         from_attributes = True

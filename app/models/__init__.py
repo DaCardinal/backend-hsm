@@ -21,12 +21,12 @@ from app.models.contract_documents import ContractDocuments
 from app.models.invoice import Invoice
 from app.models.contract_invoice import ContractInvoice
 
+from app.models.property_unit_assoc import PropertyUnitAssoc
 from app.models.unit_type import UnitType
 from app.models.unit import Units
 from app.models.property_type import PropertyType
 from app.models.property import Property
 from app.models.property_assignment import PropertyAssignment
-from app.models.property_unit_assoc import PropertyUnitAssoc
 
 from app.models.message import Message
 from app.models.reminder_frequency import ReminderFrequency
@@ -44,6 +44,6 @@ from app.models.transaction_type import TransactionType
 from app.models.transaction import Transaction
 
 from app.models.utility import Utilities
+from app.models.entity_amenities import EntityAmenities
 from app.models.ammenity import Amenities
-from app.models.unit_ammenties import UnitsAmenities
 from app.models.unit_utilities import UnitUtilities

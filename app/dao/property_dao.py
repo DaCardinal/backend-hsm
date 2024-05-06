@@ -10,9 +10,9 @@ from app.dao.address_dao import AddressDAO
 from app.dao.media_dao import MediaDAO
 from app.dao.ammenities_dao import AmenitiesDAO
 from app.dao.property_unit_assoc_dao import PropertyUnitAssocDAO
-from app.models import Property, Addresses, PropertyUnitAssoc, Media as MediaModel, Amenities
+from app.models import Property, Addresses, PropertyUnitAssoc, Media as MediaModel, Amenities as AmenitiesModel
 from app.utils.response import DAOResponse
-from app.schema import PropertyResponse, PropertyBase, PropertyCreateSchema, PropertyUpdateSchema, Address, AddressBase, MediaBase, Media
+from app.schema import PropertyResponse, PropertyBase, PropertyCreateSchema, PropertyUpdateSchema, Address, AddressBase, MediaBase, Media, Amenities, AmenitiesBase
 
 class PropertyDAO(BaseDAO[Property]):
     def __init__(self, model: Type[Property]):
@@ -21,7 +21,7 @@ class PropertyDAO(BaseDAO[Property]):
         self.address_dao = AddressDAO(Addresses)
         self.property_unit_assoc_dao = PropertyUnitAssocDAO(PropertyUnitAssoc)
         self.media_dao = MediaDAO(MediaModel)
-        self.ammenity_dao = AmenitiesDAO(Amenities)
+        self.ammenity_dao = AmenitiesDAO(AmenitiesModel)
 
     @override
     async def create(self, db_session: AsyncSession, obj_in: Union[PropertyCreateSchema | Dict]) -> DAOResponse:
@@ -35,19 +35,22 @@ class PropertyDAO(BaseDAO[Property]):
 
             # add additional info if exists
             address_schema = Address if 'address' in obj_in and obj_in['address'] and 'address_id' in obj_in['address'] else AddressBase
+            ammenities_schema = Amenities if 'ammenities' in obj_in and obj_in['ammenities'] and ('amenity_id' in obj_in['ammenities'] or 'amenity_id' in obj_in['ammenities'][0]) else AmenitiesBase
+            
+            # Create a link for PropertyUnitAssoc
+            property_unit_assoc_obj : PropertyUnitAssoc = await self.property_unit_assoc_dao.create(db_session = db_session, obj_in = {
+                "property_id": new_property.property_id
+            })
+            print(property_unit_assoc_obj.property_unit_assoc_id)
+
             details_methods : dict = {
                 'media': (partial(self.media_dao.add_entity_media, entity_model=self.model.__name__), MediaBase),
+                'ammenities': (partial(self.ammenity_dao.add_entity_ammenity, entity_model=self.model.__name__, entity_assoc_id=property_unit_assoc_obj.property_unit_assoc_id), ammenities_schema),
                 'address': (partial(self.address_dao.add_entity_address, entity_model=self.model.__name__), address_schema)
             }
             if set(details_methods.keys()).issubset(set(obj_in.keys())):
                 await self.process_entity_details(db_session, new_property.property_id, obj_in, details_methods)
             
-            # Create a link for PropertyUnitAssoc
-            result : PropertyUnitAssoc = await self.property_unit_assoc_dao.create(db_session = db_session, obj_in = {
-                "property_id": new_property.property_id,
-                "property_unit_id": new_property.property_id
-            })
-            print(result.property_unit_assoc_id)
             new_load_addr: Property = await self.query(
                 db_session=db_session,
                 filters={f"{self.primary_key}":new_property.property_id},
@@ -77,18 +80,16 @@ class PropertyDAO(BaseDAO[Property]):
             # add additional info if exists
             address_schema = Address if 'address' in entity_data and entity_data['address'] and 'address_id' in entity_data['address'] else AddressBase
             media_schema = Media if 'media' in entity_data and entity_data['media'] and ('media_id' in entity_data['media'] or 'media_id' in entity_data['media'][0]) else MediaBase
-            
+            ammenities_schema = Amenities if 'ammenities' in entity_data and entity_data['ammenities'] and ('amenity_id' in entity_data['ammenities'] or 'amenity_id' in entity_data['ammenities'][0]) else AmenitiesBase
+
             # get the property association key
-            print(f"property_id:{existing_property.property_id}, property_unit_id: {existing_property.property_id}")
             property_unit_assoc_obj : PropertyUnitAssoc = await self.property_unit_assoc_dao.query(db_session=db_session,
                 filters={f"property_id":existing_property.property_id, "property_unit_id": existing_property.property_id},
                 single=True)
             
-            # print(property_unit_assoc_obj)
-            
             details_methods = {
                 'media': (partial(self.media_dao.add_entity_media, entity_model=self.model.__name__), media_schema),
-                # 'ammenities': (partial(self.ammenity_dao.add_entity_ammenity, entity_model=self.model.__name__, entity_assoc_id=property_unit_assoc_obj.property_unit_assoc), media_schema),
+                'ammenities': (partial(self.ammenity_dao.add_entity_ammenity, entity_model=self.model.__name__, entity_assoc_id=property_unit_assoc_obj.property_unit_assoc_id), ammenities_schema),
                 'address': (partial(self.address_dao.add_entity_address, entity_model=self.model.__name__), address_schema)
             }
             if set(details_methods.keys()).issubset(set(entity_data.keys())):
@@ -107,7 +108,7 @@ class PropertyDAO(BaseDAO[Property]):
     @override
     async def get_all(self, db_session: AsyncSession) -> DAOResponse[List[PropertyResponse]]:
         result = await super().get_all(db_session=db_session)
-        
+        print(result)
         # check if no result
         if not result:
             return DAOResponse(success=True, data=[])

@@ -6,7 +6,8 @@ from typing import List, Optional, Type, Union
 
 from app.dao.base_dao import BaseDAO
 from app.dao.entity_ammenities_dao import EntityAmmenitiesDAO
-from app.models import Amenities as AmenitiesModel, UnitsAmenities as EntityAmmenities
+from app.dao.entity_media_dao import EntityMediaDAO
+from app.models import Amenities as AmenitiesModel, EntityAmenities as EntityAmmenities, EntityMedia
 from app.schema import AmenitiesBase, Amenities
 
 class AmenitiesDAO(BaseDAO[Amenities]):
@@ -14,13 +15,23 @@ class AmenitiesDAO(BaseDAO[Amenities]):
         super().__init__(model)
         self.primary_key = "amenity_id"
         self.entity_ammenities_dao = EntityAmmenitiesDAO(EntityAmmenities)
+        self.enity_media_dao = EntityMediaDAO(EntityMedia)
 
     async def link_property_to_media(self, db_session: AsyncSession, property_unit_assoc_id: UUID, media_id: UUID, entity_model=None):
 
+        result = await self.enity_media_dao.create(db_session = db_session, obj_in = {
+            "entity_type":  entity_model if entity_model else self.model.__name__,
+            "media_assoc_id": property_unit_assoc_id,
+            "media_id": media_id
+        })
+        
+        return result
+    
+    async def link_property_to_ammenity(self, db_session: AsyncSession, property_unit_assoc_id: UUID, ammenity_id: UUID, entity_model=None):
+
         result = await self.entity_ammenities_dao.create(db_session = db_session, obj_in = {
-            # "entity_type": entity_model if entity_model else self.model.__name__,
             "property_unit_assoc_id": property_unit_assoc_id,
-            "amenity_id": media_id
+            "amenity_id": ammenity_id
         })
         
         return result
@@ -60,7 +71,7 @@ class AmenitiesDAO(BaseDAO[Amenities]):
                         "amenity_id": create_media_item.amenity_id
                     })
                 results.append(create_media_item)
-
+            print(f"results {results}")
             return results
         except NoResultFound:
             pass

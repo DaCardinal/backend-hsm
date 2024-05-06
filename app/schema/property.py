@@ -3,8 +3,8 @@ from typing import Any, List, Optional
 from enum import Enum
 from uuid import UUID
 
-from app.models import Property as PropertyModel, Addresses, Units as UnitsModel, Amenities as AmenitiesModel, UnitsAmenities as UnitsAmenitiesModel
-from app.schema import AddressBase, Address, City, Region, Country, Media, MediaBase, AmenitiesBase, Amenities, UnitsAmenitiesBase, UnitsAmenities
+from app.models import Property as PropertyModel, Addresses, Units as UnitsModel, Amenities as AmenitiesModel, EntityAmenities as EntityAmenitiesModel
+from app.schema import AddressBase, Address, City, Region, Country, Media, MediaBase, AmenitiesBase, Amenities, EntityAmenitiesBase, EntityAmenities
 
 
 class PropertyStatus(str, Enum):
@@ -28,6 +28,7 @@ class PropertyUnitBase(BaseModel):
     property_floor_id: Optional[int] = None
     property_unit_notes: Optional[str] = None
     has_amenities: Optional[bool] = False
+    property_id: UUID = Field(...)
 
     class Config:
         from_attributes = True
@@ -100,6 +101,7 @@ class PropertyUpdateSchema(PropertyBase):
         use_enum_values = True
 
 class Property(PropertyBase):
+    property_unit_assoc_id: Optional[UUID]
     property_id: UUID = Field(...)
     address: Optional[List[Address] | Address] = None
 
@@ -125,7 +127,8 @@ class PropertyUnitResponse(PropertyUnit):
             property_floor_id = property_unit.property_floor_id,
             property_unit_notes = property_unit.property_unit_notes,
             has_amenities = property_unit.has_amenities,
-            media = property_unit.media
+            property_id = property_unit.property_id,
+            # media = property_unit.media
         ).model_dump()
         return t
     
@@ -161,31 +164,23 @@ class PropertyResponse(Property):
         return result
     
     @classmethod
-    def get_unit_ammenities(cls, unit_ammenities:List[UnitsAmenitiesModel]):
+    def get_unit_ammenities(cls, unit_ammenities:List[EntityAmenitiesModel]):
         result = []
-        print(unit_ammenities)
-
-        for unit_ammenity in unit_ammenities:
-            ammenity : AmenitiesModel = unit_ammenity.ammenities
-            print(ammenity)
-
-            # result.append({
-            #     'amenity_id' : ammenity.amenity_id,
-            #     'amenity_name' : ammenity.amenity_name,
-            #     'amenity_short_name' : ammenity.amenity_short_name,
-            #     'amenity_value_type' :  ammenity.amenity_value_type
-            # })
-            result.append(AmenitiesModel(
-                amenity_id = ammenity.amenity_id,
-                amenity_name = ammenity.amenity_name,
-                amenity_short_name = ammenity.amenity_short_name,
-                amenity_value_type =  ammenity.amenity_value_type
-            ))
+        
+        # for unit_ammenity in unit_ammenities:
+        #     ammenity : AmenitiesModel = unit_ammenity.ammenities
+        #     result.append(AmenitiesModel(
+        #         amenity_id = ammenity.amenity_id,
+        #         amenity_name = ammenity.amenity_name,
+        #         amenity_short_name = ammenity.amenity_short_name,
+        #         amenity_value_type =  ammenity.amenity_value_type,
+        #         media = unit_ammenity.media
+        #     ))
         return result
     
     @classmethod
     def from_orm_model(cls, property: PropertyModel):
-        print(property.ammenities)
+
         t = cls(
             property_id = property.property_id,
             name = property.name,
@@ -202,9 +197,10 @@ class PropertyResponse(Property):
             pets_allowed = property.pets_allowed,
             description = property.description,
             property_status = property.property_status,
+            property_unit_assoc_id =property.property_unit_assoc_id,
             address=cls.get_address_base(property.addresses),
             units=property.units,
             media=property.media,
-            ammenities=cls.get_unit_ammenities(property.ammenities)
+            ammenities=property.amenities
         ).model_dump()
         return t

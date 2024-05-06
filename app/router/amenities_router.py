@@ -23,3 +23,11 @@ class AmmenitiesRouter(BaseCRUDRouter):
             if property_media is None:
                 raise HTTPException(status_code=404, detail="Error adding media to property")
             return property_media
+        
+        @self.router.post("/link_property_to_ammenity")
+        async def add_property_ammenity(property_unit_assoc_id: UUID, ammenity_id: UUID, db: AsyncSession = Depends(self.get_db)):
+            property_ammenity = await self.dao.link_property_to_ammenity(db_session=db, property_unit_assoc_id=property_unit_assoc_id, ammenity_id=ammenity_id)
+            # 1e06dfe8-b25a-4998-bc3f-1eb5e5eff9dd
+            if property_ammenity is None:
+                raise HTTPException(status_code=404, detail="Error adding ammenity to property")
+            return property_ammenity

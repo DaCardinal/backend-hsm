@@ -1,12 +1,12 @@
 import enum
 import uuid
-from sqlalchemy.orm import relationship, selectinload
+from sqlalchemy.orm import relationship, selectinload, column_property
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import Numeric, Column, ForeignKey, Boolean, Enum, Integer, String, Text, UUID,  select
 
 from app.models.model_base import BaseModel as Base
 from app.utils.lifespan import get_db as async_session
-from app.models import Media, EntityMedia
+from app.models import Media, EntityMedia, PropertyUnitAssoc
 
 # class PropertyStatus(enum.Enum):
     # lease = 'lease'
@@ -52,24 +52,48 @@ class Property(Base):
         back_populates="properties",
         lazy="selectin"
     )
-    units = relationship("Units",
-                         secondary="property_unit_assoc",
-                         primaryjoin="and_(PropertyUnitAssoc.property_id==Property.property_id)",
-                         back_populates="properties", lazy="selectin")
-
+    property_unit_assoc = relationship("PropertyUnitAssoc", back_populates="property", overlaps="entity_amenities,property")
+    property_unit_assoc_id = column_property(
+        select(PropertyUnitAssoc.property_unit_assoc_id)
+        .where(PropertyUnitAssoc.property_id == property_id)
+        .correlate_except(PropertyUnitAssoc)
+        .scalar_subquery()
+    )
+    units = relationship("Units", back_populates="property", lazy="selectin")
     media = relationship("Media",
                          secondary="entity_media",
-                         primaryjoin="and_(EntityMedia.entity_id==Property.property_id, EntityMedia.entity_type=='Property')",
+                         primaryjoin="and_(EntityMedia.media_assoc_id==Property.property_unit_assoc_id, EntityMedia.entity_type=='Property')",
                          overlaps="entity_media,media",
-                         lazy="selectin")
+                         lazy="selectin", viewonly=True)
+    # entity_amenities = relationship("EntityAmenities",
+    #                      secondary="property_unit_assoc",
+    #                      primaryjoin="and_(PropertyUnitAssoc.property_id==Property.property_id, PropertyUnitAssoc.property_unit_id==None)",
+    #                      secondaryjoin="and_(PropertyUnitAssoc.property_unit_assoc_id==EntityAmenities.property_unit_assoc_id)",
+    #                      overlaps="entity_media,media,ammenities,property,units",
+    #                      lazy="selectin")
     
-    ammenities = relationship("UnitsAmenities",
-                         secondary="property_unit_assoc",
-                         primaryjoin="and_(PropertyUnitAssoc.property_id==Property.property_id, PropertyUnitAssoc.property_unit_id==Property.property_id)",
-                         secondaryjoin="and_(PropertyUnitAssoc.property_unit_assoc_id==UnitsAmenities.property_unit_assoc_id)",
-                         overlaps="entity_media,media,ammenities,properties,units",
-                         lazy="selectin")
+    entity_amenities = relationship("EntityAmenities", secondary="property_unit_assoc", viewonly=True)    
+    amenities = relationship("Amenities", secondary="entity_amenities",
+                             primaryjoin="Property.property_unit_assoc_id == EntityAmenities.property_unit_assoc_id",
+                             secondaryjoin="EntityAmenities.amenity_id == Amenities.amenity_id",
+                             lazy="selectin", viewonly=True)
+    @property
+    def amenities_with_media(self):
+        amenities_with_media = []
+        for entity_amenity in self.entity_amenities:
+            amenity_dict = {
+                'amenity_id': entity_amenity.amenity.amenity_id,
+                'name': entity_amenity.amenity.name,
+                'media': [media.to_dict() for media in entity_amenity.media]
+            }
+            amenities_with_media.append(amenity_dict)
+        return amenities_with_media
 
+    def to_dict(self):
+        property_dict = super().to_dict()
+        property_dict['amenities'] = self.amenities_with_media
+        return property_dict
+    
     async def get_media(self):        
         db_session : AsyncSession = async_session()
 
