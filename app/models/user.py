@@ -93,25 +93,25 @@ class User(Base):
 
     property = relationship('PropertyUnitAssoc', secondary='property_assignment', back_populates='assignments')
 
-    # owned_properties = relationship("Property", secondary="property_assignment",
-    #                         primaryjoin="and_(PropertyAssignment.property_unit_assoc_id==Property.property_unit_assoc_id, PropertyUnitAssoc.property_unit_id==None)",
-    #                         secondaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='landlord')",
-    #                         lazy="selectin", viewonly=True)
+    owned_properties = relationship("Property", secondary="property_assignment",
+                            primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='landlord')",
+                            secondaryjoin="PropertyAssignment.property_unit_assoc_id==Property.property_unit_assoc_id",
+                            lazy="selectin", viewonly=True)
     
-    # assigned_properties = relationship("Property", secondary="property_assignment",
-    #                         primaryjoin="and_(PropertyAssignment.property_unit_assoc_id==Property.property_unit_assoc_id, PropertyUnitAssoc.property_unit_id==None)",
-    #                         secondaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='handler')",
-    #                         lazy="selectin", viewonly=True)
+    assigned_properties = relationship("Property", secondary="property_assignment",
+                            primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='handler')",
+                            secondaryjoin="PropertyAssignment.property_unit_assoc_id==Property.property_unit_assoc_id",
+                            lazy="selectin", viewonly=True)
     
-    # owned_units = relationship("Units", secondary="property_assignment",
-    #                         primaryjoin="and_(PropertyAssignment.property_unit_assoc_id==Units.property_unit_assoc_id)",
-    #                         secondaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='landlord')",
-    #                         lazy="selectin", viewonly=True)
+    owned_units = relationship("Units", secondary="property_assignment",
+                            primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='landlord')",
+                            secondaryjoin="and_(PropertyAssignment.property_unit_assoc_id==Units.property_unit_assoc_id)",
+                            lazy="selectin", viewonly=True)
     
-    # assigned_units = relationship("Units", secondary="property_assignment",
-    #                         primaryjoin="and_(PropertyAssignment.property_unit_assoc_id==Units.property_unit_assoc_id)",
-    #                         secondaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='handler')",
-    #                         lazy="selectin", viewonly=True)
+    assigned_units = relationship("Units", secondary="property_assignment",
+                            primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='handler')",
+                            secondaryjoin="and_(PropertyAssignment.property_unit_assoc_id==Units.property_unit_assoc_id)",
+                            lazy="selectin", viewonly=True)
 
     async def get_user_addresses(self):        
         db_session : AsyncSession = async_session()

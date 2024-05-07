@@ -18,13 +18,9 @@ class Message(Base):
     is_read = Column(Boolean, default=False, nullable=True)
     date_created = Column(DateTime(timezone=True), default=func.now())
     next_remind_date = Column(DateTime(timezone=True), nullable=True)
-    # reminder_frequency_id = Column(UUID(as_uuid=True), ForeignKey('reminder_frequency.id'))
 
-    # sender = relationship('User', back_populates='sent_messages')
-    # recipients = relationship('MessageRecipient', back_populates='message')
-    # replies = relationship('Message',
-    #                        backref=backref('parent_message', remote_side=[message_id]),
-    #                        cascade='all, delete-orphan')
+    # TODO: Add to next update on message model
+    # reminder_frequency_id = Column(UUID(as_uuid=True), ForeignKey('reminder_frequency.id'))
     # reminder_frequency = relationship('ReminderFrequency', back_populates='messages')
 
     sender = relationship('User', back_populates='sent_messages')
