@@ -1,6 +1,5 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 from uuid import UUID
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.exc import NoResultFound
 from typing import List, Optional, Type, Union
 
@@ -17,7 +16,7 @@ class AmenitiesDAO(BaseDAO[Amenities]):
         self.entity_ammenities_dao = EntityAmmenitiesDAO(EntityAmmenities)
         self.enity_media_dao = EntityMediaDAO(EntityMedia)
 
-    async def link_property_to_media(self, db_session: AsyncSession, property_unit_assoc_id: UUID, media_id: UUID, entity_model=None):
+    async def _link_property_to_media(self, db_session: AsyncSession, property_unit_assoc_id: UUID, media_id: UUID, entity_model=None):
 
         result = await self.enity_media_dao.create(db_session = db_session, obj_in = {
             "entity_type":  entity_model if entity_model else self.model.__name__,

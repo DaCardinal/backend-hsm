@@ -2,12 +2,11 @@ import enum
 import uuid
 from sqlalchemy import UUID, Boolean, Column, DateTime, Enum, String, func, select
 from sqlalchemy import Column
-from sqlalchemy.orm import relationship, selectinload
+from sqlalchemy.orm import relationship, selectinload,column_property
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import event
 
-from app.models.address import Addresses
-from app.models.entity_address import EntityAddress
+from app.models import EntityAddress, Addresses, PropertyAssignment
 from app.models.model_base import BaseModel as Base
 from app.utils.lifespan import get_db as async_session
 
@@ -62,10 +61,14 @@ class User(Base):
         lazy="selectin"
     )
     roles = relationship('Role', secondary='user_roles', back_populates='users', lazy="selectin")
-    company = relationship('Company', secondary='users_company', back_populates='users', lazy="selectin")
-    documents = relationship('Documents', back_populates='users')
+    
     sent_messages = relationship('Message', back_populates='sender')
-    received_messages = relationship('MessageRecipient', back_populates='receipient')
+
+    received_messages = relationship('MessageRecipient', back_populates='recipient')
+
+    company = relationship('Company', secondary='users_company', back_populates='users', lazy="selectin")
+    
+    documents = relationship('Documents', back_populates='users')
 
     interactions_as_user = relationship('UserInteractions',
                                         foreign_keys="[UserInteractions.user_id]",
@@ -83,13 +86,33 @@ class User(Base):
     
     client_under_contract = relationship('UnderContract',
                                         foreign_keys="[UnderContract.client_id]",
-                                        back_populates='client_representative')
+                                        back_populates='client_representative', overlaps="members")
     employee_under_contract = relationship('UnderContract',
                                             foreign_keys="[UnderContract.employee_id]",
                                             back_populates='employee_representative')
 
     property = relationship('PropertyUnitAssoc', secondary='property_assignment', back_populates='assignments')
+
+    # owned_properties = relationship("Property", secondary="property_assignment",
+    #                         primaryjoin="and_(PropertyAssignment.property_unit_assoc_id==Property.property_unit_assoc_id, PropertyUnitAssoc.property_unit_id==None)",
+    #                         secondaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='landlord')",
+    #                         lazy="selectin", viewonly=True)
     
+    # assigned_properties = relationship("Property", secondary="property_assignment",
+    #                         primaryjoin="and_(PropertyAssignment.property_unit_assoc_id==Property.property_unit_assoc_id, PropertyUnitAssoc.property_unit_id==None)",
+    #                         secondaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='handler')",
+    #                         lazy="selectin", viewonly=True)
+    
+    # owned_units = relationship("Units", secondary="property_assignment",
+    #                         primaryjoin="and_(PropertyAssignment.property_unit_assoc_id==Units.property_unit_assoc_id)",
+    #                         secondaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='landlord')",
+    #                         lazy="selectin", viewonly=True)
+    
+    # assigned_units = relationship("Units", secondary="property_assignment",
+    #                         primaryjoin="and_(PropertyAssignment.property_unit_assoc_id==Units.property_unit_assoc_id)",
+    #                         secondaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='handler')",
+    #                         lazy="selectin", viewonly=True)
+
     async def get_user_addresses(self):        
         db_session : AsyncSession = async_session()
 

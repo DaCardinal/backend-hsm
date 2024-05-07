@@ -25,5 +25,8 @@ def configure_routes(app: FastAPI):
     # Create an instance of AmmenitiesDAO
     app.include_router(AmmenitiesRouter(prefix="/ammenities", tags=["Ammenities"]).router)
 
-        # Create an instance of AmmenitiesDAO
+    # Create an instance of MediaDAO
     app.include_router(MediaRouter(prefix="/media", tags=["Media"]).router)
+
+    # Create an instance of MessageDAO
+    app.include_router(MessageRouter(prefix="/messages", tags=["Message"]).router)

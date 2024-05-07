@@ -1,12 +1,10 @@
 import enum
 import uuid
-from sqlalchemy.orm import relationship, selectinload, column_property
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import relationship, column_property
 from sqlalchemy import Numeric, Column, ForeignKey, Boolean, Enum, Integer, String, Text, UUID,  select
 
 from app.models.model_base import BaseModel as Base
-from app.utils.lifespan import get_db as async_session
-from app.models import Media, EntityMedia, PropertyUnitAssoc
+from app.models import PropertyUnitAssoc
 
 class PropertyStatus(enum.Enum):
     available = "available"

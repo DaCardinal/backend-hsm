@@ -12,4 +12,4 @@ class ReminderFrequency(Base):
     frequency = Column(Integer)
     is_active = Column(Boolean, default=False)
 
-    messages = relationship('Message', back_populates='reminder_frequency')
+    # messages = relationship('Message', back_populates='reminder_frequency')
