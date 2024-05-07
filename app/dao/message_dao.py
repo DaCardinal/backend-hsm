@@ -40,6 +40,7 @@ class MessageDAO(BaseDAO[Message]):
             return DAOResponse[MessageResponseModel](success=True, data={
                 "message_id": new_message.message_id,
                 "sender_id": new_message.sender_id,
+                "thread_id": new_message.thread_id,
                 "subject": new_message.subject,
                 "body": new_message.message_body,
                 "date_created": new_message.date_created.isoformat()
@@ -49,18 +50,3 @@ class MessageDAO(BaseDAO[Message]):
         except Exception as e:
             await db_session.rollback()
             print(f"Fatal {str(e)}")
-
-    async def reply_to_message(self, db_session: AsyncSession, message: MessageReply) -> DAOResponse[MessageResponseModel]:
-        parent_message : Message = await self.query(db_session=db_session, filters={"message_id":  message.parent_message_id}, single=True)
-
-        if not parent_message:
-            raise NoResultFound(detail="Parent message not found")
-
-        return await self.create(db_session=db_session, obj_in=Message(
-            message_id=uuid4(),
-            subject=parent_message.subject,
-            message_body=message.message_body,
-            sender_id=message.sender_id,
-            parent_message_id=message.parent_message_id,
-            thread_id=parent_message.thread_id
-        ))

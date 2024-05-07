@@ -17,7 +17,7 @@ class MessageCreate(BaseModel):
 class MessageReply(BaseModel):
     message_body: str
     sender_id: UUID
-    thread_id: Optional[UUID]
+    # thread_id: Optional[UUID]
     parent_message_id: UUID
     recipient_ids: Optional[List[UUID]]
     recipient_groups: Optional[List[UUID]]
@@ -28,6 +28,7 @@ class MessageReply(BaseModel):
 class MessageResponseModel(BaseModel):
     message_id: UUID
     subject: str
+    thread_id: Optional[UUID]
     sender_id: UUID
     body: str
     date_created: datetime

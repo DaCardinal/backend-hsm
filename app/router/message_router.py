@@ -30,14 +30,13 @@ class MessageRouter(BaseCRUDRouter):
             if not parent_message:
                 raise HTTPException(status_code=404, detail="Parent message not found")
             
-            return await self.dao.create(db_session=db, obj_in=Message(
-                message_id=uuid4(),
-                subject=parent_message.subject,
-                message_body=message.message_body,
-                sender_id=message.sender_id,
-                parent_message_id=message.parent_message_id,
-                thread_id=parent_message.thread_id
-            ))
+            return await self.dao.create(db_session=db, obj_in={**message.model_dump(),
+                "subject":parent_message.subject,
+                "message_body":message.message_body,
+                "sender_id":message.sender_id,
+                "parent_message_id":message.parent_message_id,
+                "thread_id":parent_message.thread_id
+            })
         
         @self.router.get("/users/{user_id}/outbox", response_model=DAOResponse[List[MessageResponseModel]])
         async def get_user_outbox(user_id: UUID, db: AsyncSession = Depends(self.get_db)):
@@ -48,6 +47,7 @@ class MessageRouter(BaseCRUDRouter):
                 "message_id": message.message_id,
                 "subject": message.subject,
                 "sender_id": message.sender_id,
+                "thread_id": message.thread_id,
                 "body": message.message_body,
                 "date_created": message.date_created.isoformat()
             } for message in outbox_messages])
@@ -84,6 +84,7 @@ class MessageRouter(BaseCRUDRouter):
                 "message_id": message.message_id,
                 "subject": message.subject,
                 "sender_id": message.sender_id,
+                "thread_id": message.thread_id,
                 "body": message.message_body,
                 "date_created": message.date_created.isoformat()
             } for message in inbox_messages])
