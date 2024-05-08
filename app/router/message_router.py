@@ -38,10 +38,23 @@ class MessageRouter(BaseCRUDRouter):
                 "thread_id":parent_message.thread_id
             })
         
+        @self.router.get("/users/{user_id}/drafts", response_model=DAOResponse[List[MessageResponseModel]])
+        async def get_user_drafts(user_id: UUID, db: AsyncSession = Depends(self.get_db)):
+            outbox_messages = await self.dao.query(db_session=db, filters={"sender_id":  user_id, "is_draft": True})
+            
+            return DAOResponse[List[MessageResponseModel]](success=True, data=[{
+                "message_id": message.message_id,
+                "subject": message.subject,
+                "sender_id": message.sender_id,
+                "thread_id": message.thread_id,
+                "body": message.message_body,
+                "date_created": message.date_created.isoformat()
+            } for message in outbox_messages])
+        
         @self.router.get("/users/{user_id}/outbox", response_model=DAOResponse[List[MessageResponseModel]])
         async def get_user_outbox(user_id: UUID, db: AsyncSession = Depends(self.get_db)):
             # outbox_messages = db.query(Message).filter(Message.sender_id == user_id).order_by(Message.date_created.desc()).all()
-            outbox_messages = await self.dao.query(db_session=db, filters={"sender_id":  user_id})
+            outbox_messages = await self.dao.query(db_session=db, filters={"sender_id":  user_id, "is_draft": False})
             
             return DAOResponse[List[MessageResponseModel]](success=True, data=[{
                 "message_id": message.message_id,
@@ -73,6 +86,7 @@ class MessageRouter(BaseCRUDRouter):
                 join(MessageRecipient, Message.message_id == MessageRecipient.message_id).\
                 where(
                     or_(
+                        Message.is_draft == False,
                         MessageRecipient.recipient_id == user_id,
                         MessageRecipient.recipient_group_id.in_(user_groups_ids) if user_groups_ids else False
                     )
