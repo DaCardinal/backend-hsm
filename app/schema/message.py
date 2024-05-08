@@ -9,6 +9,7 @@ class MessageCreate(BaseModel):
     message_body: str
     sender_id: UUID
     is_draft: Optional[bool] = False
+    is_scheduled: Optional[bool] = False
     recipient_ids: Optional[List[UUID]]
     recipient_groups: Optional[List[UUID]]
 

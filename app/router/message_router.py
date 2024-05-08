@@ -1,9 +1,7 @@
-from typing import List
-from fastapi import Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from uuid import uuid4, UUID
+from uuid import UUID
 from typing import List
 from fastapi import HTTPException, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 from sqlalchemy import or_, select
 
@@ -40,7 +38,20 @@ class MessageRouter(BaseCRUDRouter):
         
         @self.router.get("/users/{user_id}/drafts", response_model=DAOResponse[List[MessageResponseModel]])
         async def get_user_drafts(user_id: UUID, db: AsyncSession = Depends(self.get_db)):
-            outbox_messages = await self.dao.query(db_session=db, filters={"sender_id":  user_id, "is_draft": True})
+            outbox_messages = await self.dao.query(db_session=db, filters={"sender_id":  user_id, "is_draft": True,  "is_scheduled": False})
+            
+            return DAOResponse[List[MessageResponseModel]](success=True, data=[{
+                "message_id": message.message_id,
+                "subject": message.subject,
+                "sender_id": message.sender_id,
+                "thread_id": message.thread_id,
+                "body": message.message_body,
+                "date_created": message.date_created.isoformat()
+            } for message in outbox_messages])
+        
+        @self.router.get("/users/{user_id}/scheduled", response_model=DAOResponse[List[MessageResponseModel]])
+        async def get_user_scheduled(user_id: UUID, db: AsyncSession = Depends(self.get_db)):
+            outbox_messages = await self.dao.query(db_session=db, filters={"sender_id":  user_id, "is_scheduled": True, "is_draft": False})
             
             return DAOResponse[List[MessageResponseModel]](success=True, data=[{
                 "message_id": message.message_id,
@@ -54,7 +65,7 @@ class MessageRouter(BaseCRUDRouter):
         @self.router.get("/users/{user_id}/outbox", response_model=DAOResponse[List[MessageResponseModel]])
         async def get_user_outbox(user_id: UUID, db: AsyncSession = Depends(self.get_db)):
             # outbox_messages = db.query(Message).filter(Message.sender_id == user_id).order_by(Message.date_created.desc()).all()
-            outbox_messages = await self.dao.query(db_session=db, filters={"sender_id":  user_id, "is_draft": False})
+            outbox_messages = await self.dao.query(db_session=db, filters={"sender_id":  user_id, "is_draft": False, "is_scheduled": False})
             
             return DAOResponse[List[MessageResponseModel]](success=True, data=[{
                 "message_id": message.message_id,
@@ -86,7 +97,7 @@ class MessageRouter(BaseCRUDRouter):
                 join(MessageRecipient, Message.message_id == MessageRecipient.message_id).\
                 where(
                     or_(
-                        Message.is_draft == False,
+                        Message.is_draft == False, Message.is_scheduled == False,
                         MessageRecipient.recipient_id == user_id,
                         MessageRecipient.recipient_group_id.in_(user_groups_ids) if user_groups_ids else False
                     )

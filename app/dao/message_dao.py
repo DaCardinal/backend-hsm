@@ -36,7 +36,7 @@ class MessageDAO(BaseDAO[Message]):
             # commit transactions.
             for obj in recipients + recipients_groups:
                 await self.commit_and_refresh(db_session=db_session, obj=obj)
-                
+            print(new_message)
             return DAOResponse[MessageResponseModel](success=True, data={
                 "message_id": new_message.message_id,
                 "sender_id": new_message.sender_id,

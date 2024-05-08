@@ -15,6 +15,7 @@ class Message(Base):
     is_draft = Column(Boolean, default=False, nullable=True)
     is_notification = Column(Boolean, default=False, nullable=True)
     is_reminder = Column(Boolean, default=False, nullable=True)
+    is_scheduled = Column(Boolean, default=False, nullable=True)
     is_read = Column(Boolean, default=False, nullable=True)
     date_created = Column(DateTime(timezone=True), default=func.now())
     next_remind_date = Column(DateTime(timezone=True), nullable=True)
