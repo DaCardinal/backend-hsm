@@ -96,8 +96,8 @@ class MessageRouter(BaseCRUDRouter):
             inbox_stmt = select(Message).\
                 join(MessageRecipient, Message.message_id == MessageRecipient.message_id).\
                 where(
+                    Message.is_draft == False, Message.is_scheduled == False,
                     or_(
-                        Message.is_draft == False, Message.is_scheduled == False,
                         MessageRecipient.recipient_id == user_id,
                         MessageRecipient.recipient_group_id.in_(user_groups_ids) if user_groups_ids else False
                     )

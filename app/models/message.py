@@ -18,6 +18,7 @@ class Message(Base):
     is_scheduled = Column(Boolean, default=False, nullable=True)
     is_read = Column(Boolean, default=False, nullable=True)
     date_created = Column(DateTime(timezone=True), default=func.now())
+    scheduled_date = Column(DateTime(timezone=True), default=func.now())
     next_remind_date = Column(DateTime(timezone=True), nullable=True)
 
     # TODO: Add to next update on message model
