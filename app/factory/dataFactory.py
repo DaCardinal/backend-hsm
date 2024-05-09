@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from importlib import import_module
 from typing import List
+import uuid
 
 class DataFactory(ABC):
     @abstractmethod
@@ -475,6 +476,7 @@ class UserFactory:
 
         user_data = [
             {
+                "user_id": uuid.UUID("0d5340d2-046b-42d9-9ef5-0233b79b6642"),
                 "first_name": "John",
                 "last_name": "Doe",
                 "email": "admin@housekee.com",
@@ -486,6 +488,7 @@ class UserFactory:
                 "gender": "male"
             },
             {
+                "user_id": uuid.UUID("4dbc3019-1884-4a0d-a2e6-feb12d83186e"),
                 "first_name": "Jane",
                 "last_name": "Doe",
                 "email": "tenant@housekee.com",
@@ -497,6 +500,7 @@ class UserFactory:
                 "gender": "male"
             },
             {
+                "user_id": uuid.UUID("889fabef-e15b-4aea-8538-5206b8b8a579"),
                 "first_name": "Jackson",
                 "last_name": "Doe",
                 "email": "landlord@housekee.com",
