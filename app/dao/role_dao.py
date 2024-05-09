@@ -13,7 +13,7 @@ class RoleDAO(BaseDAO[Role]):
     def __init__(self, model: Type[Role]):
         super().__init__(model)
         self.primary_key = "role_id"
-
+    
     async def add_role_permission(self, db_session: AsyncSession, role_alias: str, permission_alias: str):
         permission_dao = PermissionDAO(Permissions)
 

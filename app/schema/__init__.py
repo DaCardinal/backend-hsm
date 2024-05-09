@@ -1,4 +1,4 @@
-from app.schema.role import Role
+from app.schema.role import Role, Permission
 from app.schema.media import Media, MediaCreateSchema, MediaBase
 from app.schema.ammenity import Amenities, AmenitiesCreateSchema, AmenitiesUpdateSchema, AmenitiesBase, EntityAmenitiesBase, EntityAmenities
 from app.schema.address import Address, AddressBase, AddressCreateSchema, AddressTypeEnum, EntityAddress,EntityAddressBase,EntityAddressCreate, City, Country, Region

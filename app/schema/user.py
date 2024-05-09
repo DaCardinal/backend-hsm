@@ -155,10 +155,9 @@ class UserResponse(BaseModel):
             occupation_status=user.occupation_status,
             occupation_location=user.occupation_location
         )
-    
+
     @classmethod
     def from_orm_model(cls, user: UserModel):
-        print(user)
         t = cls(
             user_id=user.user_id,
             first_name=user.first_name,
