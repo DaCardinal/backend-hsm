@@ -9,6 +9,508 @@ class DataFactory(ABC):
 
 from typing import List
 
+class PermissionsFactory:
+    def __init__(self):
+        models_module = import_module("app.models")
+        self.model = getattr(models_module, "Permissions")
+    
+    def create_data(self) -> List[dict]:
+        query_key = 'alias'
+
+        permissions_data = [
+            {'name': 'view_landlord', 'description': 'Grants permission to view landlord', 'alias': 'view_landlord'},
+            {'name': 'create_landlord', 'description': 'Grants permission to create new landlord', 'alias': 'create_landlord'},
+            {'name': 'update_landlord', 'description': 'Grants permission to update landlord', 'alias': 'update_landlord'},
+            {'name': 'delete_landlord', 'description': 'Grants permission to delete landlord', 'alias': 'delete_landlord'},
+            {'name': 'view_tenant', 'description': 'Grants permission to view tenant', 'alias': 'view_tenant'},
+            {'name': 'create_tenant', 'description': 'Grants permission to create new tenant', 'alias': 'create_tenant'},
+            {'name': 'update_tenant', 'description': 'Grants permission to update tenant', 'alias': 'update_tenant'},
+            {'name': 'delete_tenant', 'description': 'Grants permission to delete tenant', 'alias': 'delete_tenant'},
+            {'name': 'view_lease_history', 'description': 'Grants permission to view lease_history', 'alias': 'view_lease_history'},
+            {'name': 'create_lease_history', 'description': 'Grants permission to create new lease_history', 'alias': 'create_lease_history'},
+            {'name': 'update_lease_history', 'description': 'Grants permission to update lease_history', 'alias': 'update_lease_history'},
+            {'name': 'delete_lease_history', 'description': 'Grants permission to delete lease_history', 'alias': 'delete_lease_history'},
+            {'name': 'view_properties', 'description': 'Grants permission to view properties', 'alias': 'view_properties'},
+            {'name': 'create_properties', 'description': 'Grants permission to create new properties', 'alias': 'create_properties'},
+            {'name': 'update_properties', 'description': 'Grants permission to update properties', 'alias': 'update_properties'},
+            {'name': 'delete_properties', 'description': 'Grants permission to delete properties', 'alias': 'delete_properties'},
+            {'name': 'view_units', 'description': 'Grants permission to view units', 'alias': 'view_units'},
+            {'name': 'create_units', 'description': 'Grants permission to create new units', 'alias': 'create_units'},
+            {'name': 'update_units', 'description': 'Grants permission to update units', 'alias': 'update_units'},
+            {'name': 'delete_units', 'description': 'Grants permission to delete units', 'alias': 'delete_units'},
+            {'name': 'view_events', 'description': 'Grants permission to view events', 'alias': 'view_events'},
+            {'name': 'create_events', 'description': 'Grants permission to create new events', 'alias': 'create_events'},
+            {'name': 'update_events', 'description': 'Grants permission to update events', 'alias': 'update_events'},
+            {'name': 'delete_events', 'description': 'Grants permission to delete events', 'alias': 'delete_events'},
+            {'name': 'view_leases', 'description': 'Grants permission to view leases', 'alias': 'view_leases'},
+            {'name': 'create_leases', 'description': 'Grants permission to create new leases', 'alias': 'create_leases'},
+            {'name': 'update_leases', 'description': 'Grants permission to update leases', 'alias': 'update_leases'},
+            {'name': 'delete_leases', 'description': 'Grants permission to delete leases', 'alias': 'delete_leases'},
+            {'name': 'view_users', 'description': 'Grants permission to view users', 'alias': 'view_users'},
+            {'name': 'create_users', 'description': 'Grants permission to create new users', 'alias': 'create_users'},
+            {'name': 'update_users', 'description': 'Grants permission to update users', 'alias': 'update_users'},
+            {'name': 'delete_users', 'description': 'Grants permission to delete users', 'alias': 'delete_users'},
+            {'name': 'view_invoice', 'description': 'Grants permission to view invoice', 'alias': 'view_invoice'},
+            {'name': 'create_invoice', 'description': 'Grants permission to create new invoice', 'alias': 'create_invoice'},
+            {'name': 'update_invoice', 'description': 'Grants permission to update invoice', 'alias': 'update_invoice'},
+            {'name': 'delete_invoice', 'description': 'Grants permission to delete invoice', 'alias': 'delete_invoice'}
+        ]
+
+
+        return query_key, permissions_data
+
+class RolesFactory:
+    def __init__(self):
+        models_module = import_module("app.models")
+        self.model = getattr(models_module, "Role")
+    
+    def create_data(self) -> List[dict]:
+        query_key = 'alias'
+
+        roles_data = [
+            {
+                "name": "admin",
+                "alias": "admin",
+                "description": "Role for admin user priveleges"
+            },
+            {
+                "name": "tenant",
+                "alias": "tenant",
+                "description": "Role for tenant user priveleges"
+            },
+            {
+                "name": "landlord",
+                "alias": "landlord",
+                "description": "Role for landlord user priveleges"
+            }
+        ]
+
+        return query_key, roles_data
+    
+class RolePermissionsFactory:
+    def __init__(self):
+        models_module = import_module("app.models")
+        self.model = getattr(models_module, "RolePermissions")
+    
+    def create_data(self) -> List[dict]:
+        query_key = 'role_permissions'
+
+        admin_permissions_data = [
+        {
+            "name": "view_landlord",
+            "description": "Grants permission to view landlord",
+            "alias": "view_landlord"
+        },
+        {
+            "name": "create_landlord",
+            "description": "Grants permission to create new landlord",
+            "alias": "create_landlord"
+        },
+        {
+            "name": "update_landlord",
+            "description": "Grants permission to update landlord",
+            "alias": "update_landlord"
+        },
+        {
+            "name": "delete_landlord",
+            "description": "Grants permission to delete landlord",
+            "alias": "delete_landlord"
+        },
+        {
+            "name": "view_tenant",
+            "description": "Grants permission to view tenant",
+            "alias": "view_tenant"
+        },
+        {
+            "name": "create_tenant",
+            "description": "Grants permission to create new tenant",
+            "alias": "create_tenant"
+        },
+        {
+            "name": "update_tenant",
+            "description": "Grants permission to update tenant",
+            "alias": "update_tenant"
+        },
+        {
+            "name": "delete_tenant",
+            "description": "Grants permission to delete tenant",
+            "alias": "delete_tenant"
+        },
+        {
+            "name": "view_lease_history",
+            "description": "Grants permission to view lease_history",
+            "alias": "view_lease_history"
+        },
+        {
+            "name": "create_lease_history",
+            "description": "Grants permission to create new lease_history",
+            "alias": "create_lease_history"
+        },
+        {
+            "name": "update_lease_history",
+            "description": "Grants permission to update lease_history",
+            "alias": "update_lease_history"
+        },
+        {
+            "name": "delete_lease_history",
+            "description": "Grants permission to delete lease_history",
+            "alias": "delete_lease_history"
+        },
+        {
+            "name": "view_properties",
+            "description": "Grants permission to view properties",
+            "alias": "view_properties"
+        },
+        {
+            "name": "create_properties",
+            "description": "Grants permission to create new properties",
+            "alias": "create_properties"
+        },
+        {
+            "name": "update_properties",
+            "description": "Grants permission to update properties",
+            "alias": "update_properties"
+        },
+        {
+            "name": "delete_properties",
+            "description": "Grants permission to delete properties",
+            "alias": "delete_properties"
+        },
+        {
+            "name": "view_units",
+            "description": "Grants permission to view units",
+            "alias": "view_units"
+        },
+        {
+            "name": "create_units",
+            "description": "Grants permission to create new units",
+            "alias": "create_units"
+        },
+        {
+            "name": "update_units",
+            "description": "Grants permission to update units",
+            "alias": "update_units"
+        },
+        {
+            "name": "delete_units",
+            "description": "Grants permission to delete units",
+            "alias": "delete_units"
+        },
+        {
+            "name": "view_events",
+            "description": "Grants permission to view events",
+            "alias": "view_events"
+        },
+        {
+            "name": "create_events",
+            "description": "Grants permission to create new events",
+            "alias": "create_events"
+        },
+        {
+            "name": "update_events",
+            "description": "Grants permission to update events",
+            "alias": "update_events"
+        },
+        {
+            "name": "delete_events",
+            "description": "Grants permission to delete events",
+            "alias": "delete_events"
+        },
+        {
+            "name": "view_leases",
+            "description": "Grants permission to view leases",
+            "alias": "view_leases"
+        },
+        {
+            "name": "create_leases",
+            "description": "Grants permission to create new leases",
+            "alias": "create_leases"
+        },
+        {
+            "name": "update_leases",
+            "description": "Grants permission to update leases",
+            "alias": "update_leases"
+        },
+        {
+            "name": "delete_leases",
+            "description": "Grants permission to delete leases",
+            "alias": "delete_leases"
+        },
+        {
+            "name": "view_users",
+            "description": "Grants permission to view users",
+            "alias": "view_users"
+        },
+        {
+            "name": "create_users",
+            "description": "Grants permission to create new users",
+            "alias": "create_users"
+        },
+        {
+            "name": "update_users",
+            "description": "Grants permission to update users",
+            "alias": "update_users"
+        },
+        {
+            "name": "delete_users",
+            "description": "Grants permission to delete users",
+            "alias": "delete_users"
+        },
+        {
+            "name": "view_invoice",
+            "description": "Grants permission to view invoice",
+            "alias": "view_invoice"
+        },
+        {
+            "name": "create_invoice",
+            "description": "Grants permission to create new invoice",
+            "alias": "create_invoice"
+        },
+        {
+            "name": "update_invoice",
+            "description": "Grants permission to update invoice",
+            "alias": "update_invoice"
+        },
+        {
+            "name": "delete_invoice",
+            "description": "Grants permission to delete invoice",
+            "alias": "delete_invoice"
+        }
+    ]
+
+        tenant_permissions_data = [
+        {
+            "name": "view_events",
+            "description": "Grants permission to view events",
+            "alias": "view_events"
+        },
+        {
+            "name": "create_events",
+            "description": "Grants permission to create new events",
+            "alias": "create_events"
+        },
+        {
+            "name": "update_events",
+            "description": "Grants permission to update events",
+            "alias": "update_events"
+        },
+        {
+            "name": "delete_events",
+            "description": "Grants permission to delete events",
+            "alias": "delete_events"
+        }
+    ]
+
+        landlord_permissions_data = [
+        {
+            "name": "view_tenant",
+            "description": "Grants permission to view tenant",
+            "alias": "view_tenant"
+        },
+        {
+            "name": "create_tenant",
+            "description": "Grants permission to create new tenant",
+            "alias": "create_tenant"
+        },
+        {
+            "name": "update_tenant",
+            "description": "Grants permission to update tenant",
+            "alias": "update_tenant"
+        },
+        {
+            "name": "delete_tenant",
+            "description": "Grants permission to delete tenant",
+            "alias": "delete_tenant"
+        },
+        {
+            "name": "view_lease_history",
+            "description": "Grants permission to view lease_history",
+            "alias": "view_lease_history"
+        },
+        {
+            "name": "create_lease_history",
+            "description": "Grants permission to create new lease_history",
+            "alias": "create_lease_history"
+        },
+        {
+            "name": "update_lease_history",
+            "description": "Grants permission to update lease_history",
+            "alias": "update_lease_history"
+        },
+        {
+            "name": "delete_lease_history",
+            "description": "Grants permission to delete lease_history",
+            "alias": "delete_lease_history"
+        },
+        {
+            "name": "view_properties",
+            "description": "Grants permission to view properties",
+            "alias": "view_properties"
+        },
+        {
+            "name": "create_properties",
+            "description": "Grants permission to create new properties",
+            "alias": "create_properties"
+        },
+        {
+            "name": "update_properties",
+            "description": "Grants permission to update properties",
+            "alias": "update_properties"
+        },
+        {
+            "name": "delete_properties",
+            "description": "Grants permission to delete properties",
+            "alias": "delete_properties"
+        },
+        {
+            "name": "view_units",
+            "description": "Grants permission to view units",
+            "alias": "view_units"
+        },
+        {
+            "name": "create_units",
+            "description": "Grants permission to create new units",
+            "alias": "create_units"
+        },
+        {
+            "name": "update_units",
+            "description": "Grants permission to update units",
+            "alias": "update_units"
+        },
+        {
+            "name": "delete_units",
+            "description": "Grants permission to delete units",
+            "alias": "delete_units"
+        },
+        {
+            "name": "view_events",
+            "description": "Grants permission to view events",
+            "alias": "view_events"
+        },
+        {
+            "name": "create_events",
+            "description": "Grants permission to create new events",
+            "alias": "create_events"
+        },
+        {
+            "name": "update_events",
+            "description": "Grants permission to update events",
+            "alias": "update_events"
+        },
+        {
+            "name": "delete_events",
+            "description": "Grants permission to delete events",
+            "alias": "delete_events"
+        },
+        {
+            "name": "view_leases",
+            "description": "Grants permission to view leases",
+            "alias": "view_leases"
+        },
+        {
+            "name": "create_leases",
+            "description": "Grants permission to create new leases",
+            "alias": "create_leases"
+        },
+        {
+            "name": "update_leases",
+            "description": "Grants permission to update leases",
+            "alias": "update_leases"
+        },
+        {
+            "name": "delete_leases",
+            "description": "Grants permission to delete leases",
+            "alias": "delete_leases"
+        },
+        {
+            "name": "view_invoice",
+            "description": "Grants permission to view invoice",
+            "alias": "view_invoice"
+        },
+        {
+            "name": "create_invoice",
+            "description": "Grants permission to create new invoice",
+            "alias": "create_invoice"
+        },
+        {
+            "name": "update_invoice",
+            "description": "Grants permission to update invoice",
+            "alias": "update_invoice"
+        },
+        {
+            "name": "delete_invoice",
+            "description": "Grants permission to delete invoice",
+            "alias": "delete_invoice"
+        }
+    ]
+
+        
+        role_permissions_data = [
+            {
+                "name": "admin",
+                "description": "Role for admin user priveleges",
+                "permissions": admin_permissions_data
+            },
+            {
+                "name": "tenant",
+                "description": "Role for tenant user priveleges",
+                "permissions": tenant_permissions_data
+            },
+            {
+                "name": "landlord",
+                "description": "Role for landlord user priveleges",
+                "permissions": landlord_permissions_data
+            }
+        ]
+
+        return query_key, role_permissions_data
+
+class UserFactory:
+    def __init__(self):
+        models_module = import_module("app.models")
+        self.model = getattr(models_module, "User")
+    
+    def create_data(self) -> List[dict]:
+        query_key = 'email'
+
+        user_data = [
+            {
+                "first_name": "John",
+                "last_name": "Doe",
+                "email": "admin@housekee.com",
+                "date_of_birth": "1989-07-19",
+                "phone_number": "59123456789",
+                "password_hash": "$2b$12$vVs/j4HpV4j4Mb7PHAKOZe3C1dsMthIaHyM2Oh2.wXE2oG9I6KLHi",
+                "identification_number": "string",
+                "photo_url": "string",
+                "gender": "male"
+            },
+            {
+                "first_name": "Jane",
+                "last_name": "Doe",
+                "email": "tenant@housekee.com",
+                "date_of_birth": "1989-07-19",
+                "phone_number": "59123456789",
+                "password_hash": "$2b$12$vVs/j4HpV4j4Mb7PHAKOZe3C1dsMthIaHyM2Oh2.wXE2oG9I6KLHi",
+                "identification_number": "GHA-0987654321",
+                "photo_url": "string",
+                "gender": "male"
+            },
+            {
+                "first_name": "Jackson",
+                "last_name": "Doe",
+                "email": "landlord@housekee.com",
+                "date_of_birth": "1989-07-19",
+                "phone_number": "59123456789",
+                "password_hash": "$2b$12$vVs/j4HpV4j4Mb7PHAKOZe3C1dsMthIaHyM2Oh2.wXE2oG9I6KLHi",
+                "identification_number": "GHA-1234567890",
+                "photo_url": "string",
+                "gender": "male"
+            }
+        ]
+
+        return query_key, user_data
+
 class MediaFactory:
     def __init__(self):
         models_module = import_module("app.models")

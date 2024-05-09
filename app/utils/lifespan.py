@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from app.db.dbManager import DBManager
 from app.utils.logger import AppLogger
-from app.factory.dataFactory import AmmenityFactory, PaymentTypesFactory, UtilitiesFactory, MediaFactory
+from app.factory.dataFactory import AmmenityFactory, PaymentTypesFactory, UtilitiesFactory, MediaFactory, UserFactory, RolesFactory, PermissionsFactory, RolePermissionsFactory
 from app.factory.dataSeeder import DataSeeder
 
 logger = AppLogger().get_logger()
@@ -30,6 +30,9 @@ async def lifespan(app: FastAPI):
 
 
     # seed ammenities model
+    user_info_seeder = DataSeeder([RolesFactory(), PermissionsFactory(), RolePermissionsFactory(), UserFactory()])
+    await user_info_seeder.seed_data()               
+    
     seeder = DataSeeder([AmmenityFactory(), UtilitiesFactory(), PaymentTypesFactory(), MediaFactory()])
     await seeder.seed_data()
 

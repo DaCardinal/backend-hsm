@@ -51,7 +51,7 @@ class UserBase(BaseModel):
     last_name: str = Field(..., max_length=128)
     email: EmailStr = Field(...)
     phone_number: str = Field(..., max_length=50)
-    password_hash: str = Field(..., max_length=128)
+    # password_hash: str = Field(..., max_length=128)
     identification_number: str = Field(..., max_length=80)
     photo_url: str = Field(..., max_length=128)
     gender: GenderEnum = Field(...)
@@ -92,7 +92,7 @@ class UserResponse(BaseModel):
     last_name: str = Field(..., max_length=128)
     email: EmailStr = Field(...)
     phone_number: str = Field(..., max_length=50)
-    password_hash: str = Field(..., max_length=128)
+    # password_hash: str = Field(..., max_length=128)
     identification_number: str = Field(..., max_length=80)
     photo_url: str = Field(..., max_length=128)
     gender: GenderEnum = Field(...)
@@ -165,7 +165,7 @@ class UserResponse(BaseModel):
             last_name=user.last_name,
             email=user.email,
             phone_number=user.phone_number,
-            password_hash=user.password_hash,
+            # password_hash=user.password_hash,
             identification_number=user.identification_number,
             photo_url=user.photo_url,
             gender=user.gender,

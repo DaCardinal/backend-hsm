@@ -24,15 +24,16 @@ class User(Base):
     email = Column(String(80), unique=True, index=True)
     phone_number = Column(String(50))
     password_hash = Column(String(128))
+    date_of_birth = Column(String)
     identification_number = Column(String(80))
     photo_url = Column(String(128))
     gender = Column(Enum(GenderEnum))
 
     # Authentication info
-    login_provider = Column(String(128))
-    reset_token = Column(String(128))      
-    verification_token = Column(String(128))    
-    is_subscribed_token = Column(String(128))                   
+    login_provider = Column(String(128), nullable=True)
+    reset_token = Column(String(128), nullable=True)      
+    verification_token = Column(String(128), nullable=True)    
+    is_subscribed_token = Column(String(128), nullable=True)                   
     is_disabled = Column(Boolean, default=False)
     is_verified = Column(Boolean, default=True)
     is_subscribed = Column(Boolean, default=True)
@@ -40,15 +41,15 @@ class User(Base):
     last_login_time = Column(DateTime(timezone=True))
     
     # Employment info
-    employer_name = Column(String(128))
-    occupation_status = Column(String(128))
-    occupation_location = Column(String(128))
+    employer_name = Column(String(128), nullable=True)
+    occupation_status = Column(String(128), nullable=True)
+    occupation_location = Column(String(128), nullable=True)
 
     # Emergency Info
-    emergency_contact_name = Column(String(128))
-    emergency_contact_email = Column(String(128))
-    emergency_contact_relation = Column(String(128))
-    emergency_contact_number = Column(String(128))
+    emergency_contact_name = Column(String(128), nullable=True)
+    emergency_contact_email = Column(String(128), nullable=True)
+    emergency_contact_relation = Column(String(128), nullable=True)
+    emergency_contact_number = Column(String(128), nullable=True)
     emergency_address_hash = Column(UUID(as_uuid=True)) # TODO: Change to hash function
 
     addresses = relationship(
