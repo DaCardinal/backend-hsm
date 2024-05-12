@@ -25,7 +25,7 @@ class AuthRouter(BaseCRUDRouter):
                 raise HTTPException(status_code=401, detail="User not found")
         
             if current_user.is_verified and current_user.login_provider is None:
-                if current_user.password_hash is None:
+                if current_user.password is None:
                     raise HTTPException(
                         status_code=401, detail="Please set your password first!"
                     )
