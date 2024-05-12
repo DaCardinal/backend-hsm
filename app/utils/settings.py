@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str
     JWT_SECRET: str
 
+    PYTHON_VERSION: str
+
     class Config:
         env_file = ".env"
         env_file_encoding = 'utf-8'
