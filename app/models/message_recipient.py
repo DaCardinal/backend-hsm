@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, ForeignKey, Boolean, UUID
+from sqlalchemy import Column, DateTime, ForeignKey, Boolean, UUID
 from sqlalchemy.orm import relationship
 
 from app.models.model_base import BaseModel as Base
@@ -12,6 +12,7 @@ class MessageRecipient(Base):
     recipient_group_id = Column(UUID(as_uuid=True), ForeignKey('property_unit_assoc.property_unit_assoc_id'), nullable=True)
     message_id = Column(UUID(as_uuid=True), ForeignKey('message.message_id'))
     is_read = Column(Boolean)
+    msg_send_date = Column(DateTime(timezone=True))
 
     recipient = relationship('User', back_populates='received_messages')
     message = relationship('Message', back_populates='recipients')

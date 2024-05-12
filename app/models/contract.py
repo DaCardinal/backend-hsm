@@ -1,4 +1,4 @@
-from sqlalchemy import Numeric, Column, ForeignKey, DateTime, Enum, Integer
+from sqlalchemy import Numeric, Column, ForeignKey, DateTime, Enum, Integer, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import enum
@@ -14,7 +14,7 @@ class Contract(Base):
     __tablename__ = 'contract'
     contract_id = Column(UUID(as_uuid=True), primary_key=True)
     contract_type_id = Column(UUID(as_uuid=True), ForeignKey('contract_type.contract_type_id'))
-    contract_details = Column(UUID(as_uuid=True))
+    contract_details = Column(Text)
     payment_type_id = Column(UUID(as_uuid=True), ForeignKey('payment_types.payment_type_id'))
     num_invoices = Column(Integer)
     payment_amount = Column(Numeric(10, 2))

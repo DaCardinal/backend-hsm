@@ -1,6 +1,5 @@
-from sqlalchemy import Numeric, create_engine, Column, ForeignKey, Boolean, DateTime, Enum, Integer, String, Text
+from sqlalchemy import Column, ForeignKey, DateTime, Enum
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from app.models.model_base import BaseModel as Base
 import enum
@@ -18,6 +17,8 @@ class UnderContract(Base):
     contract_status = Column(Enum(ContractStatusEnum))
     client_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'))
     employee_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'))
+    start_date = Column(DateTime(timezone=True))
+    end_date = Column(DateTime(timezone=True))
 
     properties  = relationship('PropertyUnitAssoc', back_populates='under_contract')
     contract  = relationship('Contract', back_populates='under_contract')

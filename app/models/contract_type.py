@@ -1,14 +1,8 @@
 from sqlalchemy import Numeric, Column, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-import enum
 
 from app.models.model_base import BaseModel as Base
-
-class ContractStatusEnum(enum.Enum):
-    active = "active"
-    expired = "expired"
-    terminated = "terminated"
 
 class ContractType(Base):
     __tablename__ = 'contract_type'

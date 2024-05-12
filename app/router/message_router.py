@@ -2,8 +2,7 @@ from uuid import UUID
 from typing import List
 from fastapi import HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import aliased
-from sqlalchemy import or_, select
+from sqlalchemy import and_, or_, select
 
 from app.models import Message, MessageRecipient, PropertyUnitAssoc, UnderContract
 from app.dao.message_dao import MessageDAO
@@ -78,32 +77,34 @@ class MessageRouter(BaseCRUDRouter):
 
         @self.router.get("/users/{user_id}/inbox", response_model=DAOResponse[List[MessageResponseModel]])
         async def get_user_inbox(user_id: UUID, db: AsyncSession = Depends(self.get_db)):
-            # Alias for clarity when querying
-            group_alias = aliased(PropertyUnitAssoc)
-
-            # Asynchronously fetch the user's groups
-            user_groups_stmt = select(group_alias.property_unit_assoc_id).\
-                join(UnderContract, group_alias.property_unit_assoc_id == UnderContract.property_unit_assoc_id).\
+            
+            # Asynchronously fetch the user's groups and contract dates
+            user_contracts_stmt = select(UnderContract).\
+                join(PropertyUnitAssoc, PropertyUnitAssoc.property_unit_assoc_id == UnderContract.property_unit_assoc_id).\
                 where(UnderContract.client_id == user_id)
-            result = await db.execute(user_groups_stmt)
-            user_groups_ids = [group.property_unit_assoc_id for group in result.scalars().all()]
+            contracts_result = await db.execute(user_contracts_stmt)
+            contracts = contracts_result.scalars().all()
+            contract_periods = [(contract.property_unit_assoc_id, contract.start_date, contract.end_date) for contract in contracts]
 
             # Construct a list of group IDs for use in the next query
-            if not user_groups_ids:
-                user_groups_ids = []  # Ensure it's a list even if empty
+            if not contract_periods:
+                contract_periods = []
 
-            # Asynchronously fetch inbox messages
+            # Filter messages based on whether the send date is within any of the contract periods
             inbox_stmt = select(Message).\
                 join(MessageRecipient, Message.message_id == MessageRecipient.message_id).\
                 where(
                     Message.is_draft == False, Message.is_scheduled == False,
                     or_(
                         MessageRecipient.recipient_id == user_id,
-                        MessageRecipient.recipient_group_id.in_(user_groups_ids) if user_groups_ids else False
+                        and_(
+                            MessageRecipient.recipient_group_id.in_([cp[0] for cp in contract_periods]),
+                            or_(*[and_(MessageRecipient.msg_send_date >= cp[1], MessageRecipient.msg_send_date <= cp[2]) for cp in contract_periods])
+                        )
                     )
                 ).order_by(Message.date_created.desc())
-            result = await db.execute(inbox_stmt)
-            inbox_messages = result.scalars().all()
+            inbox_messages_result = await db.execute(inbox_stmt)
+            inbox_messages = inbox_messages_result.scalars().all()
         
             return DAOResponse[List[MessageResponseModel]](success=True, data=[{
                 "message_id": message.message_id,
