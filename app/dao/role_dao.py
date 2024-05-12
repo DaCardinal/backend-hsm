@@ -8,6 +8,7 @@ from app.dao.base_dao import BaseDAO
 from app.dao.permission_dao import PermissionDAO
 from app.utils.response import DAOResponse
 from app.models import Role, Permissions
+from app.schema import Role as RoleSchema
 
 class RoleDAO(BaseDAO[Role]):
     def __init__(self, model: Type[Role]):
@@ -26,13 +27,13 @@ class RoleDAO(BaseDAO[Role]):
                     raise NoResultFound()
         
                 if permission in role.permissions:
-                    return DAOResponse[dict](success=False, error="Permission already exists for the role", data=role.to_dict())
+                    return DAOResponse[RoleSchema](success=False, error="Permission already exists for the role", data=role.to_dict())
                 
                 role.permissions.append(permission)
                 await self.commit_and_refresh(db, role)
 
-                return DAOResponse[dict](success=True, data=role.to_dict())
+                return DAOResponse[RoleSchema](success=True, data=role.to_dict())
         except NoResultFound as e:
-            return DAOResponse[dict](success=False, error="Permission or Role not found")
+            return DAOResponse[str](success=False, error="Permission or Role not found")
         except Exception as e:
-            return DAOResponse[Role](success=False, error=str(e))
+            return DAOResponse[str](success=False, error=str(e))

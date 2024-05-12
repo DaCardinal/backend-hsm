@@ -7,6 +7,33 @@ from pydantic import BaseModel, Field, EmailStr
 from app.models import User as UserModel, Addresses
 from app.schema import AddressBase, Address, City, Region, Country, Role
 
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+    class Config():
+        from_attributes = True
+
+class TokenExposed(BaseModel):
+    access_token: str
+    token_type: str
+    first_name: str
+    email: str
+    user_id: str
+    last_name: str
+    expires: str
+    roles : List[Role] = []
+
+    class Config():
+        from_attributes = True
+
+class TokenData(BaseModel):
+    email: Optional[str] = None
+
+class Login(BaseModel):
+    username: str
+    password: str
+    
 class GenderEnum(str, Enum):
     male = "male"
     female = "female"
@@ -46,6 +73,21 @@ class UserAuthInfo(BaseModel):
     class Config:
         from_attributes = True
 
+class UserAuthCreateInfo(BaseModel):
+    password: Optional[str] = None
+    login_provider: Optional[str] = Field(..., max_length=128)
+    reset_token: Optional[str] = Field(None, max_length=128)
+    verification_token: Optional[str] = Field(None, max_length=128)
+    is_subscribed_token: Optional[str] = Field(None, max_length=128)
+    is_disabled: bool = False
+    is_verified: bool = True
+    is_subscribed: bool = True
+    current_login_time: datetime = Field(default_factory=datetime.now)
+    last_login_time: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
 class UserBase(BaseModel):
     first_name: str = Field(..., max_length=128)
     last_name: str = Field(..., max_length=128)
@@ -62,7 +104,7 @@ class UserBase(BaseModel):
 
 class UserCreateSchema(UserBase):
     address: Optional[AddressBase] = None
-    user_auth_info: Optional[UserAuthInfo] = None
+    user_auth_info: Optional[UserAuthCreateInfo] = None
     user_emergency_info: Optional[UserEmergencyInfo] = None
     user_employer_info: Optional[UserEmployerInfo] = None
     role: Optional[str] = None
@@ -81,7 +123,7 @@ class UserUpdateSchema(UserBase):
 
 class User(UserBase, UserAuthInfo, UserEmergencyInfo, UserEmployerInfo):
     user_id: UUID = Field(...)
-    addresses: Optional[AddressBase]
+    addresses: Optional[AddressBase] = None
 
     class Config:
         from_attributes = True

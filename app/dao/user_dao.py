@@ -1,5 +1,6 @@
 from functools import partial
 from uuid import UUID
+import uuid
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.exc import NoResultFound
@@ -10,9 +11,9 @@ from typing_extensions import override
 from app.dao.base_dao import BaseDAO
 from app.dao.address_dao import AddressDAO
 from app.dao.role_dao import RoleDAO
-from app.utils.response import DAOResponse
+from app.utils import DAOResponse, Hash
 from app.models import User, Addresses, Role
-from app.schema import UserResponse, Address, AddressBase, UserAuthInfo, UserUpdateSchema, UserCreateSchema, UserEmergencyInfo, UserBase, UserEmployerInfo
+from app.schema import UserResponse, Address, AddressBase, UserAuthInfo, UserUpdateSchema, UserCreateSchema, UserEmergencyInfo, UserBase,UserAuthCreateInfo, UserEmployerInfo
 
 class UserDAO(BaseDAO[User]):
     def __init__(self, model: Type[User]):
@@ -37,12 +38,18 @@ class UserDAO(BaseDAO[User]):
             new_user: User = await super().create(db_session=db_session, obj_in=user_info)
             user_id = new_user.user_id
 
+            # create verification token and password hash
+            if 'user_auth_info' in user_data and user_data['user_auth_info'] and 'password' in  user_data['user_auth_info']:
+                user_data['user_auth_info']['password'] = Hash.bcrypt(user_data['user_auth_info']['password'])
+                user_data['user_auth_info']['verification_token'] = str(uuid.uuid4())
+                user_data['user_auth_info']['is_subscribed_token'] = str(uuid.uuid4())
+
             # add additional info if exists | Determine the correct schema for the address
             address_schema = Address if 'address' in user_data and user_data['address'] and 'address_id' in user_data['address'] else AddressBase
             details_methods = {
                 'user_emergency_info': (self.add_emergency_info, UserEmergencyInfo),
                 'user_employer_info': (self.add_employment_info, UserEmployerInfo),
-                'user_auth_info': (self.add_auth_info, UserAuthInfo),
+                'user_auth_info': (self.add_auth_info, UserAuthCreateInfo),
                 'address': (partial(self.address_dao.add_entity_address, entity_model=self.model.__name__), address_schema)
             }
 
@@ -65,7 +72,7 @@ class UserDAO(BaseDAO[User]):
             return DAOResponse[UserResponse](success=True, data=UserResponse.from_orm_model(new_user))
         
         except ValidationError as e:
-            return DAOResponse(success=False, validation_error=str(e))
+            return DAOResponse(success=False, data=str(e))
         except Exception as e:
             await db_session.rollback()
             return DAOResponse[UserResponse](success=False, error=f"Fatal {str(e)}")

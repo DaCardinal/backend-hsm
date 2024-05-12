@@ -13,6 +13,12 @@ asyncpg = "*"
 aiomysql = "*"
 greenlet = "*"
 aiosqlite = "*"
+passlib = "*"
+fastapi-sso = "*"
+cloudinary = "*"
+jwt = "*"
+pyjwt = "*"
+bcrypt = "*"
 
 [dev-packages]
 

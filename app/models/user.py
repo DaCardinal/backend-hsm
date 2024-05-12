@@ -1,12 +1,12 @@
 import enum
 import uuid
+from datetime import datetime
 from sqlalchemy import UUID, Boolean, Column, DateTime, Enum, String, func, select
 from sqlalchemy import Column
-from sqlalchemy.orm import relationship, selectinload,column_property
+from sqlalchemy.orm import relationship, selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import event
 
-from app.models import EntityAddress, Addresses, PropertyAssignment
+from app.models import EntityAddress, Addresses
 from app.models.model_base import BaseModel as Base
 from app.utils.lifespan import get_db as async_session
 
@@ -23,7 +23,7 @@ class User(Base):
     last_name = Column(String(128))
     email = Column(String(80), unique=True, index=True)
     phone_number = Column(String(50))
-    password_hash = Column(String(128))
+    password = Column(String(128))
     date_of_birth = Column(String)
     identification_number = Column(String(80))
     photo_url = Column(String(128))
@@ -94,25 +94,32 @@ class User(Base):
 
     property = relationship('PropertyUnitAssoc', secondary='property_assignment', back_populates='assignments')
 
-    owned_properties = relationship("Property", secondary="property_assignment",
-                            primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='landlord')",
-                            secondaryjoin="PropertyAssignment.property_unit_assoc_id==Property.property_unit_assoc_id",
-                            lazy="selectin", viewonly=True)
+    # owned_properties = relationship("Property", secondary="property_assignment",
+    #                         primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='landlord')",
+    #                         secondaryjoin="PropertyAssignment.property_unit_assoc_id==Property.property_unit_assoc_id",
+    #                         lazy="selectin", viewonly=True)
     
-    assigned_properties = relationship("Property", secondary="property_assignment",
-                            primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='handler')",
-                            secondaryjoin="PropertyAssignment.property_unit_assoc_id==Property.property_unit_assoc_id",
-                            lazy="selectin", viewonly=True)
+    # assigned_properties = relationship("Property", secondary="property_assignment",
+    #                         primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='handler')",
+    #                         secondaryjoin="PropertyAssignment.property_unit_assoc_id==Property.property_unit_assoc_id",
+    #                         lazy="selectin", viewonly=True)
     
-    owned_units = relationship("Units", secondary="property_assignment",
-                            primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='landlord')",
-                            secondaryjoin="and_(PropertyAssignment.property_unit_assoc_id==Units.property_unit_assoc_id)",
-                            lazy="selectin", viewonly=True)
+    # owned_units = relationship("Units", secondary="property_assignment",
+    #                         primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='landlord')",
+    #                         secondaryjoin="and_(PropertyAssignment.property_unit_assoc_id==Units.property_unit_assoc_id)",
+    #                         lazy="selectin", viewonly=True)
     
-    assigned_units = relationship("Units", secondary="property_assignment",
-                            primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='handler')",
-                            secondaryjoin="and_(PropertyAssignment.property_unit_assoc_id==Units.property_unit_assoc_id)",
-                            lazy="selectin", viewonly=True)
+    # assigned_units = relationship("Units", secondary="property_assignment",
+    #                         primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='handler')",
+    #                         secondaryjoin="and_(PropertyAssignment.property_unit_assoc_id==Units.property_unit_assoc_id)",
+    #                         lazy="selectin", viewonly=True)
+
+    def update_last_login_time(self):
+        # Store the current login time in the last_login_time field
+        self.last_login_time = self.current_login_time
+
+        # Update the current_login_time field to the current date
+        self.current_login_time = datetime.now()
 
     async def get_user_addresses(self):        
         db_session : AsyncSession = async_session()

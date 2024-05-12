@@ -482,7 +482,7 @@ class UserFactory:
                 "email": "admin@housekee.com",
                 "date_of_birth": "1989-07-19",
                 "phone_number": "59123456789",
-                "password_hash": "$2b$12$vVs/j4HpV4j4Mb7PHAKOZe3C1dsMthIaHyM2Oh2.wXE2oG9I6KLHi",
+                "password": "$2b$12$vVs/j4HpV4j4Mb7PHAKOZe3C1dsMthIaHyM2Oh2.wXE2oG9I6KLHi",
                 "identification_number": "string",
                 "photo_url": "string",
                 "gender": "male"
@@ -494,7 +494,7 @@ class UserFactory:
                 "email": "tenant@housekee.com",
                 "date_of_birth": "1989-07-19",
                 "phone_number": "59123456789",
-                "password_hash": "$2b$12$vVs/j4HpV4j4Mb7PHAKOZe3C1dsMthIaHyM2Oh2.wXE2oG9I6KLHi",
+                "password": "$2b$12$vVs/j4HpV4j4Mb7PHAKOZe3C1dsMthIaHyM2Oh2.wXE2oG9I6KLHi",
                 "identification_number": "GHA-0987654321",
                 "photo_url": "string",
                 "gender": "male"
@@ -506,7 +506,7 @@ class UserFactory:
                 "email": "landlord@housekee.com",
                 "date_of_birth": "1989-07-19",
                 "phone_number": "59123456789",
-                "password_hash": "$2b$12$vVs/j4HpV4j4Mb7PHAKOZe3C1dsMthIaHyM2Oh2.wXE2oG9I6KLHi",
+                "password": "$2b$12$vVs/j4HpV4j4Mb7PHAKOZe3C1dsMthIaHyM2Oh2.wXE2oG9I6KLHi",
                 "identification_number": "GHA-1234567890",
                 "photo_url": "string",
                 "gender": "male"

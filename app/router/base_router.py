@@ -16,7 +16,7 @@ class BaseCRUDRouter(Generic[DBModelType]):
         dao: BaseDAO[DBModelType],
         schemas: SchemasDictType,
         prefix: str = "",
-        tags: List[str] = []
+        tags: List[str] = [], show_default_routes = True
     ):
         self.model_schema = schemas["model_schema"]
         self.create_schema = schemas["create_schema"]
@@ -26,11 +26,12 @@ class BaseCRUDRouter(Generic[DBModelType]):
         self.dao = dao
         self.get_db = get_db
         
-        self.add_get_all_route()
-        self.add_get_route()
-        self.add_create_route()
-        self.add_update_route()
-        self.add_delete_route()
+        if show_default_routes:
+            self.add_get_all_route()
+            self.add_get_route()
+            self.add_create_route()
+            self.add_update_route()
+            self.add_delete_route()
     
     def get_session_db(request: Request):
         return request.state.db

@@ -6,3 +6,4 @@ from app.router.property_unit_router import PropertyUnitRouter
 from app.router.amenities_router import AmmenitiesRouter
 from app.router.media_router import MediaRouter
 from app.router.message_router import MessageRouter
+from app.router.auth_router import AuthRouter
