@@ -65,7 +65,6 @@ def configure_middleware(app: FastAPI):
         return JSONResponse(
             status_code=exc.status_code,
             content=DAOResponse[dict](success=False, error=exc.detail).model_dump()
-            # content={"success": False, "error": {"code": exc.status_code, "message": exc.detail}},
         )
     
     app.add_middleware(GZipMiddleware, minimum_size=1000)
