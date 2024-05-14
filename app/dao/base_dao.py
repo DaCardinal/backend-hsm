@@ -14,6 +14,27 @@ class BaseDAO(DBOperations, Generic[DBModelType]):
         self.load_child_relationships = load_child_relationships
         self.excludes = excludes
 
+    def decompose_dict(self, d):
+        def is_class_instance_with_to_dict(val):
+            return hasattr(val, 'to_dict') and callable(getattr(val, 'to_dict'))
+
+        if isinstance(d, dict):
+            decomposed = {}
+            for key, value in d.items():
+                if is_class_instance_with_to_dict(value):
+                    decomposed[key] = value.to_dict()
+                elif isinstance(value, dict):
+                    decomposed[key] = self.decompose_dict(value)
+                elif isinstance(value, list):
+                    decomposed[key] = [self.decompose_dict(item.to_dict()) for item in value]
+                else:
+                    decomposed[key] = value
+            return decomposed
+        elif isinstance(d, list):
+            return [self.decompose_dict(item) for item in d]
+        else:
+            return d
+        
     async def process_entity_details(self, db_session: AsyncSession, entity_id: UUID, entity_data: BaseModel, details_methods: dict):
         results = {}
 

@@ -18,31 +18,6 @@ class CustomBaseModel(BaseModel):
         from_attributes = True
         arbitrary_types_allowed = True
 
-def decompose_dict(d):
-    # Helper function to check if a value is an instance of a class with a to_dict method
-    def is_class_instance_with_to_dict(val):
-        return hasattr(val, 'to_dict') and callable(getattr(val, 'to_dict'))
-
-    # If the input is a dictionary, process each key-value pair
-    if isinstance(d, dict):
-        decomposed = {}
-        for key, value in d.items():
-            if is_class_instance_with_to_dict(value):
-                decomposed[key] = value.to_dict()
-            elif isinstance(value, dict):
-                decomposed[key] = decompose_dict(value)
-            elif isinstance(value, list):
-                decomposed[key] = [decompose_dict(item.to_dict()) for item in value]
-            else:
-                decomposed[key] = value
-        return decomposed
-    # If the input is a list, process each item in the list
-    elif isinstance(d, list):
-        return [decompose_dict(item) for item in d]
-    # If the input is neither a dictionary nor a list, return it as is
-    else:
-        return d
-
 def create_pydantic_model_from_sqlalchemy(sqlalchemy_model, load_parent_relationships = False, load_child_relationships = False, visited_models=None, excludes = [], level = 0):
     if visited_models is None:
         visited_models = {}
@@ -117,7 +92,7 @@ class BaseCRUDRouter(Generic[DBModelType]):
             dynamic_model = create_pydantic_model_from_sqlalchemy(self.dao.model, load_parent_relationships=self.dao.load_parent_relationships, load_child_relationships=self.dao.load_child_relationships, excludes=self.dao.excludes)
 
             if self.dao.load_child_relationships:
-                return DAOResponse[List[Any]](success=True, data=[decompose_dict(item.to_dict()) for item in items])
+                return DAOResponse[List[Any]](success=True, data=[self.dao.decompose_dict(item.to_dict()) for item in items])
 
             return items if isinstance(items, DAOResponse) or self.dao.load_child_relationships else DAOResponse[Any](success=True, data=[dynamic_model.model_validate(item, strict=False, from_attributes=True) for item in items])
             
@@ -133,7 +108,7 @@ class BaseCRUDRouter(Generic[DBModelType]):
             dynamic_model = create_pydantic_model_from_sqlalchemy(self.dao.model, load_parent_relationships=self.dao.load_parent_relationships, load_child_relationships=self.dao.load_child_relationships, excludes=self.dao.excludes)
 
             if self.dao.load_child_relationships:
-                return DAOResponse[Any](success=True, data=decompose_dict(item.to_dict()))
+                return DAOResponse[Any](success=True, data=self.dao.decompose_dict(item.to_dict()))
             
             return item if isinstance(item, DAOResponse) else DAOResponse[Any](success=True, data=dynamic_model.model_validate(item, strict=False, from_attributes=True))
 

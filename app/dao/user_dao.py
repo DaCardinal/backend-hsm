@@ -136,7 +136,7 @@ class UserDAO(BaseDAO[User]):
         existing_user : User = await self.query(db_session=db_session, filters={"email": email}, single=True)
         return existing_user
     
-    async def add_user_role(self, db_session: AsyncSession, user_id: str, role_alias: str) -> DAOResponse:
+    async def add_user_role(self, db_session: AsyncSession, user_id: str, role_alias: str):
         role_dao = RoleDAO(Role)
 
         try:
@@ -148,12 +148,12 @@ class UserDAO(BaseDAO[User]):
                     raise NoResultFound()
         
                 if role in user.roles:
-                    return DAOResponse[dict](success=False, error="Role already exists for the user", data=user.to_dict())
+                    return DAOResponse[dict](success=False, error="Role already exists for the user", data=UserResponse.from_orm_model(user))
                 
                 user.roles.append(role)
                 await self.commit_and_refresh(db, user)
 
-                return DAOResponse[dict](success=True, data=user.to_dict())
+                return DAOResponse[UserResponse](success=True, data=UserResponse.from_orm_model(user))
         except NoResultFound as e:
             return None
         except Exception as e:
