@@ -11,7 +11,7 @@ from app.router.base_router import BaseCRUDRouter
 
 class UserRouter(BaseCRUDRouter):
 
-    def __init__(self, dao: UserDAO = UserDAO(User), prefix: str = "", tags: List[str] = []):
+    def __init__(self, dao: UserDAO = UserDAO(User, load_parent_relationships=True, load_child_relationships=False, excludes=['']), prefix: str = "", tags: List[str] = []):
         self.dao = dao
         UserSchema["create_schema"] = UserCreateSchema
         UserSchema["update_schema"] = UserUpdateSchema

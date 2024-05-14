@@ -10,8 +10,8 @@ from app.models import Amenities as AmenitiesModel, EntityAmenities as EntityAmm
 from app.schema import AmenitiesBase, Amenities
 
 class AmenitiesDAO(BaseDAO[Amenities]):
-    def __init__(self, model: Type[Amenities]):
-        super().__init__(model)
+    def __init__(self, model: Type[Amenities], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
+        super().__init__(model, load_parent_relationships, load_child_relationships, excludes)
         self.primary_key = "amenity_id"
         self.entity_ammenities_dao = EntityAmmenitiesDAO(EntityAmmenities)
         self.enity_media_dao = EntityMediaDAO(EntityMedia)

@@ -16,8 +16,8 @@ from app.models import User, Addresses, Role
 from app.schema import UserResponse, Address, AddressBase, UserAuthInfo, UserUpdateSchema, UserCreateSchema, UserEmergencyInfo, UserBase,UserAuthCreateInfo, UserEmployerInfo
 
 class UserDAO(BaseDAO[User]):
-    def __init__(self, model: Type[User]):
-        super().__init__(model)
+    def __init__(self, model: Type[User],load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
+        super().__init__(model, load_parent_relationships, load_child_relationships, excludes=excludes)
         self.primary_key = "user_id"
         self.address_dao = AddressDAO(Addresses)
 

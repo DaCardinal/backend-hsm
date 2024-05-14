@@ -11,5 +11,5 @@ class Role(Base):
     alias = Column(String(80), unique=True)
     description = Column(Text)
 
-    users = relationship('User', secondary='user_roles', back_populates='roles')
+    users = relationship('User', secondary='user_roles', back_populates='roles', lazy="selectin")
     permissions = relationship('Permissions', secondary='role_permissions', back_populates='roles', lazy="selectin")

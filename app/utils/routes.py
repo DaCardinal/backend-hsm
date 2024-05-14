@@ -9,10 +9,10 @@ def configure_routes(app: FastAPI):
     # Create an instance of AuthRouter
     app.include_router(AuthRouter(prefix="/auth", tags=["Auth"]).router)
 
-    # Create an instance of UserRouter
+    # # Create an instance of UserRouter
     app.include_router(UserRouter(prefix="/users", tags=["Users"]).router)
 
-    # Create an instance of RoleRouter
+    # # Create an instance of RoleRouter
     app.include_router(RoleRouter(prefix="/roles", tags=["Roles"]).router)
 
     # Create an instance of PermissionRouter
@@ -21,10 +21,10 @@ def configure_routes(app: FastAPI):
     # Create an instance of PropertyRouter
     app.include_router(PropertyRouter(prefix="/property", tags=["Property"]).router)
 
-    # Create an instance of PropertyRouter
+    # Create an instance of PropertyUniRouter
     app.include_router(PropertyUnitRouter(prefix="/units", tags=["Units"]).router)
 
-    # Create an instance of AmmenitiesRouter
+    # # Create an instance of AmmenitiesRouter
     app.include_router(AmmenitiesRouter(prefix="/ammenities", tags=["Ammenities"]).router)
 
     # Create an instance of MediaRouter

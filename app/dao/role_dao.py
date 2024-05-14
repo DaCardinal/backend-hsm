@@ -11,8 +11,8 @@ from app.models import Role, Permissions
 from app.schema import Role as RoleSchema
 
 class RoleDAO(BaseDAO[Role]):
-    def __init__(self, model: Type[Role]):
-        super().__init__(model)
+    def __init__(self, model: Type[Role], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
+        super().__init__(model, load_parent_relationships, load_child_relationships, excludes=excludes)
         self.primary_key = "role_id"
     
     async def add_role_permission(self, db_session: AsyncSession, role_alias: str, permission_alias: str):

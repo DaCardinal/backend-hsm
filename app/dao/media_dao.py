@@ -9,8 +9,8 @@ from app.models import Media as MediaModel, EntityMedia
 from app.schema import MediaBase, Media
 
 class MediaDAO(BaseDAO[MediaModel]):
-    def __init__(self, model: Type[MediaModel]):
-        super().__init__(model)
+    def __init__(self, model: Type[MediaModel], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
+        super().__init__(model, load_parent_relationships, load_child_relationships, excludes)
         self.primary_key = "media_id"
 
     async def add_entity_media(self, db_session: AsyncSession, property_id: str, media_info: Union[List[Media | MediaBase]  | Media | MediaBase], entity_model=None, entity_assoc_id=None) -> Optional[List[Media | MediaBase] | Media | MediaBase]:

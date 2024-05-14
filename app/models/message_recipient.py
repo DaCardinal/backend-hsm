@@ -14,6 +14,6 @@ class MessageRecipient(Base):
     is_read = Column(Boolean)
     msg_send_date = Column(DateTime(timezone=True))
 
-    recipient = relationship('User', back_populates='received_messages')
-    message = relationship('Message', back_populates='recipients')
-    message_group = relationship('PropertyUnitAssoc', back_populates="messages_recipients")
+    recipient = relationship('User', back_populates='received_messages', lazy='selectin')
+    message = relationship('Message', back_populates='recipients', lazy='selectin')
+    message_group = relationship('PropertyUnitAssoc', back_populates="messages_recipients", lazy='selectin')

@@ -9,7 +9,7 @@ from app.router.base_router import BaseCRUDRouter
 
 class PermissionRouter(BaseCRUDRouter):
 
-    def __init__(self, dao: PermissionDAO = PermissionDAO(Permissions), prefix: str = "", tags: List[str] = []):
+    def __init__(self, dao: PermissionDAO = PermissionDAO(Permissions, load_parent_relationships=True, load_child_relationships=False, excludes=['']), prefix: str = "", tags: List[str] = []):
         super().__init__(dao=dao, schemas=PermissionSchema, prefix=prefix,tags = tags)
         self.dao = dao
         self.register_routes()

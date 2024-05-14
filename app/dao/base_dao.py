@@ -8,8 +8,11 @@ from app.db.dbCrud import DBOperations
 DBModelType = TypeVar("DBModelType")
 
 class BaseDAO(DBOperations, Generic[DBModelType]):
-    def __init__(self, model: Type[DBModelType]):
+    def __init__(self, model: Type[DBModelType], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
         self.model = model
+        self.load_parent_relationships = load_parent_relationships
+        self.load_child_relationships = load_child_relationships
+        self.excludes = excludes
 
     async def process_entity_details(self, db_session: AsyncSession, entity_id: UUID, entity_data: BaseModel, details_methods: dict):
         results = {}

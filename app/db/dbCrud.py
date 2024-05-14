@@ -1,5 +1,6 @@
-from typing import Type, TypeVar, Generic, Dict, Any, Union
+from typing import List, Type, TypeVar, Generic, Dict, Any, Union, Optional
 from uuid import UUID
+from pydantic import BaseModel, create_model
 from sqlalchemy import and_
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -31,30 +32,35 @@ class CreateMixin(UtilsMixin):
     
 class ReadMixin(UtilsMixin):
     model: Type[DBModelType]
+    load_parent_relationships: bool
 
-    async def get(self, db_session: AsyncSession, id: Union[UUID | Any | int]) -> DBModelType:
+    async def get(self, db_session: AsyncSession, id: Union[UUID | Any | int], skip=0, limit=100) -> DBModelType:
         # find primary key
         primary_keys = [(key.name, key) for key in inspect(self.model).primary_key]
         primary_key = primary_keys[0]
+        
+        mapper = inspect(self.model)
+        relationships = [relationship.key for relationship in mapper.relationships]
+        query_options = [selectinload(getattr(self.model, attr)) for attr in relationships] if self.load_parent_relationships else []
 
-        q = await db_session.execute(select(self.model).filter(primary_key[1] == id))
+        query = select(self.model).filter(primary_key[1] == id).options(*query_options).offset(skip).limit(limit)
+        executed_query = await db_session.execute(query)
+        result = executed_query.scalar_one_or_none()
 
-        return q.scalar_one_or_none()
+        return result
 
     async def get_all(self, db_session: AsyncSession, skip=0, limit=100) -> list[DBModelType]:
 
-        # # Dynamically access the relationship attribute using getattr
-        # relationship_attr = getattr(self.model, relationships)
-        # query = (
-        #     select(self.model)
-        #     .options(selectinload(relationship_attr))
-        #     .offset(skip)
-        #     .limit(limit)
-        # )
-        query = select(self.model).offset(skip).limit(limit)
-        result = await db_session.execute(query)
+        # Dynamically access the relationship attribute using getattr
+        mapper = inspect(self.model)
+        relationships = [relationship.key for relationship in mapper.relationships]
+        query_options = [selectinload(getattr(self.model, attr)) for attr in relationships] if self.load_parent_relationships else []
 
-        return result.scalars().all()
+        query = select(self.model).options(*query_options).offset(skip).limit(limit)
+        executed_query = await db_session.execute(query)
+        result = executed_query.scalars().all()
+        
+        return result
     
     async def query(self, db_session: AsyncSession, filters: Dict[str, Any], single=False, options=None) -> list[DBModelType]:
         conditions = [getattr(self.model, k) == v for k, v in filters.items()]
@@ -97,5 +103,8 @@ class DeleteMixin(UtilsMixin):
         await db_session.commit()
         
 class DBOperations(CreateMixin, ReadMixin, UpdateMixin, DeleteMixin):
-    def __init__(self, model: Generic[DBModelType]):
+    def __init__(self, model: Generic[DBModelType], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
         self.model = model
+        self.load_parent_relationships = load_parent_relationships
+        self.load_child_relationships = load_child_relationships
+        self.excludes = excludes

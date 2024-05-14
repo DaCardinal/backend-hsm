@@ -12,8 +12,7 @@ from app.router.base_router import BaseCRUDRouter
 
 class MessageRouter(BaseCRUDRouter):
 
-    def __init__(self, dao: MessageDAO = MessageDAO(Message), prefix: str = "", tags: List[str] = []):
-        
+    def __init__(self, dao: MessageDAO = MessageDAO(Message, load_parent_relationships=False, load_child_relationships=False), prefix: str = "", tags: List[str] = []):
         MessageSchema["create_schema"] = MessageCreate
         super().__init__(dao=dao, schemas=MessageSchema, prefix=prefix,tags = tags)
         self.dao = dao

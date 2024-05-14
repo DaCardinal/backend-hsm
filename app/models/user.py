@@ -63,56 +63,56 @@ class User(Base):
     )
     roles = relationship('Role', secondary='user_roles', back_populates='users', lazy="selectin")
     
-    sent_messages = relationship('Message', back_populates='sender')
+    sent_messages = relationship('Message', back_populates='sender', lazy='selectin')
 
-    received_messages = relationship('MessageRecipient', back_populates='recipient')
+    received_messages = relationship('MessageRecipient', back_populates='recipient', lazy='selectin')
 
     company = relationship('Company', secondary='users_company', back_populates='users', lazy="selectin")
     
-    documents = relationship('Documents', back_populates='users')
+    documents = relationship('Documents', back_populates='users', lazy='selectin')
 
     interactions_as_user = relationship('UserInteractions',
                                         foreign_keys="[UserInteractions.user_id]",
-                                        back_populates='user')
+                                        back_populates='user', lazy='selectin')
     interactions_as_employee = relationship('UserInteractions',
                                             foreign_keys="[UserInteractions.employee_id]",
-                                            back_populates='employee')
+                                            back_populates='employee', lazy='selectin')
     
     transaction_as_client_offered = relationship('Transaction',
                                         foreign_keys="[Transaction.client_offered]",
-                                        back_populates='client_offered_transaction')
+                                        back_populates='client_offered_transaction', lazy='selectin')
     transaction_as_client_requested = relationship('Transaction',
                                             foreign_keys="[Transaction.client_requested]",
-                                            back_populates='client_requested_transaction')
+                                            back_populates='client_requested_transaction', lazy='selectin')
     
     client_under_contract = relationship('UnderContract',
                                         foreign_keys="[UnderContract.client_id]",
-                                        back_populates='client_representative', overlaps="members")
+                                        back_populates='client_representative', overlaps="members", lazy='selectin')
     employee_under_contract = relationship('UnderContract',
                                             foreign_keys="[UnderContract.employee_id]",
-                                            back_populates='employee_representative')
+                                            back_populates='employee_representative', lazy='selectin')
 
-    property = relationship('PropertyUnitAssoc', secondary='property_assignment', back_populates='assignments')
+    property = relationship('PropertyUnitAssoc', secondary='property_assignment', back_populates='assignments', lazy='selectin')
 
-    # owned_properties = relationship("Property", secondary="property_assignment",
-    #                         primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='landlord')",
-    #                         secondaryjoin="PropertyAssignment.property_unit_assoc_id==Property.property_unit_assoc_id",
-    #                         lazy="selectin", viewonly=True)
+    owned_properties = relationship("Property", secondary="property_assignment",
+                            primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='landlord')",
+                            secondaryjoin="PropertyAssignment.property_unit_assoc_id==Property.property_unit_assoc_id",
+                            lazy="selectin", viewonly=True)
     
-    # assigned_properties = relationship("Property", secondary="property_assignment",
-    #                         primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='handler')",
-    #                         secondaryjoin="PropertyAssignment.property_unit_assoc_id==Property.property_unit_assoc_id",
-    #                         lazy="selectin", viewonly=True)
+    assigned_properties = relationship("Property", secondary="property_assignment",
+                            primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='handler')",
+                            secondaryjoin="PropertyAssignment.property_unit_assoc_id==Property.property_unit_assoc_id",
+                            lazy="selectin", viewonly=True)
     
-    # owned_units = relationship("Units", secondary="property_assignment",
-    #                         primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='landlord')",
-    #                         secondaryjoin="and_(PropertyAssignment.property_unit_assoc_id==Units.property_unit_assoc_id)",
-    #                         lazy="selectin", viewonly=True)
+    owned_units = relationship("Units", secondary="property_assignment",
+                            primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='landlord')",
+                            secondaryjoin="and_(PropertyAssignment.property_unit_assoc_id==Units.property_unit_assoc_id)",
+                            lazy="selectin", viewonly=True)
     
-    # assigned_units = relationship("Units", secondary="property_assignment",
-    #                         primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='handler')",
-    #                         secondaryjoin="and_(PropertyAssignment.property_unit_assoc_id==Units.property_unit_assoc_id)",
-    #                         lazy="selectin", viewonly=True)
+    assigned_units = relationship("Units", secondary="property_assignment",
+                            primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='handler')",
+                            secondaryjoin="and_(PropertyAssignment.property_unit_assoc_id==Units.property_unit_assoc_id)",
+                            lazy="selectin", viewonly=True)
 
     def update_last_login_time(self):
         # Store the current login time in the last_login_time field
@@ -134,3 +134,19 @@ class User(Base):
                 )
                 account_addresses = result.scalars().all()
                 return account_addresses
+    
+    def to_dict(self, exclude=["password"]):
+        if exclude is None:
+            exclude = set()
+        data = {}
+
+        for key in self.__dict__.keys():
+            if not key.startswith("_") and key not in exclude:
+                value = getattr(self, key)
+                if isinstance(value, datetime):
+                    value = str(value)
+                if isinstance(value, UUID):
+                    value = str(value)
+                data[key] = value
+
+        return data

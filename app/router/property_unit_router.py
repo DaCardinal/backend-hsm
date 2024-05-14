@@ -9,7 +9,7 @@ from app.router.base_router import BaseCRUDRouter
 
 class PropertyUnitRouter(BaseCRUDRouter):
 
-    def __init__(self, dao: PropertyUnitDAO = PropertyUnitDAO(PropertyUnit), prefix: str = "", tags: List[str] = []):
+    def __init__(self, dao: PropertyUnitDAO = PropertyUnitDAO(PropertyUnit, load_parent_relationships=True, load_child_relationships=False), prefix: str = "", tags: List[str] = []):
         PropertyUnitSchema["create_schema"] = PropertyUnitCreateSchema
         PropertyUnitSchema["update_schema"] = PropertyUnitUpdateSchema
         super().__init__(dao=dao, schemas=PropertyUnitSchema, prefix=prefix,tags = tags)

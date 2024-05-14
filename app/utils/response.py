@@ -1,4 +1,4 @@
-from typing import TypeVar, Generic, Optional
+from typing import Any, TypeVar, Generic, Optional
 from pydantic import BaseModel, ValidationError
 
 T = TypeVar("T")
@@ -6,7 +6,7 @@ T = TypeVar("T")
 class DAOResponse(BaseModel, Generic[T]):
     success: bool = False
     error: Optional[str] = None
-    data: Optional[T] = None
+    data: Optional[T | Any] = None
 
     class Config:
         from_attributes = True

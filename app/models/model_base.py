@@ -15,11 +15,6 @@ class BaseModel(AsyncAttrs, Base):
 
     created_at = Column(DateTime(timezone=True), default=func.now())
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
-
-    # def to_dict(self, exclude=None):
-        # """Converts the object instance to a Python dictionary."""
-        # data = {column.name: getattr(self, column.name) for column in self.__table__.columns}
-        # return data
     
     def to_dict(self, exclude=None):
         if exclude is None:

@@ -17,8 +17,8 @@ from app.schema import PropertyUnitCreateSchema, PropertyUnitUpdateSchema, Prope
 
 
 class PropertyUnitDAO(BaseDAO[Units]):
-    def __init__(self, model: Type[Units]):
-        super().__init__(model)
+    def __init__(self, model: Type[Units], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
+        super().__init__(model, load_parent_relationships, load_child_relationships, excludes)
         self.primary_key = "property_unit_id"
         self.address_dao = AddressDAO(Addresses)
         self.property_unit_assoc_dao = PropertyUnitAssocDAO(PropertyUnitAssoc)

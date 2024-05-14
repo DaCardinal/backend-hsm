@@ -10,8 +10,8 @@ from app.schema import MessageCreate, MessageResponseModel, MessageReply
 from app.models import Message, MessageRecipient
 
 class MessageDAO(BaseDAO[Message]):
-    def __init__(self, model: Type[Message]):
-        super().__init__(model)
+    def __init__(self, model: Type[Message], load_parent_relationships: bool = False, load_child_relationships: bool = False):
+        super().__init__(model, load_parent_relationships, load_child_relationships)
         self.primary_key = "message_id"
 
     @override
