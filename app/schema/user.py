@@ -74,7 +74,7 @@ class UserAuthInfo(BaseModel):
         from_attributes = True
 
 class UserAuthCreateInfo(BaseModel):
-    password: Optional[str] = None
+    password: Optional[str] = ""
     login_provider: Optional[str] = Field(..., max_length=128)
     reset_token: Optional[str] = Field(None, max_length=128)
     verification_token: Optional[str] = Field(None, max_length=128)
