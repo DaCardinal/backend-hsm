@@ -16,7 +16,7 @@ class AmenitiesDAO(BaseDAO[Amenities]):
         self.entity_ammenities_dao = EntityAmmenitiesDAO(EntityAmmenities)
         self.enity_media_dao = EntityMediaDAO(EntityMedia)
 
-    async def _link_property_to_media(self, db_session: AsyncSession, property_unit_assoc_id: UUID, media_id: UUID, entity_model=None):
+    async def link_property_to_media(self, db_session: AsyncSession, property_unit_assoc_id: UUID, media_id: UUID, entity_model=None):
 
         result = await self.enity_media_dao.create(db_session = db_session, obj_in = {
             "entity_type":  entity_model if entity_model else self.model.__name__,
@@ -26,7 +26,7 @@ class AmenitiesDAO(BaseDAO[Amenities]):
         
         return result
     
-    async def _link_property_to_ammenity(self, db_session: AsyncSession, property_unit_assoc_id: UUID, ammenity_id: UUID, entity_model=None):
+    async def link_property_to_ammenity(self, db_session: AsyncSession, property_unit_assoc_id: UUID, ammenity_id: UUID, entity_model=None):
 
         result = await self.entity_ammenities_dao.create(db_session = db_session, obj_in = {
             "property_unit_assoc_id": property_unit_assoc_id,

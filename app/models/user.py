@@ -1,10 +1,9 @@
 import enum
 import uuid
 from datetime import datetime
-from sqlalchemy import UUID, Boolean, Column, DateTime, Enum, String, func, select
-from sqlalchemy import Column
 from sqlalchemy.orm import relationship, selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import UUID, Boolean, Column, DateTime, Enum, String, func, select
 
 from app.models import EntityAddress, Addresses
 from app.models.model_base import BaseModel as Base

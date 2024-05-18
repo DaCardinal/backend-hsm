@@ -1,7 +1,6 @@
 from typing import List, Optional, Type, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.orm import selectinload
 
 from app.dao.base_dao import BaseDAO
 from app.dao.entity_media_dao import EntityMediaDAO
@@ -16,7 +15,6 @@ class MediaDAO(BaseDAO[MediaModel]):
     async def add_entity_media(self, db_session: AsyncSession, property_id: str, media_info: Union[List[Media | MediaBase]  | Media | MediaBase], entity_model=None, entity_assoc_id=None) -> Optional[List[Media | MediaBase] | Media | MediaBase]:
         try:
             entity_media_dao = EntityMediaDAO(EntityMedia)
-            print(f"INSIDE {media_info}")
             results = []
 
             if not isinstance(media_info, list):
@@ -29,7 +27,6 @@ class MediaDAO(BaseDAO[MediaModel]):
                 existing_media_item = await self.query(db_session=db_session, filters={f"{self.primary_key}": media_item.media_id}, single=True) if self.primary_key in media_item.model_fields else None
                 
                 if existing_media_item:
-                        print("EXISTING")
                         obj_data = self.extract_model_data(media_item.model_dump(), Media)
                         media_data = Media(**obj_data)
 
@@ -41,7 +38,6 @@ class MediaDAO(BaseDAO[MediaModel]):
                             "media_id": create_media_item.media_id
                         })
                 else :
-                    print("CREATE")
                     create_media_item : Media = await self.query(db_session=db_session, filters={**media_item.model_dump()}, single=True)
                     
                     if create_media_item is None:

@@ -1,19 +1,19 @@
-from functools import partial
-from uuid import UUID
 import uuid
+from uuid import UUID
+from functools import partial
 from pydantic import ValidationError
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.orm import selectinload
-from typing import Any, Dict, List, Type, Optional, Union
 from typing_extensions import override
+from sqlalchemy.orm import selectinload
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Any, Dict, List, Type, Optional, Union
 
 from app.dao.base_dao import BaseDAO
 from app.dao.address_dao import AddressDAO
 from app.dao.role_dao import RoleDAO
 from app.utils import DAOResponse, Hash
 from app.models import User, Addresses, Role
-from app.schema import UserResponse, Address, AddressBase, UserAuthInfo, UserUpdateSchema, UserCreateSchema, UserEmergencyInfo, UserBase,UserAuthCreateInfo, UserEmployerInfo
+from app.schema import UserResponse, Address, AddressBase, UserAuthInfo, UserUpdateSchema, UserCreateSchema, UserEmergencyInfo, UserBase, UserAuthCreateInfo, UserEmployerInfo
 
 class UserDAO(BaseDAO[User]):
     def __init__(self, model: Type[User],load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):

@@ -1,5 +1,5 @@
-from sqlalchemy import Column, ForeignKey, DateTime, Enum, String, Text
-from sqlalchemy.dialects.postgresql import UUID
+import uuid
+from sqlalchemy import Column, ForeignKey, DateTime, Enum, String, Text, UUID
 from sqlalchemy.orm import relationship
 import enum
 
@@ -12,10 +12,10 @@ class PaymentStatusEnum(enum.Enum):
 
 class Transaction(Base):
     __tablename__ = 'transaction'
-    transaction_id = Column(UUID(as_uuid=True), primary_key=True)
+    transaction_id = Column(UUID(as_uuid=True), primary_key=True, unique=True, index=True, default=uuid.uuid4)
     transaction_type_id = Column(UUID(as_uuid=True), ForeignKey('transaction_type.transaction_type_id'))
-    client_offered = Column(UUID(as_uuid=True), ForeignKey('users.user_id'))
-    client_requested = Column(UUID(as_uuid=True), ForeignKey('users.user_id'))
+    client_offered = Column(UUID(as_uuid=True), ForeignKey('users.user_id')) # payer_id
+    client_requested = Column(UUID(as_uuid=True), ForeignKey('users.user_id')) # payee_id
     transaction_date = Column(DateTime)
     transaction_details = Column(Text)
     payment_method = Column(String)

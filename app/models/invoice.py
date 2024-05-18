@@ -18,8 +18,7 @@ class Invoice(Base):
     invoice_details = Column(Text)
     invoice_amount = Column(Numeric(10, 2))
     invoice_item = Column(String(128))  # [property, property_unit, maintenance, service, fee]
-    date_created = Column(DateTime)
-    billing_date = Column(DateTime)
+    due_date = Column(DateTime)
     date_paid = Column(DateTime)
     status = Column(Enum(PaymentStatusEnum))
     transaction_id = Column(UUID(as_uuid=True), ForeignKey('transaction.transaction_id'))

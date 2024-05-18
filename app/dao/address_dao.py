@@ -6,9 +6,9 @@ from typing_extensions import override
 
 from app.dao.base_dao import BaseDAO
 from app.dao.entity_dao import EntityDAO
-from app.dao.addr_country_dao import CountryDAO
-from app.dao.addr_region_dao import RegionDAO
 from app.dao.addr_city_dao import CityDAO
+from app.dao.addr_region_dao import RegionDAO
+from app.dao.addr_country_dao import CountryDAO
 from app.models import Addresses, EntityAddress, City, Country, Region
 from app.schema import Address, AddressBase, AddressCreateSchema
 from app.utils.response import DAOResponse

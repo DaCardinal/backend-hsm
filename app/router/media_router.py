@@ -1,6 +1,4 @@
 from typing import List
-from fastapi import Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Media
 from app.dao.media_dao import MediaDAO

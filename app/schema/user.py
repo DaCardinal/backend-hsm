@@ -1,7 +1,7 @@
 from enum import Enum
 from uuid import UUID
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Union
 from pydantic import BaseModel, Field, EmailStr
 
 from app.models import User as UserModel, Addresses
@@ -50,7 +50,6 @@ class UserEmergencyInfo(BaseModel):
         from_attributes = True
 
 class UserEmployerInfo(BaseModel):
-
     employer_name: Optional[str]
     occupation_status: Optional[str]
     occupation_location: Optional[str]
@@ -60,7 +59,7 @@ class UserEmployerInfo(BaseModel):
         from_attributes = True
 
 class UserAuthInfo(BaseModel):
-    login_provider: Optional[str] = Field(..., max_length=128)
+    login_provider: Optional[str] = Field(None, max_length=128)
     reset_token: Optional[str] = Field(None, max_length=128)
     verification_token: Optional[str] = Field(None, max_length=128)
     is_subscribed_token: Optional[str] = Field(None, max_length=128)
@@ -74,7 +73,7 @@ class UserAuthInfo(BaseModel):
         from_attributes = True
 
 class UserAuthCreateInfo(BaseModel):
-    password: Optional[str] = None
+    password: Optional[str] = ""
     login_provider: Optional[str] = Field(..., max_length=128)
     reset_token: Optional[str] = Field(None, max_length=128)
     verification_token: Optional[str] = Field(None, max_length=128)
@@ -93,9 +92,8 @@ class UserBase(BaseModel):
     last_name: str = Field(..., max_length=128)
     email: EmailStr = Field(...)
     phone_number: str = Field(..., max_length=50)
-    # password_hash: str = Field(..., max_length=128)
     identification_number: str = Field(..., max_length=80)
-    photo_url: str = Field(..., max_length=128)
+    photo_url: Optional[str] = ""
     gender: GenderEnum = Field(...)
 
     class Config:
@@ -113,7 +111,7 @@ class UserCreateSchema(UserBase):
         from_attributes = True
 
 class UserUpdateSchema(UserBase):
-    address: Optional[Address] = None
+    address: Optional[Union[AddressBase | Address]] = None
     user_auth_info: Optional[UserAuthInfo] = None
     user_emergency_info: Optional[UserEmergencyInfo] = None
     user_employer_info: Optional[UserEmployerInfo] = None
@@ -136,7 +134,7 @@ class UserResponse(BaseModel):
     phone_number: str = Field(..., max_length=50)
     # password_hash: str = Field(..., max_length=128)
     identification_number: str = Field(..., max_length=80)
-    photo_url: str = Field(..., max_length=128)
+    photo_url: str = ""
     gender: GenderEnum = Field(...)
     roles: Optional[List[Role]]
     address: Optional[List[Address] | Address] = None

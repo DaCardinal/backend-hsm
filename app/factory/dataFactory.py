@@ -8,8 +8,6 @@ class DataFactory(ABC):
     def create_data(self):
         pass
 
-from typing import List
-
 class PermissionsFactory:
     def __init__(self):
         models_module = import_module("app.models")
@@ -530,22 +528,6 @@ class MediaFactory:
         ]
         return query_key, media_data
 
-class TransactionTypeFactory:
-    def __init__(self):
-        models_module = import_module("app.models")
-        self.model = getattr(models_module, "TransactionType")
-    
-    def create_data(self) -> List[dict]:
-        query_key = 'transaction_type_id'
-
-        transaction_types_data = [
-            {"transaction_type_name": "Purchase"},
-            {"transaction_type_name": "Sale"},
-            {"transaction_type_name": "Rent"},
-            {"transaction_type_name": "Lease"},
-        ]
-        return query_key, transaction_types_data
-
 class CountryFactory:
     def __init__(self):
         models_module = import_module("app.models")
@@ -625,6 +607,38 @@ class PropertyTypeFactory:
         ]
         return query_key, property_types_data
 
+class TransactionTypeFactory:
+    def __init__(self) -> None:
+        models_module = import_module("app.models")
+        self.model = getattr(models_module, "TransactionType")
+
+    def create_data(self) -> List[dict]:
+        query_key = "transaction_type_name"
+        
+        transaction_type_data = [
+            {"transaction_type_name": "Credit Card", "transaction_type_description": "Payment via credit card"},
+            {"transaction_type_name": "Debit Card", "transaction_type_description": "Payment via debit card"}
+        ]
+
+        return query_key, transaction_type_data
+
+class ContractTypeFactory:
+    def __init__(self):
+        models_module = import_module("app.models")
+        self.model = getattr(models_module, "ContractType")
+    
+    def create_data(self) -> List[dict]:
+        query_key = 'contract_type_name'
+
+        contract_type_data = [
+            {"contract_type_name": "Purchase", "fee_percentage": 10.00},
+            {"contract_type_name": "Sale", "fee_percentage": 5.10},
+            {"contract_type_name": "Rent",  "fee_percentage": 14.5},
+            {"contract_type_name": "Lease",  "fee_percentage": 3.25},
+        ]
+
+        return query_key, contract_type_data
+
 class PaymentTypesFactory:
     def __init__(self):
         models_module = import_module("app.models")
@@ -633,16 +647,12 @@ class PaymentTypesFactory:
     def create_data(self) -> List[dict]:
         query_key = 'payment_type_name'
 
-        # payment_types_data = [
-        #     {"payment_type_name": "Credit Card", "payment_type_description": "Payment via credit card"},
-        #     {"payment_type_name": "Debit Card", "payment_type_description": "Payment via debit card"}
-        # ]
         payment_types_data = [
-            {"payment_type_name": "One-time Payment", "payment_type_description": "Payment made once"},
-            {"payment_type_name": "Monthly Payment", "payment_type_description": "Payment made monthly"},
-            {"payment_type_name": "Quarterly Payment", "payment_type_description": "Payment made quarterly"},
-            {"payment_type_name": "Semi-annual Payment", "payment_type_description": "Payment made semi-annually"},
-            {"payment_type_name": "Annual Payment", "payment_type_description": "Payment made annually"}
+            {"payment_type_name": "One-time Payment", "payment_type_description": "Payment made once", "num_of_invoices": 1},
+            {"payment_type_name": "Monthly Payment", "payment_type_description": "Payment made monthly", "num_of_invoices": 12},
+            {"payment_type_name": "Quarterly Payment", "payment_type_description": "Payment made quarterly", "num_of_invoices": 4},
+            {"payment_type_name": "Semi-annual Payment", "payment_type_description": "Payment made semi-annually", "num_of_invoices": 2},
+            {"payment_type_name": "Annual Payment", "payment_type_description": "Payment made annually", "num_of_invoices": 1}
         ]
         return query_key, payment_types_data
 

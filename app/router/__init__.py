@@ -7,3 +7,6 @@ from app.router.amenities_router import AmmenitiesRouter
 from app.router.media_router import MediaRouter
 from app.router.message_router import MessageRouter
 from app.router.auth_router import AuthRouter
+from app.router.contract_router import ContractRouter
+from app.router.contract_type_router import ContractTypeRouter
+from app.router.payment_type_router import PaymentTypeRouter

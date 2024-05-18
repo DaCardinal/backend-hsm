@@ -11,15 +11,6 @@ from app.models.entity_address import EntityAddress
 from app.models.media import Media
 from app.models.entity_media import EntityMedia
 
-from app.models.payment_type import PaymentTypes
-from app.models.contract_type import ContractType
-from app.models.contract import Contract
-from app.models.document import Documents
-from app.models.under_contract import UnderContract
-from app.models.contract_documents import ContractDocuments
-
-from app.models.invoice import Invoice
-from app.models.contract_invoice import ContractInvoice
 
 from app.models.property_unit_assoc import PropertyUnitAssoc
 from app.models.unit_type import UnitType
@@ -41,6 +32,15 @@ from app.models.role_permissions import RolePermissions
 from app.models.user_role import UserRoles
 
 from app.models.transaction_type import TransactionType
+from app.models.payment_type import PaymentTypes
+from app.models.contract_type import ContractType
+from app.models.contract import Contract
+from app.models.document import Documents
+from app.models.under_contract import UnderContract
+from app.models.invoice import Invoice
+from app.models.contract_invoice import ContractInvoice
+from app.models.contract_documents import ContractDocuments
+
 from app.models.transaction import Transaction
 
 from app.models.utility import Utilities
