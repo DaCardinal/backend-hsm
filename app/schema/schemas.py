@@ -1,4 +1,4 @@
-from app.models import User, Role, Permissions,EntityAddress, Addresses,Property, Units, Message, Amenities, Media, Contract, ContractType, PaymentTypes
+from app.models import User, Role, Permissions,EntityAddress, Addresses,Property, Units, Message, Amenities, Media, Contract, ContractType, PaymentTypes, Invoice
 from app.schema.base_schema import generate_schemas_for_sqlalchemy_model
 
 
@@ -15,3 +15,4 @@ MessageSchema = generate_schemas_for_sqlalchemy_model(Message, excludes=['messag
 ContractSchema = generate_schemas_for_sqlalchemy_model(Contract, excludes=['contract_id'])
 ContractTypeSchema = generate_schemas_for_sqlalchemy_model(ContractType, excludes=['contract_type_id'])
 PaymentTypeSchema = generate_schemas_for_sqlalchemy_model(PaymentTypes, excludes=['payment_type_id'])
+InvoiceSchema = generate_schemas_for_sqlalchemy_model(Invoice, excludes=['invoice_id'])

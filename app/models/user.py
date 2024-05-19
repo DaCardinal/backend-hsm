@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime
 from sqlalchemy.orm import relationship, selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import UUID, Boolean, Column, DateTime, Enum, String, func, select
+from sqlalchemy import UUID, Boolean, Column, Date, DateTime, Enum, String, func, select
 
 from app.models import EntityAddress, Addresses
 from app.models.model_base import BaseModel as Base
@@ -23,10 +23,11 @@ class User(Base):
     email = Column(String(80), unique=True, index=True)
     phone_number = Column(String(50))
     password = Column(String(128))
-    date_of_birth = Column(String)
     identification_number = Column(String(80))
     photo_url = Column(String(128))
     gender = Column(Enum(GenderEnum))
+    date_of_birth = Column(String)
+    # date_of_birth = Column(Date)
 
     # Authentication info
     login_provider = Column(String(128), nullable=True)

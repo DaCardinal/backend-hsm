@@ -38,6 +38,7 @@ from app.models.contract import Contract
 from app.models.document import Documents
 from app.models.under_contract import UnderContract
 from app.models.invoice import Invoice
+from app.models.invoice_item import InvoiceItem
 from app.models.contract_invoice import ContractInvoice
 from app.models.contract_documents import ContractDocuments
 

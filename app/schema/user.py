@@ -1,6 +1,6 @@
 from enum import Enum
 from uuid import UUID
-from datetime import datetime
+from datetime import date, datetime
 from typing import List, Optional, Union
 from pydantic import BaseModel, Field, EmailStr
 
@@ -88,6 +88,8 @@ class UserAuthCreateInfo(BaseModel):
         from_attributes = True
 
 class UserBase(BaseModel):
+    user_id: Optional[UUID] = Field(None)
+    date_of_birth: Optional[date] = Field(alias='date_of_birth')
     first_name: str = Field(..., max_length=128)
     last_name: str = Field(..., max_length=128)
     email: EmailStr = Field(...)
@@ -120,14 +122,14 @@ class UserUpdateSchema(UserBase):
         from_attributes = True
 
 class User(UserBase, UserAuthInfo, UserEmergencyInfo, UserEmployerInfo):
-    user_id: UUID = Field(...)
+    user_id: Optional[UUID] = None
     addresses: Optional[AddressBase] = None
 
     class Config:
         from_attributes = True
 
 class UserResponse(BaseModel):
-    user_id: UUID = Field(...)
+    user_id: Optional[UUID] = None
     first_name: str = Field(..., max_length=128)
     last_name: str = Field(..., max_length=128)
     email: EmailStr = Field(...)
@@ -142,7 +144,7 @@ class UserResponse(BaseModel):
     user_emergency_info: Optional[UserEmergencyInfo] = None
     user_employer_info: Optional[UserEmployerInfo] = None
     created_at: Optional[datetime] = None
-    dob : str = ""
+    date_of_birth: Optional[date] = None
 
     @classmethod
     def get_address_base(cls, address:List[Addresses]):
@@ -200,6 +202,7 @@ class UserResponse(BaseModel):
 
     @classmethod
     def from_orm_model(cls, user: UserModel):
+        print(user.user_id)
         t = cls(
             user_id=user.user_id,
             first_name=user.first_name,
@@ -216,6 +219,6 @@ class UserResponse(BaseModel):
             user_emergency_info=cls.get_user_emergency_info(user),
             user_employer_info=cls.get_user_employer_info(user),
             created_at = user.created_at,
-            dob = user.date_of_birth
+            date_of_birth = user.date_of_birth
         ).model_dump()
         return t

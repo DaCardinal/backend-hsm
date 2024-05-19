@@ -1,12 +1,10 @@
 import uuid
 import enum
-from sqlalchemy.orm import relationship, selectinload, column_property
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import Numeric, Column, ForeignKey, DateTime, Enum, Integer, Text, UUID, func, select
+from sqlalchemy.orm import relationship, column_property
+from sqlalchemy import Numeric, Column, ForeignKey, DateTime, Enum, Integer, Text, UUID, select
 
 from app.models.model_base import BaseModel as Base
 from app.models import ContractType, PaymentTypes
-from app.utils.lifespan import get_db as async_session
 
 class ContractStatusEnum(enum.Enum):
     active = "active"
@@ -49,8 +47,8 @@ class Contract(Base):
     invoices = relationship('Invoice', secondary='contract_invoice', back_populates='contracts')
     under_contract = relationship('UnderContract', back_populates='contract', lazy='selectin')
 
-    contract_type = relationship('ContractType', back_populates='contracts')
-    payment_type = relationship('PaymentTypes', back_populates='contracts')
+    contract_type = relationship('ContractType', back_populates='contracts', lazy='selectin')
+    payment_type = relationship('PaymentTypes', back_populates='contracts', lazy='selectin')
 
     def to_dict(self, exclude=[]):
         if exclude is None:

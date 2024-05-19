@@ -41,3 +41,6 @@ def configure_routes(app: FastAPI):
     
     # Create an instance of PaymenttypeRouter
     app.include_router(PaymentTypeRouter(prefix="/payment_type", tags=["PaymentType"]).router)
+    
+    # Create an instance of InvoiceRouter
+    app.include_router(InvoiceRouter(prefix="/invoice", tags=["Invoice"]).router)

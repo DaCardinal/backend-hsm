@@ -113,10 +113,12 @@ class BaseCRUDRouter(Generic[DBModelType]):
             return item if isinstance(item, DAOResponse) else DAOResponse[Any](success=True, data=dynamic_model.model_validate(item, strict=False, from_attributes=True))
 
     def add_create_route(self):
-        @self.router.post("/", status_code=status.HTTP_201_CREATED)
+        @self.router.post("/", status_code=status.HTTP_200_OK)
         async def create(item: self.create_schema, db: AsyncSession = Depends(self.get_db)) -> DAOResponse:
             try:
-                return await self.dao.create(db_session=db, obj_in=item.dict())
+                item = await self.dao.create(db_session=db, obj_in=item.dict())
+
+                return item if isinstance(item, DAOResponse) else DAOResponse[Any](success=True, data=item.to_dict())
             except Exception as e:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 

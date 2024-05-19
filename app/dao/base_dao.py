@@ -1,7 +1,7 @@
-from typing import List, Optional, Type, TypeVar, Generic, Union
 from uuid import UUID
-from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
+from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List, Optional, Type, TypeVar, Generic, Union
 
 from app.db.dbCrud import DBOperations
 
@@ -52,7 +52,6 @@ class BaseDAO(DBOperations, Generic[DBModelType]):
     def extract_model_data(self, data: dict, schema: Type[BaseModel], nested_key: Optional[str] = None) -> Union[List[dict] | dict]:
         data = data.get(nested_key, {}) if nested_key else data
 
-        # check if data key is null
         if data is None:
             return None
         

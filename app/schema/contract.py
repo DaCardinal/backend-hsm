@@ -6,7 +6,7 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 from app.models import Contract as ContractModel, UnderContract
-from app.schema import UserBase, PropertyBase, PropertyUnitAssoc, Property
+from app.schema import UserBase, PropertyUnitAssoc, Property
 
 class ContractStatus(str, Enum):
     active = "active"
@@ -66,9 +66,9 @@ class ContractCreateSchema(BaseModel):
     payment_type: str
     contract_status: ContractStatus = Field(...)
     contract_details: str
-    payment_amount: int
-    fee_percentage: int
-    fee_amount: int
+    payment_amount: Decimal
+    fee_percentage: Decimal
+    fee_amount: Decimal
     date_signed: datetime = Field(default_factory=datetime.now)
     start_date: Optional[datetime] = Field(default_factory=datetime.now)
     end_date: Optional[datetime] = Field(default_factory=datetime.now)
@@ -78,7 +78,19 @@ class ContractCreateSchema(BaseModel):
         from_attributes = True
         use_enum_values = True
 
-class ContractUpdateSchema(ContractCreateSchema):
+class ContractUpdateSchema(BaseModel):
+    contract_type: str
+    payment_type: str
+    contract_status: ContractStatus = Field(...)
+    contract_details: str
+    payment_amount: Decimal
+    fee_percentage: Decimal
+    fee_amount: Decimal
+    date_signed: datetime = Field(default_factory=datetime.now)
+    start_date: Optional[datetime] = Field(default_factory=datetime.now)
+    end_date: Optional[datetime] = Field(default_factory=datetime.now)
+    contract_info: Optional[List[UnderContractSchema] | UnderContractSchema] = None
+
     class Config:
         from_attributes = True
 
@@ -130,13 +142,15 @@ class ContractResponse(BaseModel):
     def get_user_info(cls, user: UserBase):
 
         return UserBase(
+            user_id=user.user_id,
             first_name=user.first_name,
             last_name=user.last_name,
             email=user.email,
             gender=user.gender,
             phone_number=user.phone_number,
             photo_url=user.photo_url,
-            identification_number=user.identification_number
+            identification_number=user.identification_number,
+            date_of_birth=user.date_of_birth
         )
     
     @classmethod

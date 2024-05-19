@@ -10,3 +10,4 @@ from app.router.auth_router import AuthRouter
 from app.router.contract_router import ContractRouter
 from app.router.contract_type_router import ContractTypeRouter
 from app.router.payment_type_router import PaymentTypeRouter
+from app.router.invoice_router import InvoiceRouter
