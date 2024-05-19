@@ -50,7 +50,7 @@ class AddressCreateSchema(AddressBase):
         from_attributes = True
 
 class Address(AddressBase):
-    address_id: Optional[UUID]
+    address_id: Optional[UUID] = None
 
     class Config:
         from_attributes = True

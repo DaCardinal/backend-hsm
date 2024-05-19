@@ -103,7 +103,7 @@ class UserBase(BaseModel):
         use_enum_values = True
 
 class UserCreateSchema(UserBase):
-    address: Optional[AddressBase] = None
+    address: Optional[AddressBase] = Field(None)
     user_auth_info: Optional[UserAuthCreateInfo] = None
     user_emergency_info: Optional[UserEmergencyInfo] = None
     user_employer_info: Optional[UserEmployerInfo] = None
@@ -113,7 +113,7 @@ class UserCreateSchema(UserBase):
         from_attributes = True
 
 class UserUpdateSchema(UserBase):
-    address: Optional[Union[AddressBase | Address]] = None
+    address: Optional[Address] = None
     user_auth_info: Optional[UserAuthInfo] = None
     user_emergency_info: Optional[UserEmergencyInfo] = None
     user_employer_info: Optional[UserEmployerInfo] = None
@@ -202,7 +202,7 @@ class UserResponse(BaseModel):
 
     @classmethod
     def from_orm_model(cls, user: UserModel):
-
+        
         t = cls(
             user_id=user.user_id,
             first_name=user.first_name,

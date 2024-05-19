@@ -69,7 +69,7 @@ class UserDAO(BaseDAO[User]):
             
             # commit object to db session
             await self.commit_and_refresh(db_session, user_load_addr)
-            return DAOResponse[UserResponse](success=True, data=UserResponse.from_orm_model(new_user))
+            return DAOResponse[UserResponse](success=True, data=UserResponse.from_orm_model(user_load_addr))
         
         except ValidationError as e:
             return DAOResponse(success=False, data=str(e))

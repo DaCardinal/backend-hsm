@@ -88,6 +88,7 @@ class AddressDAO(BaseDAO[Addresses]):
                     "emergency_address": False,
                     "emergency_address_hash": ""
                 })
+            await self.commit_and_refresh(db_session=db_session, obj=address)
 
             return address
         
