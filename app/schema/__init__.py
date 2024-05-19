@@ -4,6 +4,6 @@ from app.schema.ammenity import Amenities, AmenitiesCreateSchema, AmenitiesUpdat
 from app.schema.address import Address, AddressBase, AddressCreateSchema, AddressTypeEnum, EntityAddress,EntityAddressBase,EntityAddressCreate, City, Country, Region
 from app.schema.user import UserAuthCreateInfo, Token, TokenExposed, Login, User, UserAuthInfo, UserBase,UserUpdateSchema, UserCreateSchema, UserEmergencyInfo, UserEmployerInfo, UserResponse
 from app.schema.schemas import MessageSchema, MediaSchema, AmmenitiesSchema, PropertyUnitSchema, UserSchema, RoleSchema, PermissionSchema, EntityAddressSchema, AddressSchema, PropertySchema, ContractSchema, ContractTypeSchema, PaymentTypeSchema
-from app.schema.property import PropertyUnitCreateSchema, PropertyUnitUpdateSchema, PropertyUnitResponse, PropertyUnit, PropertyUnitBase, PropertyResponse, PropertyBase, PropertyStatus, PropertyType, PropertyCreateSchema, PropertyUpdateSchema
+from app.schema.property import PropertyUnitCreateSchema, PropertyUnitUpdateSchema, PropertyUnitResponse, PropertyUnit, PropertyUnitBase, PropertyResponse, PropertyBase, PropertyStatus, PropertyType, PropertyCreateSchema, PropertyUpdateSchema, Property, PropertyUnitAssoc
 from app.schema.message import MessageCreate, MessageReply, MessageResponseModel, UserGroupAddition, PropertyUnitAssocCreate, PropertyUnitAssocResponse
-from app.schema.contract import ContractCreateSchema, ContractResponse, ContractUpdateSchema, ContractBase
+from app.schema.contract import ContractCreateSchema, ContractResponse, ContractUpdateSchema, ContractBase, UnderContractSchema

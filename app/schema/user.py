@@ -141,6 +141,8 @@ class UserResponse(BaseModel):
     user_auth_info: Optional[UserAuthInfo] = None
     user_emergency_info: Optional[UserEmergencyInfo] = None
     user_employer_info: Optional[UserEmployerInfo] = None
+    created_at: Optional[datetime] = None
+    dob : str = ""
 
     @classmethod
     def get_address_base(cls, address:List[Addresses]):
@@ -212,6 +214,8 @@ class UserResponse(BaseModel):
             address=cls.get_address_base(user.addresses),
             user_auth_info=cls.get_user_auth_info(user),
             user_emergency_info=cls.get_user_emergency_info(user),
-            user_employer_info=cls.get_user_employer_info(user)
+            user_employer_info=cls.get_user_employer_info(user),
+            created_at = user.created_at,
+            dob = user.date_of_birth
         ).model_dump()
         return t

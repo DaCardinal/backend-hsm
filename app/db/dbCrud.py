@@ -18,7 +18,7 @@ class UtilsMixin:
             await db_session.refresh(obj)
             return obj
         except Exception as e:
-            db_session.rollback()
+            await db_session.rollback()
             return DAOResponse(success=False, error=f"Error committing data: {str(e)}")
         
 class CreateMixin(UtilsMixin):

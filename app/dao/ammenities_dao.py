@@ -55,7 +55,7 @@ class AmenitiesDAO(BaseDAO[Amenities]):
 
                         create_media_item : AmenitiesModel = await self.update(db_session=db_session, db_obj=existing_ammenities_item, obj_in=ammenities_data)
 
-                        await self._link_property_to_ammenity(
+                        await self.link_property_to_ammenity(
                             db_session=db_session, 
                             property_unit_assoc_id=entity_assoc_id if entity_assoc_id else entity_id,
                             ammenity_id=create_media_item.amenity_id,
@@ -68,7 +68,7 @@ class AmenitiesDAO(BaseDAO[Amenities]):
                     if create_media_item is None:
                         create_media_item : Amenities = await self.create(db_session=db_session, obj_in=ammenities_item.model_dump())
 
-                    await self._link_property_to_ammenity(
+                    await self.link_property_to_ammenity(
                         db_session=db_session, 
                         property_unit_assoc_id=entity_assoc_id if entity_assoc_id else entity_id,
                         ammenity_id=create_media_item.amenity_id,

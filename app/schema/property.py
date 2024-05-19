@@ -16,11 +16,6 @@ class PropertyType(str, Enum):
     commercial = 'commercial'
     industrial = 'industrial'
 
-class PropertyType(str, Enum):
-    residential = 'residential'
-    commercial = 'commercial'
-    industrial = 'industrial'
-
 class PropertyUnitBase(BaseModel):
     property_unit_code: str
     property_unit_floor_space: Optional[int] = None
@@ -97,6 +92,16 @@ class PropertyUpdateSchema(PropertyBase):
         from_attributes = True
         use_enum_values = True
 
+class PropertyUnitAssoc(BaseModel):
+    property_unit_assoc_id: Optional[UUID]
+    property_id: Optional[UUID]
+    property_unitid: Optional[UUID]
+    property: Optional[PropertyBase]
+
+    class Config:
+        from_attributes = True
+        use_enum_values = True
+
 class Property(PropertyBase):
     property_unit_assoc_id: Optional[UUID]
     property_id: UUID = Field(...)
@@ -116,13 +121,8 @@ class PropertyUnitResponse(PropertyUnit):
     
     @classmethod
     def from_orm_model(cls, property_unit: UnitsModel):
-        print("property_id",property_unit.property_id)
-        print("property_unit_id",property_unit.property_unit_id)
-        print("property_unit_assoc_id",property_unit.property_unit_assoc_id)
-        print("media",property_unit.media)
-        print("amenities",property_unit.amenities)
 
-        t = cls(
+        return cls(
             property_unit_id = property_unit.property_unit_id,
             property_unit_code = property_unit.property_unit_code,
             property_unit_floor_space = property_unit.property_unit_floor_space,
@@ -135,7 +135,6 @@ class PropertyUnitResponse(PropertyUnit):
             media = property_unit.media,
             ammenities = property_unit.amenities
         ).model_dump()
-        return t
     
 class PropertyResponse(Property):
     units: Optional[List[PropertyUnit] | PropertyUnit]
@@ -171,7 +170,7 @@ class PropertyResponse(Property):
     @classmethod
     def from_orm_model(cls, property: PropertyModel):
 
-        t = cls(
+        return cls(
             property_id = property.property_id,
             name = property.name,
             property_type = property.property_type,
@@ -193,4 +192,3 @@ class PropertyResponse(Property):
             media=property.media,
             ammenities=property.amenities
         ).model_dump()
-        return t

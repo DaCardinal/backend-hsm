@@ -616,8 +616,9 @@ class TransactionTypeFactory:
         query_key = "transaction_type_name"
         
         transaction_type_data = [
-            {"transaction_type_name": "Credit Card", "transaction_type_description": "Payment via credit card"},
-            {"transaction_type_name": "Debit Card", "transaction_type_description": "Payment via debit card"}
+            {"transaction_type_name": "credit_card", "transaction_type_description": "Payment via credit card"},
+            {"transaction_type_name": "debit_card", "transaction_type_description": "Payment via debit card"},
+            {"transaction_type_name": "mobile_money", "transaction_type_description": "Payment via mobile money"}
         ]
 
         return query_key, transaction_type_data
@@ -631,10 +632,10 @@ class ContractTypeFactory:
         query_key = 'contract_type_name'
 
         contract_type_data = [
-            {"contract_type_name": "Purchase", "fee_percentage": 10.00},
-            {"contract_type_name": "Sale", "fee_percentage": 5.10},
-            {"contract_type_name": "Rent",  "fee_percentage": 14.5},
-            {"contract_type_name": "Lease",  "fee_percentage": 3.25},
+            {"contract_type_name": "purchase", "fee_percentage": 10.00},
+            {"contract_type_name": "sale", "fee_percentage": 5.10},
+            {"contract_type_name": "rent",  "fee_percentage": 14.5},
+            {"contract_type_name": "lease",  "fee_percentage": 3.25},
         ]
 
         return query_key, contract_type_data
@@ -647,12 +648,19 @@ class PaymentTypesFactory:
     def create_data(self) -> List[dict]:
         query_key = 'payment_type_name'
 
+        # payment_types_data = [
+        #     {"payment_type_name": "One-time Payment", "payment_type_description": "Payment made once", "num_of_invoices": 1},
+        #     {"payment_type_name": "Monthly Payment", "payment_type_description": "Payment made monthly", "num_of_invoices": 12},
+        #     {"payment_type_name": "Quarterly Payment", "payment_type_description": "Payment made quarterly", "num_of_invoices": 4},
+        #     {"payment_type_name": "Semi-annual Payment", "payment_type_description": "Payment made semi-annually", "num_of_invoices": 2},
+        #     {"payment_type_name": "Annual Payment", "payment_type_description": "Payment made annually", "num_of_invoices": 1}
+        # ]
         payment_types_data = [
-            {"payment_type_name": "One-time Payment", "payment_type_description": "Payment made once", "num_of_invoices": 1},
-            {"payment_type_name": "Monthly Payment", "payment_type_description": "Payment made monthly", "num_of_invoices": 12},
-            {"payment_type_name": "Quarterly Payment", "payment_type_description": "Payment made quarterly", "num_of_invoices": 4},
-            {"payment_type_name": "Semi-annual Payment", "payment_type_description": "Payment made semi-annually", "num_of_invoices": 2},
-            {"payment_type_name": "Annual Payment", "payment_type_description": "Payment made annually", "num_of_invoices": 1}
+            {"payment_type_name": "one-time", "payment_type_description": "Payment made once", "num_of_invoices": 1},
+            {"payment_type_name": "monthly", "payment_type_description": "Payment made monthly", "num_of_invoices": 12},
+            {"payment_type_name": "quarterly", "payment_type_description": "Payment made quarterly", "num_of_invoices": 4},
+            {"payment_type_name": "semi-annual", "payment_type_description": "Payment made semi-annually", "num_of_invoices": 2},
+            {"payment_type_name": "annual", "payment_type_description": "Payment made annually", "num_of_invoices": 1}
         ]
         return query_key, payment_types_data
 
