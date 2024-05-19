@@ -18,7 +18,7 @@ def token_response(token: str) -> TokenExposed:
 
 def signJWT(user: User) -> Dict[str, str]:
     
-    payload = user.to_dict(exclude={'password_hash', 'updated_at', 'created_at', 'gender'})
+    payload = user.to_dict(exclude={'password_hash', 'updated_at', 'created_at', 'gender', 'user_id'})
     payload = {key: payload[key] for key in payload if key in UserBase.model_fields}
     payload.update({"expires": time.time() + 1800})
 
@@ -31,7 +31,7 @@ def signJWT(user: User) -> Dict[str, str]:
     token_data.update({
         "first_name": user.first_name,
         "email": user.email,
-        "user_id": user.user_id,
+        "user_id": user.to_dict().get('user_id'),
         "last_name": user.last_name,
         "expires": payload["expires"],
         "roles": user.roles

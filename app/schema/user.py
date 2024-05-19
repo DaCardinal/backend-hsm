@@ -19,7 +19,7 @@ class TokenExposed(BaseModel):
     token_type: str
     first_name: str
     email: str
-    user_id: str
+    user_id: Optional[UUID] = Field(None)
     last_name: str
     expires: str
     roles : List[Role] = []
@@ -202,7 +202,7 @@ class UserResponse(BaseModel):
 
     @classmethod
     def from_orm_model(cls, user: UserModel):
-        
+
         t = cls(
             user_id=user.user_id,
             first_name=user.first_name,
