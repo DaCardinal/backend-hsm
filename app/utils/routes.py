@@ -39,8 +39,17 @@ def configure_routes(app: FastAPI):
     # Create an instance of ContractTypeRouter
     app.include_router(ContractTypeRouter(prefix="/contract_type", tags=["ContractType"]).router)
     
+    # Create an instance of Transaction_typeRouter
+    app.include_router(TransactionTypeRouter(prefix="/transaction_type", tags=["TransactionType"]).router)
+    
     # Create an instance of PaymenttypeRouter
     app.include_router(PaymentTypeRouter(prefix="/payment_type", tags=["PaymentType"]).router)
     
     # Create an instance of InvoiceRouter
     app.include_router(InvoiceRouter(prefix="/invoice", tags=["Invoice"]).router)
+    
+    # Create an instance of TransactionRouter
+    app.include_router(TransactionRouter(prefix="/transaction", tags=["Transaction"]).router)
+    
+    # Create an instance of CompanyRouter
+    # app.include_router(CompanyRouter(prefix="/company", tags=["Company"]).router)

@@ -12,8 +12,8 @@ class PropertyRouter(BaseCRUDRouter):
     def __init__(self, dao: PropertyDAO = PropertyDAO(Property), prefix: str = "", tags: List[str] = []):
         PropertySchema["create_schema"] = PropertyCreateSchema
         PropertySchema["update_schema"] = PropertyUpdateSchema
-        super().__init__(dao=dao, schemas=PropertySchema, prefix=prefix,tags = tags)
         self.dao = dao
+        super().__init__(dao=dao, schemas=PropertySchema, prefix=prefix,tags = tags)
         self.register_routes()
 
     def register_routes(self):

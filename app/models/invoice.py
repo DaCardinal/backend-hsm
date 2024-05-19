@@ -27,7 +27,8 @@ class Invoice(Base):
     transaction_id = Column(UUID(as_uuid=True), ForeignKey('transaction.transaction_id'))
 
     contracts = relationship('Contract', secondary='contract_invoice', back_populates='invoices')
-    transaction = relationship('Transaction', back_populates='invoice_number')
+    # transaction = relationship('Transaction', back_populates='invoice_number')
+    transaction = relationship('Transaction', primaryjoin="and_(Invoice.invoice_number==Transaction.invoice_number)", back_populates='transaction_invoice')
     invoice_items = relationship("InvoiceItem", back_populates="invoice", lazy="selectin")
 
 

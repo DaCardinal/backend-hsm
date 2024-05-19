@@ -10,8 +10,8 @@ from app.router.base_router import BaseCRUDRouter
 class RoleRouter(BaseCRUDRouter):
 
     def __init__(self, dao: RoleDAO = RoleDAO(Role, load_parent_relationships=True, load_child_relationships=False, excludes=['users']), prefix: str = "", tags: List[str] = []):
-        super().__init__(dao=dao, schemas=RoleSchema, prefix=prefix,tags = tags)
         self.dao = dao
+        super().__init__(dao=dao, schemas=RoleSchema, prefix=prefix,tags = tags)
         self.register_routes()
 
     def register_routes(self):

@@ -11,3 +11,6 @@ from app.router.contract_router import ContractRouter
 from app.router.contract_type_router import ContractTypeRouter
 from app.router.payment_type_router import PaymentTypeRouter
 from app.router.invoice_router import InvoiceRouter
+from app.router.transaction_router import TransactionRouter
+from app.router.transaction_type_router import TransactionTypeRouter
+from app.router.company_router import CompanyRouter

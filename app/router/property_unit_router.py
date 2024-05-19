@@ -10,10 +10,10 @@ from app.router.base_router import BaseCRUDRouter
 class PropertyUnitRouter(BaseCRUDRouter):
 
     def __init__(self, dao: PropertyUnitDAO = PropertyUnitDAO(PropertyUnit, load_parent_relationships=True, load_child_relationships=False), prefix: str = "", tags: List[str] = []):
+        self.dao = dao
         PropertyUnitSchema["create_schema"] = PropertyUnitCreateSchema
         PropertyUnitSchema["update_schema"] = PropertyUnitUpdateSchema
         super().__init__(dao=dao, schemas=PropertyUnitSchema, prefix=prefix,tags = tags)
-        self.dao = dao
         self.register_routes()
 
     def register_routes(self):

@@ -67,9 +67,7 @@ class InvoiceDAO(BaseDAO[Invoice]):
                 if existing_invoice_item:
                     invoice_item_details = await invoice_item_dao.update(db_session=db_session, db_obj=existing_invoice_item, obj_in=invoice_item_obj.items())
                 else:
-                    print("create")
                     invoice_item_details = await invoice_item_dao.create(db_session=db_session, obj_in=invoice_item_obj)
-                    print(invoice_item_details)
 
                 # commit object to db session
                 await invoice_item_dao.commit_and_refresh(db_session, invoice_item_details)
