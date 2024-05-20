@@ -1,8 +1,8 @@
 import enum
 import uuid
 from datetime import datetime
-from sqlalchemy.orm import relationship, selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import relationship, selectinload
 from sqlalchemy import UUID, Boolean, Column, Date, DateTime, Enum, String, func, select
 
 from app.models import EntityAddress, Addresses

@@ -1,11 +1,9 @@
 import uuid
-from sqlalchemy import Numeric, Column, ForeignKey, Boolean, Integer, String, Text, select
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
-from sqlalchemy.orm import column_property, foreign
+from sqlalchemy.orm import column_property, foreign, relationship
+from sqlalchemy import Numeric, Column, ForeignKey, Boolean, Integer, String, Text, select, UUID
 
-from app.models.model_base import BaseModel as Base
 from app.models import PropertyUnitAssoc
+from app.models.model_base import BaseModel as Base
 
 class Units(Base):
     __tablename__ = 'units'

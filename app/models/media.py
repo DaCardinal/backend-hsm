@@ -1,12 +1,12 @@
 import uuid
-from sqlalchemy import Column, String
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, UUID
 from sqlalchemy.orm import relationship
 
 from app.models.model_base import BaseModel as Base
 
 class Media(Base):
     __tablename__ = 'media'
+    
     media_id = Column(UUID(as_uuid=True), primary_key=True, unique=True, index=True, default=uuid.uuid4)
     media_name = Column(String(128))
     media_type = Column(String(50))

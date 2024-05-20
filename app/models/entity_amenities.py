@@ -1,12 +1,12 @@
 import uuid
-from sqlalchemy import Column, ForeignKey, Boolean, String
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Boolean, String, UUID
 
 from app.models.model_base import BaseModel as Base
 
 class EntityAmenities(Base):
     __tablename__ = 'entity_amenities'
+    
     entity_id = Column(UUID(as_uuid=True), primary_key=True, unique=True, index=True, default=uuid.uuid4)
     entity_type = Column(String)
     amenity_id = Column(UUID(as_uuid=True), ForeignKey('amenities.amenity_id'))

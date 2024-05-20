@@ -1,12 +1,12 @@
 import uuid
-from sqlalchemy import Column, ForeignKey, Boolean, String
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Boolean, String, UUID
 
 from app.models.model_base import BaseModel as Base
 
 class UnitUtilities(Base):
     __tablename__ = 'unit_utilities'
+
     id = Column(UUID(as_uuid=True), primary_key=True, unique=True, index=True, default=uuid.uuid4)
     utility_id = Column(UUID(as_uuid=True), ForeignKey('utilities.utility_id'))
     payment_type_id = Column(UUID(as_uuid=True), ForeignKey('payment_types.payment_type_id'))

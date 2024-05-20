@@ -1,6 +1,5 @@
 import enum
-from sqlalchemy import Column, ForeignKey, DateTime, Enum
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, ForeignKey, DateTime, Enum, UUID
 
 from app.models.model_base import BaseModel as Base
 

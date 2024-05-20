@@ -1,6 +1,5 @@
-from sqlalchemy import Column, String, select
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import selectinload
+from sqlalchemy import Column, String, select, UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.address import Addresses
@@ -10,6 +9,7 @@ from app.utils.lifespan import get_db as async_session
 
 class Accounts(Base):
     __tablename__ = 'accounts'
+    
     account_id = Column(UUID(as_uuid=True), primary_key=True)
     bank_account_name = Column(String(80))
     bank_account_number = Column(String(80))

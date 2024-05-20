@@ -1,7 +1,7 @@
 import enum
 import uuid
-from sqlalchemy import UUID, Column, ForeignKey, Boolean, Enum, String
 from sqlalchemy.orm import relationship
+from sqlalchemy import UUID, Column, ForeignKey, Boolean, Enum, String
 
 from app.models.model_base import BaseModel as Base
 
@@ -11,6 +11,7 @@ class AddressTypeEnum(enum.Enum):
 
 class Addresses(Base):
     __tablename__ = 'addresses'
+
     address_id = Column(UUID(as_uuid=True), primary_key=True, unique=True, index=True, default=uuid.uuid4)
     address_type = Column(Enum(AddressTypeEnum))
     primary = Column(Boolean, default=True)

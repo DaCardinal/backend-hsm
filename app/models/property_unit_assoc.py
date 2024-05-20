@@ -1,6 +1,6 @@
 import uuid
-from sqlalchemy import Column, ForeignKey, UUID
 from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, UUID
 
 from app.models.model_base import BaseModel as Base
 

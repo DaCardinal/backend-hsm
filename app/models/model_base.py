@@ -1,8 +1,8 @@
 from uuid import UUID
+from datetime import datetime
+from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy import Column, DateTime, func
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.ext.asyncio import AsyncAttrs
-from datetime import datetime
 
 from app.db.dbModule import Base
 

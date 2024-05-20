@@ -3,8 +3,8 @@ import uuid
 from sqlalchemy.orm import relationship, column_property
 from sqlalchemy import Numeric, Column, ForeignKey, Boolean, Enum, Integer, String, Text, UUID,  select
 
-from app.models.model_base import BaseModel as Base
 from app.models import PropertyUnitAssoc
+from app.models.model_base import BaseModel as Base
 
 class PropertyStatus(enum.Enum):
     available = "available"

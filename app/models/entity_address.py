@@ -1,11 +1,12 @@
 import uuid
-from sqlalchemy import Column, ForeignKey, Boolean, String, UUID
 from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Boolean, String, UUID
 
 from app.models.model_base import BaseModel as Base
 
 class EntityAddress(Base):
     __tablename__ = 'entity_address'
+    
     entity_assoc_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     entity_type = Column(String(80))
     entity_id = Column(UUID(as_uuid=True))
