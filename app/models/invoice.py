@@ -38,7 +38,7 @@ def receive_before_insert(mapper, connection, target: Invoice):
 
     if 'invoice_number' not in invoice or not invoice['invoice_number'] :
         current_time_str = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-        setattr(target, 'invoice_number', f"{current_time_str}")
+        setattr(target, 'invoice_number', f"INV{current_time_str}")
 
 @event.listens_for(Invoice, 'after_insert')
 def receive_after_insert(mapper, connection, target: Invoice):
@@ -46,7 +46,7 @@ def receive_after_insert(mapper, connection, target: Invoice):
 
     if 'invoice_number' not in invoice or not invoice['invoice_number'] or not target.invoice_number:
         current_time_str = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-        target.invoice_number = f"{current_time_str}"
+        target.invoice_number = f"INV{current_time_str}"
         connection.execute(
             target.__table__.update()
             .where(target.__table__.c.id == target.id)
