@@ -30,7 +30,7 @@ class User(Base):
     # date_of_birth = Column(Date)
 
     # Authentication info
-    login_provider = Column(String(128), nullable=True)
+    login_provider = Column(String(128), nullable=True, default="native")
     reset_token = Column(String(128), nullable=True)      
     verification_token = Column(String(128), nullable=True)    
     is_subscribed_token = Column(String(128), nullable=True)                   

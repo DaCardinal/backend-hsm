@@ -93,7 +93,7 @@ class AuthDAO(BaseDAO[User]):
         if current_user is None:
             raise NoResultFound()
         
-        if current_user.is_verified and current_user.login_provider is None:
+        if current_user.is_verified and (current_user.login_provider == "native" or current_user.login_provider is None):
             if current_user.password is None:
                 return DAOResponse[str](success=False, data="Please set your password first!")
             

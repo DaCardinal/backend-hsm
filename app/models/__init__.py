@@ -47,4 +47,4 @@ from app.models.transaction import Transaction
 from app.models.utility import Utilities
 from app.models.entity_amenities import EntityAmenities
 from app.models.ammenity import Amenities
-from app.models.unit_utilities import UnitUtilities
+from app.models.entity_utilities import EntityUtilities

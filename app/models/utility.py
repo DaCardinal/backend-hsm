@@ -11,4 +11,4 @@ class Utilities(Base):
     name = Column(String(128))
     description = Column(String(50))
 
-    units = relationship("PropertyUnitAssoc", secondary="unit_utilities", back_populates="utilities")
+    units = relationship("PropertyUnitAssoc", secondary="entity_utilities", back_populates="utilities")

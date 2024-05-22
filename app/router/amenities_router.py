@@ -17,15 +17,6 @@ class AmmenitiesRouter(BaseCRUDRouter):
         self.register_routes()
 
     def register_routes(self):
-        @self.router.post("/link_property_to_media")
-        async def add_property_media(property_unit_assoc_id: UUID, media_id: UUID, db: AsyncSession = Depends(self.get_db)):
-            property_media : EntityMedia = await self.dao.link_property_to_media(db_session=db, property_unit_assoc_id=property_unit_assoc_id, media_id=media_id)
-
-            if property_media is None:
-                raise HTTPException(status_code=404, detail="Error adding media to property")
-            
-            return DAOResponse(success=True, data=property_media.to_dict())
-        
         @self.router.post("/link_property_to_ammenity")
         async def add_property_ammenity(property_unit_assoc_id: UUID, ammenity_id: UUID, db: AsyncSession = Depends(self.get_db)):
             property_ammenity : EntityAmenities = await self.dao.link_property_to_ammenity(db_session=db, property_unit_assoc_id=property_unit_assoc_id, ammenity_id=ammenity_id)

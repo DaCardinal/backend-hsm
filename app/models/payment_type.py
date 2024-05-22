@@ -12,5 +12,5 @@ class PaymentTypes(Base):
     payment_type_description = Column(Text)
     num_of_invoices = Column(Numeric(10, 2))
 
-    unit_utilities = relationship('UnitUtilities', back_populates='payment_type')
+    entity_utilities = relationship('EntityUtilities', back_populates='payment_type')
     contracts = relationship('Contract', back_populates='payment_type')

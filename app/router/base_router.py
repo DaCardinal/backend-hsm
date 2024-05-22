@@ -148,3 +148,26 @@ class BaseCRUDRouter(Generic[DBModelType]):
                 return {"detail": "Item deleted successfully"}
             except Exception as e:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+# Endpoint with pagination
+# @app.get("/items/", response_model=PaginatedResponse)
+# def get_items(limit: int = Query(default=10, ge=1), offset: int = Query(default=0, ge=0), db: Session = Depends(get_db)):
+#     total = db.query(YourModel).count()
+#     items = db.query(YourModel).offset(offset).limit(limit).all()
+    
+#     # Generate next and previous links
+#     base_url = "/items/"
+#     next_offset = offset + limit
+#     previous_offset = offset - limit if offset - limit >= 0 else 0
+    
+#     next_link = f"{base_url}?limit={limit}&offset={next_offset}" if next_offset < total else None
+#     previous_link = f"{base_url}?limit={limit}&offset={previous_offset}" if offset > 0 else None
+    
+#     return {
+#         "items": items,
+#         "total": total,
+#         "limit": limit,
+#         "offset": offset,
+#         "next": next_link,
+#         "previous": previous_link
+#     }

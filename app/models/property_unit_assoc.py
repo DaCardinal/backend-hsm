@@ -21,8 +21,8 @@ class PropertyUnitAssoc(Base):
     
     # relationship to utilities
     utilities = relationship("Utilities",
-                         secondary="unit_utilities",
-                         primaryjoin="and_(UnitUtilities.property_unit_assoc_id==PropertyUnitAssoc.property_unit_assoc_id)",
+                         secondary="entity_utilities",
+                         primaryjoin="and_(EntityUtilities.property_unit_assoc_id==PropertyUnitAssoc.property_unit_assoc_id)",
                          back_populates="units")
     
     # relationship to amenities
