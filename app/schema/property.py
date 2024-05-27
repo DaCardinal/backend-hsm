@@ -22,6 +22,8 @@ class PropertyUnitBase(BaseModel):
     property_unit_amount: Optional[float] = None
     property_floor_id: Optional[int] = None
     property_unit_notes: Optional[str] = None
+    property_unit_security_deposit: Optional[float] = None
+    property_unit_commission: Optional[float] = None
     has_amenities: Optional[bool] = False
     property_id: UUID = Field(...)
 
@@ -114,6 +116,7 @@ class Property(PropertyBase):
     
 class PropertyUnitResponse(PropertyUnit):
     media: Optional[List[Media] | Media]
+    property: Optional[PropertyBase]
     ammenities: Optional[List[Amenities] | Amenities] = None
 
     class Config:
@@ -125,6 +128,7 @@ class PropertyUnitResponse(PropertyUnit):
 
         return cls(
             # property_unit_id = property_unit.property_unit_id,
+            property_unit_assoc_id = property_unit.property_unit_assoc_id,
             property_unit_code = property_unit.property_unit_code,
             property_unit_floor_space = property_unit.property_unit_floor_space,
             property_unit_amount = property_unit.property_unit_amount,
@@ -132,7 +136,9 @@ class PropertyUnitResponse(PropertyUnit):
             property_unit_notes = property_unit.property_unit_notes,
             has_amenities = property_unit.has_amenities,
             property_id = property_unit.property_id,
-            property_unit_assoc_id = property_unit.property_unit_assoc_id,
+            property_unit_security_deposit = property_unit.property_unit_security_deposit,
+            property_unit_commission = property_unit.property_unit_commission,
+            property = property_unit.property,
             media = property_unit.media,
             ammenities = property_unit.amenities
         ).model_dump()

@@ -11,6 +11,8 @@ class Units(PropertyUnitAssoc):
     property_unit_code = Column(String(128))
     property_unit_floor_space = Column(Integer)
     property_unit_amount = Column(Numeric(10, 2))
+    property_unit_security_deposit = Column(Numeric(10, 2))
+    property_unit_commission = Column(Numeric(10, 2))
     property_floor_id = Column(Integer)
     property_unit_notes = Column(Text)
     has_amenities = Column(Boolean, default=False)
