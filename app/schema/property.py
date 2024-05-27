@@ -31,14 +31,14 @@ class PropertyUnitBase(BaseModel):
 
 class PropertyUnit(PropertyUnitBase):
     property_unit_assoc_id: Optional[UUID]
-    property_unit_id: UUID = Field(...)
+    # property_unit_id: UUID = Field(...)
 
     class Config:
         from_attributes = True
         use_enum_values = True
 
 class PropertyUnitCreateSchema(PropertyUnitBase):
-    property_id: UUID = Field(...)
+    # property_id: UUID = Field(...)
     media: Optional[List[MediaBase] | MediaBase] = None
     ammenities: Optional[List[Amenities] | List[AmenitiesBase] | Amenities | AmenitiesBase] = None
 
@@ -94,9 +94,10 @@ class PropertyUpdateSchema(PropertyBase):
 
 class PropertyUnitAssoc(BaseModel):
     property_unit_assoc_id: Optional[UUID]
-    property_id: Optional[UUID]
-    property_unitid: Optional[UUID]
-    property: Optional[PropertyBase]
+    property_unit_type: Optional[str]
+    # property_id: Optional[UUID]
+    # property_unitid: Optional[UUID]
+    # property: Optional[PropertyBase]
 
     class Config:
         from_attributes = True
@@ -104,7 +105,7 @@ class PropertyUnitAssoc(BaseModel):
 
 class Property(PropertyBase):
     property_unit_assoc_id: Optional[UUID]
-    property_id: UUID = Field(...)
+    # property_id: UUID = Field(...)
     address: Optional[List[Address] | Address] = None
 
     class Config:
@@ -123,7 +124,7 @@ class PropertyUnitResponse(PropertyUnit):
     def from_orm_model(cls, property_unit: UnitsModel):
 
         return cls(
-            property_unit_id = property_unit.property_unit_id,
+            # property_unit_id = property_unit.property_unit_id,
             property_unit_code = property_unit.property_unit_code,
             property_unit_floor_space = property_unit.property_unit_floor_space,
             property_unit_amount = property_unit.property_unit_amount,
@@ -171,7 +172,7 @@ class PropertyResponse(Property):
     def from_orm_model(cls, property: PropertyModel):
 
         return cls(
-            property_id = property.property_id,
+            # property_id = property.property_id,
             name = property.name,
             property_type = property.property_type,
             amount = property.amount,

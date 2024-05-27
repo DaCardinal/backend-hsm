@@ -22,7 +22,8 @@ class PropertyRouter(BaseCRUDRouter):
     def register_routes(self):
         @self.router.post("/link_property_to_media")
         async def add_property_media(property_unit_assoc_id: UUID, media_id: UUID, db: AsyncSession = Depends(self.get_db)):
-            media_dao = AmenitiesDAO(Amenities) # Implement this properly
+            #TODO: Implement this properly
+            media_dao = AmenitiesDAO(Amenities) 
             property_media : EntityMedia = await media_dao.link_property_to_media(db_session=db, property_unit_assoc_id=property_unit_assoc_id, media_id=media_id, entity_model='Property')
 
             if property_media is None:

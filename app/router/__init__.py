@@ -14,3 +14,5 @@ from app.router.invoice_router import InvoiceRouter
 from app.router.transaction_router import TransactionRouter
 from app.router.transaction_type_router import TransactionTypeRouter
 from app.router.company_router import CompanyRouter
+from app.router.maintenance_request_router import MaintenanceRequestRouter
+from app.router.calendar_event_router import CalendarEventRouter

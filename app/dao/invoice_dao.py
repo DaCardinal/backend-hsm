@@ -1,8 +1,8 @@
 from functools import partial
+from typing import Dict, Type
 from pydantic import ValidationError
 from typing_extensions import override
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Dict, Type
 
 from app.dao.base_dao import BaseDAO
 from app.models import Invoice
@@ -13,7 +13,7 @@ from app.schema import InvoiceCreateSchema, ContractResponse, InvoiceItemBase, I
 class InvoiceDAO(BaseDAO[Invoice]):
     def __init__(self, model: Type[Invoice], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
         super().__init__(model, load_parent_relationships, load_child_relationships, excludes=excludes)
-        self.primary_key = "invoice_id"
+        self.primary_key = "invoice_number"
 
     @override
     async def create(self, db_session: AsyncSession, obj_in: InvoiceCreateSchema) -> DAOResponse[InvoiceResponse]:

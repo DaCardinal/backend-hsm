@@ -1,10 +1,9 @@
 import enum
 import uuid
-from sqlalchemy.orm import relationship, column_property
-from sqlalchemy import Numeric, Column, ForeignKey, Boolean, Enum, Integer, String, Text, UUID,  select
+from sqlalchemy.orm import relationship
+from sqlalchemy import Numeric, Column, ForeignKey, Boolean, Enum, Integer, String, Text, UUID
 
-from app.models import PropertyUnitAssoc
-from app.models.model_base import BaseModel as Base
+from app.models.property_unit_assoc import PropertyUnitAssoc
 
 class PropertyStatus(enum.Enum):
     available = "available"
@@ -19,9 +18,10 @@ class PropertyType(enum.Enum):
     commercial = 'commercial'
     industrial = 'industrial'
 
-class Property(Base):
+class Property(PropertyUnitAssoc):
     __tablename__ = 'property'
-    property_id = Column(UUID(as_uuid=True), primary_key=True, unique=True, index=True, default=uuid.uuid4)
+
+    property_unit_assoc_id = Column(UUID(as_uuid=True), ForeignKey('property_unit_assoc.property_unit_assoc_id'), primary_key=True)
     name = Column(String(255))
     address_id = Column(UUID(as_uuid=True), ForeignKey('addresses.address_id'), nullable=True)
     property_type = Column(Enum(PropertyType))
@@ -38,19 +38,22 @@ class Property(Base):
     description = Column(Text)
     property_status = Column(Enum(PropertyStatus))
 
-    # generate dynamic column property
-    property_unit_assoc_id = column_property(
-        select(PropertyUnitAssoc.property_unit_assoc_id)
-        .where(PropertyUnitAssoc.property_id == property_id)
-        .correlate_except(PropertyUnitAssoc)
-        .scalar_subquery()
-    )
+    __mapper_args__ = {
+        "polymorphic_identity": "Property",
+        'inherit_condition': property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id
+    }
 
-    # relationship to link property unit and generate super key
-    property_unit_assoc = relationship("PropertyUnitAssoc", back_populates="property", overlaps="entity_amenities,property")
+    maintenance_requests = relationship('MaintenanceRequest',
+                                        secondary="property_unit_assoc", 
+                                        primaryjoin="MaintenanceRequest.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
+                                        back_populates='property')
+    events = relationship('CalendarEvent',
+                            secondary="property_unit_assoc", 
+                            primaryjoin="CalendarEvent.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
+                            back_populates='property')
     
     # relationship to units
-    units = relationship("Units", back_populates="property", lazy="selectin")
+    units = relationship("Units", primaryjoin="Units.property_id == Property.property_unit_assoc_id", back_populates="property", lazy="selectin")
 
     # relationship with media
     media = relationship("Media",
@@ -70,7 +73,7 @@ class Property(Base):
     addresses = relationship(
         'Addresses',
         secondary='entity_address',
-        primaryjoin="and_(Property.property_id==EntityAddress.entity_id, EntityAddress.entity_type=='Property')",
+        primaryjoin="and_(Property.property_unit_assoc_id==EntityAddress.entity_id, EntityAddress.entity_type=='Property')",
         secondaryjoin="EntityAddress.address_id==Addresses.address_id",
         overlaps="address,entity_addresses,users,properties",
         back_populates="properties",

@@ -34,7 +34,7 @@ class Addresses(Base):
         'Property',
         secondary='entity_address',
         primaryjoin="EntityAddress.address_id==Addresses.address_id",
-        secondaryjoin="and_(EntityAddress.entity_id==Property.property_id, EntityAddress.entity_type=='Property')",
+        secondaryjoin="and_(EntityAddress.entity_id==Property.property_unit_assoc_id, EntityAddress.entity_type=='Property')",
         back_populates="addresses",
         overlaps="users",
         lazy="selectin"

@@ -53,3 +53,9 @@ def configure_routes(app: FastAPI):
     
     # Create an instance of CompanyRouter
     # app.include_router(CompanyRouter(prefix="/company", tags=["Company"]).router)
+    
+    # Create an instance of MaintenanceRequestRouter
+    app.include_router(MaintenanceRequestRouter(prefix="/maintenance_request", tags=["MaintenanceRequest"]).router)
+    
+    # Create an instance of CalendarEventRouter
+    app.include_router(CalendarEventRouter(prefix="/calendar_event", tags=["CalendarEvent"]).router)

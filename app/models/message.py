@@ -23,8 +23,8 @@ class Message(Base):
     next_remind_date = Column(DateTime(timezone=True), nullable=True)
 
     # TODO: Add to next update on message model
-    # reminder_frequency_id = Column(UUID(as_uuid=True), ForeignKey('reminder_frequency.id'))
-    # reminder_frequency = relationship('ReminderFrequency', back_populates='messages')
+    reminder_frequency_id = Column(UUID(as_uuid=True), ForeignKey('reminder_frequency.id'))
+    reminder_frequency = relationship('ReminderFrequency', back_populates='messages')
 
     sender = relationship('User', back_populates='sent_messages')
     recipients = relationship('MessageRecipient', back_populates='message')

@@ -1,16 +1,29 @@
 import uuid
+import warnings
+from sqlalchemy.exc import SAWarning
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, ForeignKey, UUID
+from sqlalchemy import Column, String, UUID
 
-from app.models.model_base import BaseModel as Base
+from app.models.model_base import BaseModel
 
-class PropertyUnitAssoc(Base):
+# Suppress specific SQLAlchemy warnings
+warnings.filterwarnings(
+    "ignore", 
+    category=SAWarning, 
+    message=r"^Expression.*is marked as 'remote', but these column\(s\) are local to the local side.*"
+)
+
+class PropertyUnitAssoc(BaseModel):
     __tablename__ = 'property_unit_assoc'
 
-    property_unit_assoc_id = Column(UUID(as_uuid=True), primary_key=True, unique=True, index=True, default=uuid.uuid4)
-    property_id = Column(UUID(as_uuid=True), ForeignKey('property.property_id'))
-    property_unit_id = Column(UUID(as_uuid=True), ForeignKey('units.property_unit_id'), default=None)
-    
+    property_unit_assoc_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    property_unit_type = Column(String)
+
+    __mapper_args__ = {
+        "polymorphic_on": property_unit_type,         
+        "polymorphic_identity": "property_unit_assoc_id"
+    }
+
     members = relationship('User', secondary='under_contract', 
         primaryjoin="and_(PropertyUnitAssoc.property_unit_assoc_id == UnderContract.property_unit_assoc_id)",
         secondaryjoin="and_(UnderContract.client_id == User.user_id)",
@@ -36,6 +49,3 @@ class PropertyUnitAssoc(Base):
 
     # relationship to contracts
     under_contract = relationship('UnderContract', back_populates='properties', overlaps="members", lazy='selectin')
-
-    property = relationship("Property", back_populates="property_unit_assoc", lazy='selectin')
-    units = relationship("Units", back_populates="property_unit_assoc", lazy='selectin')

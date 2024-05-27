@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings
-import cloudinary.api
+import cloudinary
 
 class Settings(BaseSettings):
     APP_NAME: str

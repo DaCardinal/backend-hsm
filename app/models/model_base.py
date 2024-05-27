@@ -1,18 +1,18 @@
-from uuid import UUID
+import uuid
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy import Column, DateTime, func
-from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy import Column, DateTime, func, UUID, String, Integer
+from sqlalchemy.ext.declarative import declared_attr, as_declarative
 
 from app.db.dbModule import Base
-
+    
 class BaseModel(AsyncAttrs, Base):
     __abstract__ = True
 
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower()
-
+    
     created_at = Column(DateTime(timezone=True), default=func.now())
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
     

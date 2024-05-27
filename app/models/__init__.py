@@ -12,13 +12,6 @@ from app.models.media import Media
 from app.models.entity_media import EntityMedia
 
 
-from app.models.property_unit_assoc import PropertyUnitAssoc
-from app.models.unit_type import UnitType
-from app.models.unit import Units
-from app.models.property_type import PropertyType
-from app.models.property import Property
-from app.models.property_assignment import PropertyAssignment
-
 from app.models.message import Message
 from app.models.reminder_frequency import ReminderFrequency
 from app.models.message_recipient import MessageRecipient
@@ -48,3 +41,13 @@ from app.models.utility import Utilities
 from app.models.entity_amenities import EntityAmenities
 from app.models.ammenity import Amenities
 from app.models.entity_utilities import EntityUtilities
+
+from app.models.property_unit_assoc import PropertyUnitAssoc
+from app.models.unit import Units
+from app.models.property import Property
+from app.models.property_type import PropertyType
+from app.models.unit_type import UnitType
+from app.models.property_assignment import PropertyAssignment
+
+from app.models.calendar_event import CalendarEvent
+from app.models.maintenance_request import MaintenanceRequest

@@ -8,7 +8,7 @@ class UserInteractions(Base):
     
     user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'), primary_key=True)
     employee_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'))
-    property_id = Column(UUID(as_uuid=True), ForeignKey('property.property_id'))
+    property_unit_assoc_id = Column(UUID(as_uuid=True), ForeignKey('property_unit_assoc.property_unit_assoc_id'))
     contact_time = Column(DateTime)
     contact_details = Column(Text)
 

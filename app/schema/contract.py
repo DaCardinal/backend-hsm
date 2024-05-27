@@ -15,7 +15,7 @@ class ContractStatus(str, Enum):
 
 class UnderContractSchema(BaseModel):
     id: Optional[UUID] = None
-    property_unit_assoc: Optional[UUID | Property] = Field(None, alias='property')
+    property_unit_assoc: Optional[UUID | Property]
     contract_id: Optional[UUID] = None
     contract_status: ContractStatus = None
     client_id: Optional[UUID | UserBase] = None
@@ -121,7 +121,7 @@ class ContractResponse(BaseModel):
 
         return Property(
             property_unit_assoc_id = property.property_unit_assoc_id,
-            property_id = property.property_id,
+            # property_id = property.property_id,
             name = property.name,
             property_type = property.property_type.name,
             amount = property.amount,

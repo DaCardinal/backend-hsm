@@ -20,16 +20,14 @@ class Invoice(Base):
     issued_to = Column(String)
     invoice_details = Column(Text)
     invoice_amount = Column(Numeric(10, 2))
-    # invoice_item = Column(String(128))  # [property, property_unit, maintenance, service, fee]
     due_date = Column(DateTime)
     date_paid = Column(DateTime)
     status = Column(Enum(PaymentStatusEnum), default=PaymentStatusEnum.pending, nullable=True)
     transaction_id = Column(UUID(as_uuid=True), ForeignKey('transaction.transaction_id'))
 
     contracts = relationship('Contract', secondary='contract_invoice', back_populates='invoices')
-    # transaction = relationship('Transaction', back_populates='invoice_number')
     transaction = relationship('Transaction', primaryjoin="and_(Invoice.invoice_number==Transaction.invoice_number)", back_populates='transaction_invoice')
-    invoice_items = relationship("InvoiceItem", back_populates="invoice", lazy="selectin")
+    invoice_items = relationship("InvoiceItem", back_populates="invoice", lazy="selectin") # [property, property_unit, maintenance, service, fee]
 
 
 @event.listens_for(Invoice, 'before_insert')

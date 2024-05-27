@@ -13,4 +13,4 @@ class ReminderFrequency(Base):
     is_active = Column(Boolean, default=False)
 
     # TODO: Add to next update on message model
-    # messages = relationship('Message', back_populates='reminder_frequency')
+    messages = relationship('Message', back_populates='reminder_frequency')

@@ -1,6 +1,8 @@
 from uuid import UUID
 from pydantic import BaseModel
 
+from app.models import Media as MediaModel
+
 class MediaBase(BaseModel):
     media_name: str
     media_type: str
@@ -19,4 +21,24 @@ class MediaCreateSchema(MediaBase):
 
     class Config:
         from_attributes = True
+
+class MediaUpdateSchema(MediaBase):
+
+    class Config:
+        from_attributes = True
     
+class MediaResponse(Media):
+
+    class Config:
+        from_attributes = True
+        use_enum_values = True
+    
+    @classmethod
+    def from_orm_model(cls, media: MediaModel):
+
+        return cls(
+            media_id = media.media_id,
+            media_name = media.media_name,
+            media_type = media.media_type,
+            content_url = media.content_url
+        ).model_dump()

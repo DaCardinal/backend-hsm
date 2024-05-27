@@ -52,6 +52,9 @@ class User(Base):
     emergency_contact_number = Column(String(128), nullable=True)
     emergency_address_hash = Column(UUID(as_uuid=True)) # TODO: Change to hash function
 
+    maintenance_requests = relationship('MaintenanceRequest', back_populates='user')
+    events = relationship('CalendarEvent', back_populates='organizer')
+
     addresses = relationship(
         'Addresses',
         secondary='entity_address',
@@ -93,7 +96,7 @@ class User(Base):
                                             back_populates='employee_representative', lazy='selectin')
 
     property = relationship('PropertyUnitAssoc', secondary='property_assignment', back_populates='assignments', lazy='selectin')
-
+    
     # owned_properties = relationship("Property", secondary="property_assignment",
     #                         primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='landlord')",
     #                         secondaryjoin="PropertyAssignment.property_unit_assoc_id==Property.property_unit_assoc_id",
