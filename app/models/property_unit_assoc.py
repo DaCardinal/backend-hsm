@@ -21,8 +21,16 @@ class PropertyUnitAssoc(BaseModel):
 
     __mapper_args__ = {
         "polymorphic_on": property_unit_type,         
-        "polymorphic_identity": "property_unit_assoc_id"
+        "polymorphic_identity": "property_unit_assoc"
     }
+
+    units = relationship("Property", 
+    primaryjoin="and_(PropertyUnitAssoc.property_unit_type == 'Property', Property.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id)",
+    foreign_keys="[Property.property_unit_assoc_id]", remote_side="[PropertyUnitAssoc.property_unit_assoc_id]", lazy='selectin', viewonly=True)
+
+    property = relationship("Units", 
+    primaryjoin="and_(PropertyUnitAssoc.property_unit_type == 'Units', Units.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id)",
+    foreign_keys="[Units.property_unit_assoc_id]", remote_side="[PropertyUnitAssoc.property_unit_assoc_id]", lazy='selectin', viewonly=True)
 
     members = relationship('User', secondary='under_contract', 
         primaryjoin="and_(PropertyUnitAssoc.property_unit_assoc_id == UnderContract.property_unit_assoc_id)",

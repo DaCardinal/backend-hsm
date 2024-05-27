@@ -6,7 +6,7 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 from app.models import Contract as ContractModel, UnderContract
-from app.schema import UserBase, PropertyUnitAssoc, Property
+from app.schema import UserBase, Property, PropertyUnit
 
 class ContractStatus(str, Enum):
     active = "active"
@@ -15,7 +15,7 @@ class ContractStatus(str, Enum):
 
 class UnderContractSchema(BaseModel):
     id: Optional[UUID] = None
-    property_unit_assoc: Optional[UUID | Property]
+    property_unit_assoc: Optional[UUID | Property | PropertyUnit]
     contract_id: Optional[UUID] = None
     contract_status: ContractStatus = None
     client_id: Optional[UUID | UserBase] = None
@@ -116,12 +116,11 @@ class ContractResponse(BaseModel):
     contract_info: Optional[List[UnderContractSchema]] = None
     
     @classmethod
-    def get_property_info(cls, property_unit_assoc: PropertyUnitAssoc):
-        property : Property = property_unit_assoc.property
+    def get_property_info(cls, property: Property):
+        property : Property = property
 
         return Property(
             property_unit_assoc_id = property.property_unit_assoc_id,
-            # property_id = property.property_id,
             name = property.name,
             property_type = property.property_type.name,
             amount = property.amount,
@@ -138,6 +137,22 @@ class ContractResponse(BaseModel):
             property_status = property.property_status,
         )
     
+    @classmethod
+    def get_property_unit_info(cls, property_unit: PropertyUnit):
+        property_unit : PropertyUnit = property_unit
+
+        return PropertyUnit(
+            property_unit_assoc_id = property_unit.property_unit_assoc_id,
+            property_unit_code = property_unit.property_unit_code,
+            property_unit_floor_space = property_unit.property_unit_floor_space,
+            property_unit_amount = property_unit.property_unit_amount,
+            property_floor_id = property_unit.property_floor_id,
+            property_unit_notes = property_unit.property_unit_notes,
+            has_amenities = property_unit.has_amenities,
+            property_id = property_unit.property_id,
+            property_unit_security_deposit = property_unit.property_unit_security_deposit,
+            property_unit_commission = property_unit.property_unit_commission
+        )
     @classmethod
     def get_user_info(cls, user: UserBase):
 
@@ -158,9 +173,14 @@ class ContractResponse(BaseModel):
         result = []
 
         for contract_detail in contract_details:
+            if contract_detail.properties.property_unit_type == "Units":
+                property_unit_assoc = cls.get_property_unit_info(contract_detail.properties)
+            else:
+                property_unit_assoc = cls.get_property_info(contract_detail.properties)
+
             result.append(UnderContractSchema(
                 id = contract_detail.id,
-                property_unit_assoc = cls.get_property_info(contract_detail.properties),
+                property_unit_assoc = property_unit_assoc,
                 contract_id = contract_detail.contract_id,
                 contract_status = contract_detail.contract_status,
                 client_id = cls.get_user_info(contract_detail.client_representative),

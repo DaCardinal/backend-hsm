@@ -142,6 +142,7 @@ class ContractDAO(BaseDAO[Contract]):
 
             for contract_item in contract_info:
                 contract_item : UnderContractSchema = contract_item
+                # print(contract_item)
 
                 under_contract_obj = {
                     "property_unit_assoc_id": contract_item.property_unit_assoc,

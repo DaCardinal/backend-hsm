@@ -40,7 +40,7 @@ class Property(PropertyUnitAssoc):
 
     __mapper_args__ = {
         "polymorphic_identity": "Property",
-        'inherit_condition': property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id
+        # 'inherit_condition': property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id
     }
 
     maintenance_requests = relationship('MaintenanceRequest',

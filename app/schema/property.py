@@ -17,7 +17,7 @@ class PropertyType(str, Enum):
     industrial = 'industrial'
 
 class PropertyUnitBase(BaseModel):
-    property_unit_code: str
+    property_unit_code: Optional[str] = None
     property_unit_floor_space: Optional[int] = None
     property_unit_amount: Optional[float] = None
     property_floor_id: Optional[int] = None
