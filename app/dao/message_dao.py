@@ -1,5 +1,5 @@
-from uuid import uuid4
-from typing import Type
+from uuid import UUID, uuid4
+from typing import Any, List, Type, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.exc import NoResultFound
 from typing_extensions import override
@@ -36,17 +36,39 @@ class MessageDAO(BaseDAO[Message]):
             # commit transactions.
             for obj in recipients + recipients_groups:
                 await self.commit_and_refresh(db_session=db_session, obj=obj)
-            
-            return DAOResponse[MessageResponseModel](success=True, data={
-                "message_id": new_message.message_id,
-                "sender_id": new_message.sender_id,
-                "thread_id": new_message.thread_id,
-                "subject": new_message.subject,
-                "body": new_message.message_body,
-                "date_created": new_message.date_created.isoformat()
-            })
+
+            await self.commit_and_refresh(db_session=db_session, obj=new_message)
+            return DAOResponse[MessageResponseModel](success=True, data=MessageResponseModel.from_orm_model(new_message))
+            # return DAOResponse[MessageResponseModel](success=True, data={
+            #     "message_id": new_message.message_id,
+            #     "sender_id": new_message.sender_id,
+            #     "thread_id": new_message.thread_id,
+            #     "subject": new_message.subject,
+            #     "body": new_message.message_body,
+            #     "date_created": new_message.date_created.isoformat()
+            # })
         except NoResultFound:
             pass
         except Exception as e:
             await db_session.rollback()
             print(f"Fatal {str(e)}")
+
+    @override
+    async def get_all(self, db_session: AsyncSession) -> DAOResponse[List[MessageResponseModel]]:
+        result = await super().get_all(db_session=db_session)
+        
+        # check if no result
+        if not result:
+            return DAOResponse(success=True, data=[])
+
+        return DAOResponse[List[MessageResponseModel]](success=True, data=[MessageResponseModel.from_orm_model(r) for r in result])
+    
+    @override
+    async def get(self, db_session: AsyncSession, id: Union[UUID | Any | int]) -> DAOResponse[MessageResponseModel]:
+        result : Message = await super().get(db_session=db_session, id=id)
+
+        # check if no result
+        if not result:
+            return DAOResponse(success=True, data={})
+
+        return DAOResponse[MessageResponseModel](success=True, data=MessageResponseModel.from_orm_model(result))

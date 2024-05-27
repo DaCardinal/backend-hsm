@@ -26,8 +26,8 @@ class Message(Base):
     reminder_frequency_id = Column(UUID(as_uuid=True), ForeignKey('reminder_frequency.id'))
     reminder_frequency = relationship('ReminderFrequency', back_populates='messages')
 
-    sender = relationship('User', back_populates='sent_messages')
-    recipients = relationship('MessageRecipient', back_populates='message')
+    sender = relationship('User', back_populates='sent_messages', lazy='selectin')
+    recipients = relationship('MessageRecipient', back_populates='message', lazy='selectin')
     replies = relationship('Message',
                            backref=backref('parent_message', remote_side=[message_id]),
                            foreign_keys=[parent_message_id],
