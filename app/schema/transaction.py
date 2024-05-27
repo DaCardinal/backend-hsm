@@ -1,9 +1,8 @@
 from enum import Enum
 from uuid import UUID
-from decimal import Decimal
 from datetime import datetime
-from typing import List, Optional, Any
-from pydantic import BaseModel, Field
+from typing import Optional
+from pydantic import BaseModel
 
 from app.models import Transaction as TransactionModel, User
 from app.schema import UserBase
@@ -15,8 +14,8 @@ class PaymentStatusEnum(str, Enum):
 
 class TransactionBase(BaseModel):
     transaction_type_id: str
-    client_offered: Optional[UserBase]  # payer_id
-    client_requested: Optional[UserBase]  # payee_id
+    client_offered: Optional[UUID | UserBase]  # payer_id
+    client_requested: Optional[UUID | UserBase]  # payee_id
     transaction_date: datetime
     transaction_details: Optional[str]
     payment_method: str

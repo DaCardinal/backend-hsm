@@ -1,14 +1,16 @@
+from uuid import UUID
 from functools import partial
-from typing import Dict, Type
 from pydantic import ValidationError
 from typing_extensions import override
+from typing import Any, List, Type, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dao.base_dao import BaseDAO
+from app.dao.invoice_item_dao import InvoiceItemDAO
 from app.models import Invoice
 from app.utils import DAOResponse
 from app.models import InvoiceItem
-from app.schema import InvoiceCreateSchema, ContractResponse, InvoiceItemBase, InvoiceResponse
+from app.schema import InvoiceCreateSchema, InvoiceItemBase, InvoiceResponse
 
 class InvoiceDAO(BaseDAO[Invoice]):
     def __init__(self, model: Type[Invoice], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
@@ -39,9 +41,29 @@ class InvoiceDAO(BaseDAO[Invoice]):
         except Exception as e:
             await db_session.rollback()
             return DAOResponse[InvoiceResponse](success=False, error=f"Fatal {str(e)}")
+    
+    @override
+    async def get_all(self, db_session: AsyncSession) -> DAOResponse[List[InvoiceResponse]]:
+        result = await super().get_all(db_session=db_session)
         
+        # check if no result
+        if not result:
+            return DAOResponse(success=True, data=[])
+
+        return DAOResponse[List[InvoiceResponse]](success=True, data=[InvoiceResponse.from_orm_model(r) for r in result])
+    
+    @override
+    async def get(self, db_session: AsyncSession, id: Union[UUID | Any | int]) -> DAOResponse[InvoiceResponse]:
+        result : Invoice = await super().get(db_session=db_session, id=id)
+
+        # check if no result
+        if not result:
+            return DAOResponse(success=True, data={})
+
+        return DAOResponse[InvoiceResponse](success=True, data=InvoiceResponse.from_orm_model(result))
+    
     async def add_invoice_details(self, db_session: AsyncSession, invoice_number: str,  invoice_info: InvoiceItemBase, invoice : Invoice= None):
-        invoice_item_dao = BaseDAO(InvoiceItem)
+        invoice_item_dao = InvoiceItemDAO(InvoiceItem)
 
         try:
             if not isinstance(invoice_info, list):
@@ -52,23 +74,22 @@ class InvoiceDAO(BaseDAO[Invoice]):
 
                 invoice_item_obj = {
                     "description": invoice_item.description,
-                    "invoice_number": invoice.invoice_number,
+                    "invoice_number": invoice_number,
                     "quantity": invoice_item.quantity,
                     "unit_price": invoice_item.unit_price,
                     "total_price": invoice_item.total_price,
                 }
 
-                # Check if the contract info already exists
                 if "invoice_number" in invoice_item.model_fields:
                     existing_invoice_item : InvoiceItem = await invoice_item_dao.query(db_session=db_session, filters=invoice_item_obj, single=True)
                 else: 
                     existing_invoice_item = None
                 
                 if existing_invoice_item:
-                    invoice_item_details = await invoice_item_dao.update(db_session=db_session, db_obj=existing_invoice_item, obj_in=invoice_item_obj.items())
+                    invoice_item_details : InvoiceItem = await invoice_item_dao.update(db_session=db_session, db_obj=existing_invoice_item, obj_in=invoice_item_obj.items())
                 else:
-                    invoice_item_details = await invoice_item_dao.create(db_session=db_session, obj_in=invoice_item_obj)
-
+                    invoice_item_details : InvoiceItem = await invoice_item_dao.create(db_session=db_session, obj_in={**invoice_item_obj})
+                    
                 # commit object to db session
                 await invoice_item_dao.commit_and_refresh(db_session, invoice_item_details)
 

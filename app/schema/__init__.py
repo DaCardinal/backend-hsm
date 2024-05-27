@@ -8,4 +8,4 @@ from app.schema.property import PropertyUnitCreateSchema, PropertyUnitUpdateSche
 from app.schema.message import MessageCreate, MessageReply, MessageResponseModel, UserGroupAddition, PropertyUnitAssocCreate, PropertyUnitAssocResponse
 from app.schema.contract import ContractCreateSchema, ContractResponse, ContractUpdateSchema, ContractBase, UnderContractSchema
 from app.schema.invoice import InvoiceCreateSchema, InvoiceUpdateSchema, InvoiceBase, InvoiceItemBase, InvoiceItemCreateSchema, InvoiceResponse
-from app.schema.transaction import TransactionResponse
+from app.schema.transaction import TransactionResponse, TransactionCreateSchema, TransactionUpdateSchema, TransactionBase

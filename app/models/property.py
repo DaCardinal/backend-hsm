@@ -1,5 +1,4 @@
 import enum
-import uuid
 from sqlalchemy.orm import relationship
 from sqlalchemy import Numeric, Column, ForeignKey, Boolean, Enum, Integer, String, Text, UUID
 
@@ -40,7 +39,7 @@ class Property(PropertyUnitAssoc):
 
     __mapper_args__ = {
         "polymorphic_identity": "Property",
-        # 'inherit_condition': property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id
+        'inherit_condition': property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id
     }
 
     maintenance_requests = relationship('MaintenanceRequest',

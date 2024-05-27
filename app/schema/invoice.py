@@ -6,6 +6,7 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 from app.models import Invoice as InvoiceModel, InvoiceItem
+from app.schema import UserBase
 
 class PaymentStatusEnum(str, Enum):
     pending = "pending"
@@ -39,10 +40,9 @@ class InvoiceItemCreateSchema(InvoiceItemBase):
         populate_by_name = True
 
 class InvoiceBase(BaseModel):
-    issued_by: Optional[str] = Field(None, alias='issued_by')
-    issued_to: Optional[str] = Field(None, alias='issued_to')
+    issued_by: Optional[UUID | UserBase]
+    issued_to:Optional[UUID | UserBase]
     invoice_details: Optional[str] = Field(None, alias='invoice_details')
-    invoice_amount: Decimal = Field(alias='invoice_amount')
     due_date: Optional[datetime] = Field(None, alias='due_date')
     date_paid: Optional[datetime] = Field(None, alias='date_paid')
     status: PaymentStatusEnum = Field(alias='status')
@@ -73,8 +73,8 @@ class InvoiceUpdateSchema(InvoiceBase):
 class InvoiceResponse(BaseModel):
     id: Optional[UUID] = Field(None, alias='id')
     invoice_number: Optional[str] = Field("", alias='invoice_number')
-    issued_by: Optional[str] = Field(None, alias='issued_by')
-    issued_to: Optional[str] = Field(None, alias='issued_to')
+    issued_by: Optional[UUID | UserBase]
+    issued_to:Optional[UUID | UserBase]
     invoice_details: Optional[str] = Field(None, alias='invoice_details')
     invoice_amount: Decimal = Field(alias='invoice_amount')
     due_date: Optional[datetime] = Field(None, alias='due_date')
@@ -103,8 +103,8 @@ class InvoiceResponse(BaseModel):
         result = cls(
             id = invoice.id,
             invoice_number = invoice.invoice_number,
-            issued_by = invoice.issued_by,
-            issued_to = invoice.issued_to,
+            issued_by = invoice.issued_by_user,
+            issued_to = invoice.issued_to_user,
             invoice_details = invoice.invoice_details,
             invoice_amount = invoice.invoice_amount,
             due_date = invoice.due_date,
