@@ -6,7 +6,7 @@ from app.models.model_base import BaseModel as Base
 class AssignmentType(enum.Enum):
     landlord = 'landlord'
     handler = 'handler'
-    contract = 'contract'
+    contractor = 'contractor'
     
 class PropertyAssignment(Base):
     __tablename__ = 'property_assignment'

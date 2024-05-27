@@ -19,7 +19,8 @@ class CalendarEvent(Base):
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     event_type = Column(Enum(EventTypeEnum), default=EventTypeEnum.OTHER, nullable=False)
-    event_date = Column(DateTime(timezone=True), nullable=False)
+    event_start_date = Column(DateTime(timezone=True), nullable=False)
+    event_end_date = Column(DateTime(timezone=True), nullable=False)
     property_unit_assoc_id = Column(UUID(as_uuid=True), ForeignKey('property_unit_assoc.property_unit_assoc_id'), nullable=True)
     organizer_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'), nullable=False)
 

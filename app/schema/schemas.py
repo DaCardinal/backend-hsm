@@ -21,4 +21,4 @@ TransactionSchema = generate_schemas_for_sqlalchemy_model(Transaction, excludes=
 TransactionTypeSchema = generate_schemas_for_sqlalchemy_model(TransactionType, excludes=['transaction_type_id'])
 CompanySchema = generate_schemas_for_sqlalchemy_model(Company, excludes=['company_id'])
 MaintenanceRequestSchema = generate_schemas_for_sqlalchemy_model(MaintenanceRequest, excludes=['task_number', 'id'])
-CalendarEventSchema = generate_schemas_for_sqlalchemy_model(CalendarEvent, excludes=['event_id'])
+CalendarEventSchema = generate_schemas_for_sqlalchemy_model(CalendarEvent, excludes=['event_id', 'id'])
