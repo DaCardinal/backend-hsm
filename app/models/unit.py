@@ -26,10 +26,10 @@ class Units(PropertyUnitAssoc):
                                         secondary="property_unit_assoc", 
                                         primaryjoin="MaintenanceRequest.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
                                         back_populates='unit')
-    events = relationship('CalendarEvent',
-                            secondary="property_unit_assoc", 
-                            primaryjoin="CalendarEvent.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
-                            back_populates='unit')
+    # events = relationship('CalendarEvent',
+    #                         secondary="property_unit_assoc", 
+    #                         primaryjoin="CalendarEvent.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
+    #                         back_populates='unit')
     
     # relationship to property
     property = relationship("Property", primaryjoin="Units.property_id == Property.property_unit_assoc_id", back_populates="units", lazy="selectin")

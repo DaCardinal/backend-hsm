@@ -18,7 +18,7 @@ class CalendarEventBase(BaseModel):
     event_type: EventTypeEnum = EventTypeEnum.other
     event_start_date: Optional[datetime] = None
     event_end_date: Optional[datetime] = None
-    property_unit_assoc_id: Optional[UUID | Property | PropertyUnit | Any] = None
+    # property_unit_assoc_id: Optional[UUID | Property | PropertyUnit | Any] = None
     organizer_id: Optional[UUID | UserBase] = None
 
     class Config:
@@ -30,7 +30,7 @@ class CalendarEventCreateSchema(BaseModel):
     event_type: EventTypeEnum = EventTypeEnum.other
     event_start_date: Optional[datetime] = None
     event_end_date: Optional[datetime] = None
-    property_unit_assoc_id: Optional[UUID] = None
+    # property_unit_assoc_id: Optional[UUID] = None
     organizer_id: Optional[UUID | UserBase] = None
 
     class Config:
@@ -54,7 +54,7 @@ class CalendarEventResponse(BaseModel):
     event_type: EventTypeEnum = Field(EventTypeEnum.other, example="meeting")
     event_start_date: datetime
     event_end_date: datetime
-    property_unit_assoc: Optional[UUID | Property | PropertyUnit | Any]
+    # property_unit_assoc: Optional[UUID | Property | PropertyUnit | Any]
     organizer_id: Optional[UUID | UserBase]
 
     @classmethod
@@ -117,7 +117,7 @@ class CalendarEventResponse(BaseModel):
             event_type=calendar_event.event_type,
             event_start_date=calendar_event.event_start_date,
             event_end_date=calendar_event.event_end_date,
-            property_unit_assoc=cls.get_property_unit_assoc(calendar_event.prop_assoc),
+            # property_unit_assoc=cls.get_property_unit_assoc(calendar_event.prop_assoc),
             organizer_id=calendar_event.organizer
         ).model_dump()
 
