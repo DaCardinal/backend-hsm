@@ -7,9 +7,11 @@ from sqlalchemy import event, Column, ForeignKey, DateTime, Enum, UUID, String, 
 from app.models.model_base import BaseModel as Base
 
 class EventTypeEnum(enum.Enum):
-    INSPECTION = "Inspection"
-    MEETING = "Meeting"
-    OTHER = "Other"
+    inspection = "inspection"
+    meeting = "meeting"
+    other = "other"
+    birthday = "birthday"
+    holiday = "holiday"
 
 class CalendarEvent(Base):
     __tablename__ = 'calendar_events'
@@ -18,9 +20,9 @@ class CalendarEvent(Base):
     event_id = Column(String(128), unique=True, nullable=False)
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    event_type = Column(Enum(EventTypeEnum), default=EventTypeEnum.OTHER, nullable=False)
-    event_start_date = Column(DateTime(timezone=True), nullable=False)
-    event_end_date = Column(DateTime(timezone=True), nullable=False)
+    event_type = Column(Enum(EventTypeEnum), default=EventTypeEnum.other, nullable=True)
+    event_start_date = Column(DateTime(timezone=True), nullable=True)
+    event_end_date = Column(DateTime(timezone=True), nullable=True)
     property_unit_assoc_id = Column(UUID(as_uuid=True), ForeignKey('property_unit_assoc.property_unit_assoc_id'), nullable=True)
     organizer_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'), nullable=False)
 
@@ -34,7 +36,8 @@ class CalendarEvent(Base):
                         primaryjoin="CalendarEvent.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
                         secondaryjoin="Units.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id", 
                         back_populates="events", lazy="selectin", overlaps="unit")
-    organizer = relationship('User', back_populates='events')
+    prop_assoc  = relationship('PropertyUnitAssoc', lazy='selectin', overlaps="events,property,unit")
+    organizer = relationship('User', back_populates='events', lazy='selectin')
 
 @event.listens_for(CalendarEvent, 'before_insert')
 def receive_before_insert(mapper, connection, target: CalendarEvent):

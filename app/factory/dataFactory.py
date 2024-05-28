@@ -656,10 +656,10 @@ class PaymentTypesFactory:
         #     {"payment_type_name": "Annual Payment", "payment_type_description": "Payment made annually", "num_of_invoices": 1}
         # ]
         payment_types_data = [
-            {"payment_type_name": "one-time", "payment_type_description": "Payment made once", "num_of_invoices": 1},
+            {"payment_type_name": "one_time", "payment_type_description": "Payment made once", "num_of_invoices": 1},
             {"payment_type_name": "monthly", "payment_type_description": "Payment made monthly", "num_of_invoices": 12},
             {"payment_type_name": "quarterly", "payment_type_description": "Payment made quarterly", "num_of_invoices": 4},
-            {"payment_type_name": "semi-annual", "payment_type_description": "Payment made semi-annually", "num_of_invoices": 2},
+            {"payment_type_name": "semi_annual", "payment_type_description": "Payment made semi-annually", "num_of_invoices": 2},
             {"payment_type_name": "annual", "payment_type_description": "Payment made annually", "num_of_invoices": 1}
         ]
         return query_key, payment_types_data

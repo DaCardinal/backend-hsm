@@ -50,4 +50,4 @@ from app.models.unit_type import UnitType
 from app.models.property_assignment import PropertyAssignment
 
 from app.models.calendar_event import CalendarEvent
-from app.models.maintenance_request import MaintenanceRequest
+from app.models.maintenance_request import MaintenanceRequest, MaintenanceStatusEnum

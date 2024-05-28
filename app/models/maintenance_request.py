@@ -19,7 +19,7 @@ class MaintenanceRequest(Base):
     task_number = Column(String(128), unique=True, nullable=False)
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    status = Column(Enum(MaintenanceStatusEnum), default=MaintenanceStatusEnum.pending, nullable=False)
+    status = Column(String, default=MaintenanceStatusEnum.pending, nullable=True)
     priority = Column(Integer, default=1, nullable=False)  # 1 - Low, 2 - Medium, 3 - High
     requested_by = Column(UUID(as_uuid=True), ForeignKey('users.user_id'), nullable=False)
     property_unit_assoc_id = Column(UUID(as_uuid=True), ForeignKey('property_unit_assoc.property_unit_assoc_id'), nullable=True)
@@ -37,7 +37,8 @@ class MaintenanceRequest(Base):
                         primaryjoin="MaintenanceRequest.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
                         secondaryjoin="Units.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id", 
                         back_populates="maintenance_requests", lazy="selectin")
-    user = relationship('User', back_populates='maintenance_requests')
+    prop_assoc  = relationship('PropertyUnitAssoc', lazy='selectin', overlaps="maintenance_requests,maintenance_requests,property,unit")
+    user = relationship('User', back_populates='maintenance_requests', lazy='selectin')
 
 
 @event.listens_for(MaintenanceRequest, 'before_insert')
