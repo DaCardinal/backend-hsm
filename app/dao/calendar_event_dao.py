@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.dao.base_dao import BaseDAO
 from app.utils import DAOResponse
 from app.models import CalendarEvent, MaintenanceStatusEnum
-from app.schema import CalendarEventCreateSchema, CalendarEventResponse, CalendarEventBase
+from app.schema import CalendarEventCreateSchema, CalendarEventResponse, CalendarEventBase, CalendarEventUpdateSchema
 
 class CalendarEventDAO(BaseDAO[CalendarEvent]):
     def __init__(self, model: Type[CalendarEvent], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
@@ -52,4 +52,16 @@ class CalendarEventDAO(BaseDAO[CalendarEvent]):
         if not result:
             return DAOResponse(success=True, data={})
 
+        return DAOResponse[CalendarEventResponse](success=True, data=CalendarEventResponse.from_orm_model(result))
+    
+    @override
+    async def  update(self, db_session: AsyncSession, db_obj: CalendarEvent, obj_in: CalendarEventUpdateSchema) -> DAOResponse[CalendarEventResponse]:
+
+        entity_data = obj_in.model_dump(exclude_none=True, exclude=["event_id", "id"]).items()
+        result : CalendarEvent = await super().update(db_session=db_session, db_obj=db_obj, obj_in=entity_data)
+
+        # check if no result
+        if not result:
+            return DAOResponse(success=True, data={})
+        
         return DAOResponse[CalendarEventResponse](success=True, data=CalendarEventResponse.from_orm_model(result))

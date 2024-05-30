@@ -1,6 +1,4 @@
 from uuid import UUID
-from functools import partial
-import uuid
 from pydantic import ValidationError
 from typing_extensions import override
 from typing import Any, List, Type, Union
@@ -8,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dao.base_dao import BaseDAO
 from app.utils import DAOResponse
-from app.models import MaintenanceRequest, MaintenanceStatusEnum
-from app.schema import MaintenanceRequestCreateSchema, MaintenanceRequestResponse, MaintenanceRequestBase
+from app.models import MaintenanceRequest
+from app.schema import MaintenanceRequestCreateSchema, MaintenanceRequestResponse, MaintenanceRequestBase, MaintenanceRequestUpdateSchema
 
 class MaintenanceRequestDAO(BaseDAO[MaintenanceRequest]):
     def __init__(self, model: Type[MaintenanceRequest], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
@@ -52,4 +50,16 @@ class MaintenanceRequestDAO(BaseDAO[MaintenanceRequest]):
         if not result:
             return DAOResponse(success=True, data={})
 
+        return DAOResponse[MaintenanceRequestResponse](success=True, data=MaintenanceRequestResponse.from_orm_model(result))
+    
+    @override
+    async def  update(self, db_session: AsyncSession, db_obj: MaintenanceRequest, obj_in: MaintenanceRequestUpdateSchema) -> DAOResponse[MaintenanceRequestResponse]:
+        entity_data = obj_in.model_dump(exclude_none=True, exclude=["task_number", "id"]).items()
+        
+        result : MaintenanceRequest = await super().update(db_session=db_session, db_obj=db_obj, obj_in=entity_data)
+
+        # check if no result
+        if not result:
+            return DAOResponse(success=True, data={})
+        
         return DAOResponse[MaintenanceRequestResponse](success=True, data=MaintenanceRequestResponse.from_orm_model(result))

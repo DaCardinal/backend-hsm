@@ -14,6 +14,7 @@ class EventTypeEnum(str, Enum):
 
 class CalendarEventBase(BaseModel):
     title: str = Field(..., example="Team Meeting")
+    event_id: str
     description: Optional[str] = Field(None, example="Quarterly team meeting to discuss project progress")
     event_type: EventTypeEnum = EventTypeEnum.other
     event_start_date: Optional[datetime] = None
@@ -38,9 +39,15 @@ class CalendarEventCreateSchema(BaseModel):
         use_enum_values = True
         populate_by_name = True
 
-class CalendarEventUpdateSchema(CalendarEventBase):
-    event_id: Optional[str] = Field("", alias='event_id')
-    id: Optional[UUID] = Field(None, alias='id')
+class CalendarEventUpdateSchema(BaseModel):
+    event_id: Optional[str] = None
+    id: Optional[UUID] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+    event_type: Optional[EventTypeEnum]  = None
+    event_start_date: Optional[datetime] = None
+    event_end_date: Optional[datetime] = None
+    organizer_id: Optional[UUID | UserBase] = None
 
     class Config:
         from_attributes = True
@@ -49,6 +56,7 @@ class CalendarEventUpdateSchema(CalendarEventBase):
 
 class CalendarEventResponse(BaseModel):
     id: Optional[UUID] = Field(None, alias='id')
+    event_id: str
     title: str
     description: Optional[str]
     event_type: EventTypeEnum = Field(EventTypeEnum.other, example="meeting")

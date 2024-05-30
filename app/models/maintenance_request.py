@@ -1,7 +1,7 @@
 import enum
 import uuid
 import datetime
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy import event, Column, ForeignKey, DateTime, Enum, UUID, String, Integer, Text, Boolean
 
 from app.models.model_base import BaseModel as Base
@@ -30,14 +30,26 @@ class MaintenanceRequest(Base):
     property = relationship("Property", 
                         secondary="property_unit_assoc", 
                         primaryjoin="MaintenanceRequest.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
-                        secondaryjoin="Property.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id", 
+                        secondaryjoin="Property.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id", viewonly=True,
                         back_populates="maintenance_requests", lazy="selectin")
     unit = relationship("Units", 
                         secondary="property_unit_assoc", 
                         primaryjoin="MaintenanceRequest.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
-                        secondaryjoin="Units.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id", 
+                        secondaryjoin="Units.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id", viewonly=True,
                         back_populates="maintenance_requests", lazy="selectin")
-    prop_assoc  = relationship('PropertyUnitAssoc', lazy='selectin', overlaps="maintenance_requests,maintenance_requests,property,unit")
+    # prop_assoc  = relationship('PropertyUnitAssoc', lazy='selectin', 
+    #                             backref=backref('prop_maintenance_requests', cascade='save-update, merge'),
+    #                             primaryjoin='MaintenanceRequest.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id',
+    #                             foreign_keys=[property_unit_assoc_id],
+    #                             overlaps="maintenance_requests,maintenance_requests,property,unit", viewonly=True)
+    property_unit_assoc = relationship(
+        'PropertyUnitAssoc',
+        back_populates='prop_maintenance_requests',
+        cascade='save-update, merge',
+        primaryjoin='MaintenanceRequest.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id',
+        overlaps="maintenance_requests,maintenance_requests,property,unit",
+        foreign_keys=[property_unit_assoc_id]
+    )
     user = relationship('User', back_populates='maintenance_requests', lazy='selectin')
 
 

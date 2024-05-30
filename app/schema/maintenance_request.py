@@ -43,9 +43,18 @@ class MaintenanceRequestCreateSchema(BaseModel):
         use_enum_values = True
         populate_by_name = True
 
-class MaintenanceRequestUpdateSchema(MaintenanceRequestBase):
-    task_number: Optional[str] = Field("", alias='task_number')
-    id: Optional[UUID] = Field(None, alias='id')
+class MaintenanceRequestUpdateSchema(BaseModel):
+    task_number: Optional[str] = None
+    id: Optional[UUID] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[MaintenanceStatusEnum] = None
+    priority: Optional[int] = 0
+    requested_by: Optional[UUID | UserBase] = None
+    property_unit_assoc_id: Optional[UUID] = None
+    scheduled_date: Optional[datetime] = None
+    completed_date: Optional[datetime] = None
+    is_emergency: Optional[bool] = False
 
     class Config:
         from_attributes = True
@@ -117,7 +126,8 @@ class MaintenanceRequestResponse(BaseModel):
 
     @classmethod
     def from_orm_model(cls, maintenance_request: MaintenanceRequestModel):
-
+        result = []
+        
         result = cls(
             id=maintenance_request.id,
             task_number=maintenance_request.task_number,

@@ -23,7 +23,6 @@ class TransactionDAO(BaseDAO[Transaction]):
 
             # commit object to db session
             await self.commit_and_refresh(db_session, new_transaction)
-            print(new_transaction)
             
             return DAOResponse[TransactionResponse](success=True, data=TransactionResponse.from_orm_model(new_transaction))
         except ValidationError as e:

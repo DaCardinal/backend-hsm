@@ -1,7 +1,7 @@
 import uuid
 import warnings
 from sqlalchemy.exc import SAWarning
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Column, String, UUID
 
 from app.models.model_base import BaseModel
@@ -57,3 +57,10 @@ class PropertyUnitAssoc(BaseModel):
 
     # relationship to contracts
     under_contract = relationship('UnderContract', back_populates='properties', overlaps="members", lazy='selectin')
+
+    prop_maintenance_requests = relationship(
+        'MaintenanceRequest',
+        back_populates='property_unit_assoc',
+        cascade='save-update, merge',
+        foreign_keys='MaintenanceRequest.property_unit_assoc_id'
+    )
