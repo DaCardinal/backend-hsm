@@ -17,11 +17,12 @@ class MaintenanceRequestDAO(BaseDAO[MaintenanceRequest]):
     @override
     async def create(self, db_session: AsyncSession, obj_in: MaintenanceRequestCreateSchema) -> DAOResponse[MaintenanceRequestResponse]:
         try:
-
+            print(obj_in)
             # extract base information
             maintenance_request_info = self.extract_model_data(obj_in, MaintenanceRequestBase)
+            print("before")
             new_maintenance_request: MaintenanceRequest = await super().create(db_session=db_session, obj_in={**maintenance_request_info})
-
+            print("created")
             # commit object to db session
             await self.commit_and_refresh(db_session, new_maintenance_request)
             
@@ -30,7 +31,7 @@ class MaintenanceRequestDAO(BaseDAO[MaintenanceRequest]):
             return DAOResponse(success=False, data=str(e))
         except Exception as e:
             await db_session.rollback()
-            return DAOResponse[MaintenanceRequestResponse](success=False, error=f"Fatal {str(e)}")
+            return DAOResponse[MaintenanceRequestResponse](success=False, error=f"Fatal Create {str(e)}")
     
     @override
     async def get_all(self, db_session: AsyncSession) -> DAOResponse[List[MaintenanceRequestResponse]]:

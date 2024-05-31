@@ -136,7 +136,7 @@ class MaintenanceRequestResponse(BaseModel):
             status=maintenance_request.status,
             priority=maintenance_request.priority,
             requested_by=maintenance_request.user,
-            property_unit_assoc=cls.get_property_unit_assoc(maintenance_request.prop_assoc),
+            property_unit_assoc=cls.get_property_unit_assoc(maintenance_request.property_unit_assoc),
             scheduled_date=maintenance_request.scheduled_date,
             completed_date=maintenance_request.completed_date,
             is_emergency=maintenance_request.is_emergency,

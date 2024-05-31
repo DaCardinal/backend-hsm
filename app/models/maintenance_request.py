@@ -48,7 +48,8 @@ class MaintenanceRequest(Base):
         cascade='save-update, merge',
         primaryjoin='MaintenanceRequest.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id',
         overlaps="maintenance_requests,maintenance_requests,property,unit",
-        foreign_keys=[property_unit_assoc_id]
+        foreign_keys=[property_unit_assoc_id],
+        lazy='selectin', viewonly=True
     )
     user = relationship('User', back_populates='maintenance_requests', lazy='selectin')
 
