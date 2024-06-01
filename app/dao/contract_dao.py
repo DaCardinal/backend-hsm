@@ -66,8 +66,8 @@ class ContractDAO(BaseDAO[Contract]):
             return DAOResponse[ContractResponse](success=False, error=f"Fatal {str(e)}")
         
     @override
-    async def get_all(self, db_session: AsyncSession) -> DAOResponse[List[ContractResponse | Dict]]:
-        result = await super().get_all(db_session=db_session)
+    async def get_all(self, db_session: AsyncSession, offset=0, limit=100) -> DAOResponse[List[ContractResponse]]:
+        result = await super().get_all(db_session=db_session, offset=offset, limit=limit)
         
         if not result:
             return DAOResponse(success=True, data=[])

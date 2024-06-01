@@ -54,8 +54,8 @@ class MessageDAO(BaseDAO[Message]):
             print(f"Fatal {str(e)}")
 
     @override
-    async def get_all(self, db_session: AsyncSession) -> DAOResponse[List[MessageResponseModel]]:
-        result = await super().get_all(db_session=db_session)
+    async def get_all(self, db_session: AsyncSession, offset=0, limit=100) -> DAOResponse[List[MessageResponseModel]]:
+        result = await super().get_all(db_session=db_session, offset=offset, limit=limit)
         
         # check if no result
         if not result:
