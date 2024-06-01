@@ -26,7 +26,7 @@ class Units(PropertyUnitAssoc):
                                         secondary="property_unit_assoc", 
                                         primaryjoin="MaintenanceRequest.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
                                         overlaps="prop_maintenance_requests",
-                                        back_populates='unit')
+                                        back_populates='unit', viewonly=True)
     # events = relationship('CalendarEvent',
     #                         secondary="property_unit_assoc", 
     #                         primaryjoin="CalendarEvent.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",

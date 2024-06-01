@@ -32,7 +32,7 @@ def generate_schemas_for_sqlalchemy_model(model: Type[DeclarativeMeta], excludes
 
     update_schema = create_model(
         f"{model.__name__}UpdateSchema",
-        **{name: (Optional[typ], None) for name, (typ, _) in columns.items()},
+        **{name: (Optional[typ], None) for name, (typ, _) in columns.items() if name not in default_excludes},
         __base__=BaseModel
     )
     

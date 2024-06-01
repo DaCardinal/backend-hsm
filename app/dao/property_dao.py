@@ -99,6 +99,7 @@ class PropertyDAO(BaseDAO[Property]):
             
             # commit object to db session
             await self.commit_and_refresh(db_session, existing_property)
+
             return DAOResponse[PropertyResponse](success=True, data=PropertyResponse.from_orm_model(existing_property))
         
         except ValidationError as e:
@@ -108,8 +109,8 @@ class PropertyDAO(BaseDAO[Property]):
             return DAOResponse[PropertyResponse](success=False, error=f"Fatal Update {str(e)}")
     
     @override
-    async def get_all(self, db_session: AsyncSession) -> DAOResponse[List[PropertyResponse]]:
-        result = await super().get_all(db_session=db_session)
+    async def get_all(self, db_session: AsyncSession, offset=0, limit=100) -> DAOResponse[List[PropertyResponse]]:
+        result = await super().get_all(db_session=db_session, offset=offset, limit=limit)
         
         # check if no result
         if not result:

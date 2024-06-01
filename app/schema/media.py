@@ -1,3 +1,4 @@
+from typing import Optional
 from uuid import UUID
 from pydantic import BaseModel
 
@@ -17,17 +18,27 @@ class Media(MediaBase):
     class Config:
         from_attributes = True
 
-class MediaCreateSchema(MediaBase):
+class MediaCreateSchema(BaseModel):
+    media_name: str
+    media_type: str
+    content_url: str
 
     class Config:
         from_attributes = True
 
 class MediaUpdateSchema(MediaBase):
+    media_name: str
+    media_type: str
+    content_url: str
 
     class Config:
         from_attributes = True
     
 class MediaResponse(Media):
+    media_id: Optional[UUID] = None
+    media_name: str
+    media_type: str
+    content_url: str
 
     class Config:
         from_attributes = True

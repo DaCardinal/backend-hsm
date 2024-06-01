@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional, Type, TypeVar, Generic, Union
 
 from app.db.dbCrud import DBOperations
+from app.utils import DAOResponse
 
 DBModelType = TypeVar("DBModelType")
 
@@ -35,6 +36,13 @@ class BaseDAO(DBOperations, Generic[DBModelType]):
         else:
             return d
         
+    def validate_errors(self, results):
+        for result in results:
+            result_value = results[result]
+            
+            if isinstance(result_value, DAOResponse) and result_value.success == False:
+                raise Exception(str(result_value.error))
+            
     async def process_entity_details(self, db_session: AsyncSession, entity_id: UUID, entity_data: BaseModel, details_methods: dict):
         results = {}
 
@@ -46,6 +54,9 @@ class BaseDAO(DBOperations, Generic[DBModelType]):
                         results[detail_key] = await method(db_session, entity_id, schema(**entity_item))
                 else:
                     results[detail_key] = await method(db_session, entity_id, schema(**detail_data))
+        
+        # TODO: Add exception handler here for failed exceptions
+        self.validate_errors(results)
         
         return results
     

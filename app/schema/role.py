@@ -11,6 +11,32 @@ class Permission(BaseModel):
     class Config:
         from_attributes = True
 
+class RoleBase(BaseModel):
+    name: str = Field(None, max_length=80)
+    alias: Optional[str] = Field(None, max_length=80, unique=True)
+    description: Optional[str] = None
+    
+    class Config:
+        from_attributes = True
+
+class RoleCreateSchema(RoleBase):
+    
+    class Config:
+        from_attributes = True
+
+class RoleUpdateSchema(RoleBase):
+    
+    class Config:
+        from_attributes = True
+
+class UserRoleInfo(BaseModel):
+    alias: Optional[str]
+
+    class Config: 
+        __allow_unmapped__ = True
+        from_attributes = True
+        use_enum_values = True
+
 class Role(BaseModel):
     role_id: UUID = Field(...)
     name: str = Field(None, max_length=80)

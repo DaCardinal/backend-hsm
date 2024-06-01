@@ -1,7 +1,7 @@
 from typing import List, Type, TypeVar, Generic, Dict, Any, Union, Optional
 from uuid import UUID
 from pydantic import BaseModel, create_model
-from sqlalchemy import and_
+from sqlalchemy import and_, func
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import inspect
@@ -49,14 +49,14 @@ class ReadMixin(UtilsMixin):
 
         return result
 
-    async def get_all(self, db_session: AsyncSession, skip=0, limit=100) -> list[DBModelType]:
+    async def get_all(self, db_session: AsyncSession, offset=0, limit=100) -> list[DBModelType]:
 
         # Dynamically access the relationship attribute using getattr
         mapper = inspect(self.model)
         relationships = [relationship.key for relationship in mapper.relationships]
         query_options = [selectinload(getattr(self.model, attr)) for attr in relationships] if self.load_parent_relationships else []
 
-        query = select(self.model).options(*query_options).offset(skip).limit(limit)
+        query = select(self.model).options(*query_options).offset(offset).limit(limit)
         executed_query = await db_session.execute(query)
         result = executed_query.scalars().all()
         
@@ -71,6 +71,13 @@ class ReadMixin(UtilsMixin):
         query_result = await db_session.execute(query)
 
         return query_result.scalar_one_or_none() if single else query_result.scalars().all()
+
+    async def query_count(self, db_session: AsyncSession):
+
+        executed_query = await db_session.execute(select(func.count()).select_from(self.model))
+        count = executed_query.scalar()
+
+        return count
 
     async def query_on_create(self, db_session: AsyncSession, filters: Dict[str, Any], single=False, options=None, create_if_not_exist = False):
         result = await self.query(db_session=db_session, filters=filters, single=single, options=options)

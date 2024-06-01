@@ -88,7 +88,6 @@ class UserAuthCreateInfo(BaseModel):
         from_attributes = True
 
 class UserBase(BaseModel):
-    user_id: Optional[UUID] = Field(None)
     date_of_birth: Optional[date] = Field(alias='date_of_birth')
     first_name: str = Field(..., max_length=128)
     last_name: str = Field(..., max_length=128)
@@ -117,6 +116,7 @@ class UserUpdateSchema(UserBase):
     user_auth_info: Optional[UserAuthInfo] = None
     user_emergency_info: Optional[UserEmergencyInfo] = None
     user_employer_info: Optional[UserEmployerInfo] = None
+    role: Optional[str] = None
     
     class Config:
         from_attributes = True

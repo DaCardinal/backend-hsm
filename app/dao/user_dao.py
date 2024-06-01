@@ -13,7 +13,7 @@ from app.dao.address_dao import AddressDAO
 from app.dao.role_dao import RoleDAO
 from app.utils import DAOResponse, Hash
 from app.models import User, Addresses, Role
-from app.schema import UserResponse, Address, AddressBase, UserAuthInfo, UserUpdateSchema, UserCreateSchema, UserEmergencyInfo, UserBase, UserAuthCreateInfo, UserEmployerInfo
+from app.schema import UserResponse, Address, AddressBase, UserAuthInfo, UserRoleInfo, UserUpdateSchema, UserCreateSchema, UserEmergencyInfo, UserBase, UserAuthCreateInfo, UserEmployerInfo
 
 class UserDAO(BaseDAO[User]):
     def __init__(self, model: Type[User],load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
@@ -101,19 +101,25 @@ class UserDAO(BaseDAO[User]):
             if set(details_methods.keys()).issubset(set(entity_data.keys())):
                 await self.process_entity_details(db_session, user_id, entity_data, details_methods)
             
+            # check if role is attached and create role for user
+            if 'role' in entity_data.keys():
+                await self.add_user_role(db_session, user_id, entity_data.get('role'))
+
             # commit object to db session
             await self.commit_and_refresh(db_session, existing_user)
-            return DAOResponse[UserResponse](success=True, data=UserResponse.from_orm_model(existing_user))
 
+            return DAOResponse[UserResponse](success=True, data=UserResponse.from_orm_model(existing_user))
         except ValidationError as e:
             return DAOResponse(success=False, validation_error=str(e))
+        except NoResultFound as e:
+            return DAOResponse(success=False, error=str(e))
         except Exception as e:
             await db_session.rollback()
             return DAOResponse[UserResponse](success=False, error=f"Fatal Update {str(e)}")
     
     @override
-    async def get_all(self, db_session: AsyncSession) -> DAOResponse[List[UserResponse]]:
-        result = await super().get_all(db_session=db_session)
+    async def get_all(self, db_session: AsyncSession, offset=0, limit=100) -> DAOResponse[List[UserResponse]]:
+        result = await super().get_all(db_session=db_session, offset=offset, limit=limit)
         
         # check if no result
         if not result:
@@ -150,12 +156,17 @@ class UserDAO(BaseDAO[User]):
                 if role in user.roles:
                     return DAOResponse[dict](success=False, error="Role already exists for the user", data=UserResponse.from_orm_model(user))
                 
+                # Clear all roles from the user
+                user.roles.clear()
+
+                # Add the new role to the user's roles
                 user.roles.append(role)
+
                 await self.commit_and_refresh(db, user)
 
                 return DAOResponse[UserResponse](success=True, data=UserResponse.from_orm_model(user))
-        except NoResultFound as e:
-            return None
+        except NoResultFound: # TODO: Fix send appropriate error message
+            return DAOResponse(success=False, error='User or role does not exist!')
         except Exception as e:
             return DAOResponse[User](success=False, error=str(e))
         

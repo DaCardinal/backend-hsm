@@ -4,13 +4,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Role
 from app.dao.role_dao import RoleDAO
-from app.schema import RoleSchema
+from app.schema import RoleSchema, RoleUpdateSchema, RoleCreateSchema
 from app.router.base_router import BaseCRUDRouter
 
 class RoleRouter(BaseCRUDRouter):
 
     def __init__(self, dao: RoleDAO = RoleDAO(Role, load_parent_relationships=True, load_child_relationships=False, excludes=['users']), prefix: str = "", tags: List[str] = []):
         self.dao = dao
+        RoleSchema["create_schema"] = RoleCreateSchema
+        RoleSchema["update_schema"] = RoleUpdateSchema
         super().__init__(dao=dao, schemas=RoleSchema, prefix=prefix,tags = tags)
         self.register_routes()
 

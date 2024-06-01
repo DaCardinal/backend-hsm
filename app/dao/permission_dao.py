@@ -8,5 +8,5 @@ class PermissionDAO(BaseDAO[Permissions]):
         super().__init__(model, load_parent_relationships, load_child_relationships, excludes=excludes)
         self.primary_key = "permission_id"
 
-    async def remove_role(self, city_name: str) -> Optional[Permissions]:
+    async def remove_role(self, role_alias: str) -> Optional[Permissions]:
         pass

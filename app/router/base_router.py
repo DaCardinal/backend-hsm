@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Any, List, TypeVar, Generic, Optional
 from pydantic import BaseModel, create_model
@@ -84,17 +84,39 @@ class BaseCRUDRouter(Generic[DBModelType]):
 
     def add_get_all_route(self):
         @self.router.get("/")
-        async def get_all(db: AsyncSession = Depends(self.get_db)):
-            items = await self.dao.get_all(db_session=db)
+        async def get_all(request: Request, limit: int = Query(default=10, ge=1), offset: int = Query(default=0, ge=0), db: AsyncSession = Depends(self.get_db)) -> DAOResponse:
+            items = await self.dao.get_all(db_session=db, offset=offset, limit=limit)
+
             if items is None:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No items found")
+            
+            # get url path
+            base_url = request.url.path
+
+            total = await self.dao.query_count(db_session=db)
+            next_offset = offset + limit
+            previous_offset = offset - limit if offset - limit >= 0 else 0
+            
+            next_link = f"{base_url}?limit={limit}&offset={next_offset}" if next_offset < total else None
+            previous_link = f"{base_url}?limit={limit}&offset={previous_offset}" if offset > 0 else None
+
+            meta = {
+                "total": total,
+                "limit": limit,
+                "offset": offset,
+                "next": next_link,
+                "previous": previous_link
+            }
             
             dynamic_model = create_pydantic_model_from_sqlalchemy(self.dao.model, load_parent_relationships=self.dao.load_parent_relationships, load_child_relationships=self.dao.load_child_relationships, excludes=self.dao.excludes)
 
             if self.dao.load_child_relationships:
-                return DAOResponse[List[Any]](success=True, data=[self.dao.decompose_dict(item.to_dict()) for item in items])
+                return DAOResponse[List[Any]](success=True, data=[self.dao.decompose_dict(item.to_dict()) for item in items], meta=meta)
 
-            return items if isinstance(items, DAOResponse) or self.dao.load_child_relationships else DAOResponse[Any](success=True, data=[dynamic_model.model_validate(item, strict=False, from_attributes=True) for item in items])
+            if isinstance(items, DAOResponse):
+                items.set_meta(meta)
+
+            return items if isinstance(items, DAOResponse) else DAOResponse(success=True, data=[dynamic_model.model_validate(item, strict=False, from_attributes=True) for item in items], meta=meta)
             
     def add_get_route(self):
         @self.router.get("/{id}")
@@ -165,9 +187,9 @@ class BaseCRUDRouter(Generic[DBModelType]):
     
 #     return {
 #         "items": items,
-#         "total": total,
-#         "limit": limit,
-#         "offset": offset,
-#         "next": next_link,
-#         "previous": previous_link
-#     }
+    #     "total": total,
+    #     "limit": limit,
+    #     "offset": offset,
+    #     "next": next_link,
+    #     "previous": previous_link
+    # }
