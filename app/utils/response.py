@@ -40,6 +40,10 @@ class DAOResponse(BaseModel, Generic[T]):
     @model_serializer(when_used='json')
     def dump_model(self) -> Dict[str, Any]:
         result = super().model_dump()
+
         if not self.meta:
             result.pop('meta', None)
+        elif self.meta['total'] == 0:
+            result.pop('meta', None)
+
         return result

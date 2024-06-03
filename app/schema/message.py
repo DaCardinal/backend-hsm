@@ -6,6 +6,14 @@ from datetime import datetime
 from app.models import Message as MessageModel, User as UserModel, MessageRecipient
 from app.schema import UserBase
 
+class EmailBody(BaseModel):
+    to: str
+    subject: str
+    message: str
+
+    class Config:
+        from_attributes = True
+    
 class MessageCreate(BaseModel):
     subject: str
     message_body: str

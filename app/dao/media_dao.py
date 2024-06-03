@@ -1,20 +1,15 @@
-import re
-import uuid
-import cloudinary
-import cloudinary.api
-import cloudinary.uploader
 from pydantic import ValidationError
 from typing_extensions import override
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Any, List, Dict, Optional, Type, Union
+from typing import List, Dict, Optional, Type, Union
 
-from app.utils import settings
 from app.dao.base_dao import BaseDAO
 from app.utils.response import DAOResponse
 from app.dao.entity_media_dao import EntityMediaDAO
 from app.models import Media as MediaModel, EntityMedia
 from app.schema import MediaBase, Media, MediaCreateSchema, MediaResponse, MediaUpdateSchema
+from app.services import MediaUploaderService
 
 class MediaDAO(BaseDAO[MediaModel]):
     def __init__(self, model: Type[MediaModel], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
@@ -32,7 +27,8 @@ class MediaDAO(BaseDAO[MediaModel]):
 
             # upload base64 image to cloudinary and get url
             base64_data = media_info.get('content_url')
-            upload_response = self.upload_to_cloudinary(base64_image=base64_data, file_name=media_info.get('media_name'), media_type=media_store.lower())
+            uploader_service = MediaUploaderService(base64_image=base64_data, file_name=media_info.get('media_name'), media_type=media_store.lower())
+            upload_response = uploader_service.upload_to_cloudinary()
             
             # check for content url succes
             if upload_response.success == False:
@@ -41,7 +37,7 @@ class MediaDAO(BaseDAO[MediaModel]):
             media_info['content_url'] = upload_response.data['content_url'] if upload_response.success else None
 
             # determine image_type
-            media_type = self.get_image_type(base64_data)
+            media_type = uploader_service.get_image_type()
             media_info['media_type'] = media_info.get('media_type') + "_" +  media_type
 
             # create new media
@@ -67,8 +63,9 @@ class MediaDAO(BaseDAO[MediaModel]):
 
             # upload base64 image to cloudinary and get url
             base64_data = media_info.get('content_url')
-            upload_response = self.upload_to_cloudinary(base64_image=base64_data, file_name=media_info.get('media_name'), media_type=media_store.lower())
-            
+            uploader_service = MediaUploaderService(base64_image=base64_data, file_name=media_info.get('media_name'), media_type=media_store.lower())
+            upload_response = uploader_service.upload_to_cloudinary()  
+
             # check for content url succes
             if upload_response.success == False:
                 raise Exception(str(upload_response.error))
@@ -76,7 +73,7 @@ class MediaDAO(BaseDAO[MediaModel]):
             media_info['content_url'] = upload_response.data['content_url'] if upload_response.success else None
 
             # determine image_type
-            media_type = self.get_image_type(base64_data)
+            media_type = uploader_service.get_image_type()
             media_info['media_type'] = media_info.get('media_type') + "_" +  media_type
 
             # update media info
@@ -88,56 +85,6 @@ class MediaDAO(BaseDAO[MediaModel]):
         except Exception as e:
             await db_session.rollback()
             return DAOResponse[MediaResponse](success=False, error=f"{str(e)}")
-
-    def get_image_type(self, base64_image: str):
-        """
-        Extracts the image type from a base64 encoded image string.
-
-        Args:
-            base64_image (str): The base64 encoded image string.
-
-        Returns:
-            str: The image type (e.g., 'jpeg', 'png', 'gif') or None if not found.
-        """
-        # use regex to find the image type
-        match = re.match(r'data:image/(?P<type>.+?);base64,', base64_image)
-        if match:
-            return match.group('type')
-        return None
-
-    def check_filename_exists(self, file_name: str):
-        try:
-            result = cloudinary.api.resources(type='upload', prefix=file_name)
-            resources = result.get('resources', [])
-            
-            # check if the filename exists
-            for resource in resources:
-                if resource['public_id'] == file_name:
-                    return True
-            return False
-        except Exception as e:
-            print(f"Error checking file_name: {e}")
-            return False
-        
-    def upload_to_cloudinary(self, base64_image: str,  file_name: str, media_type: str = "general"):
-        # specify folder name
-        folder_name = str(settings.APP_NAME + "/" + media_type + "/").lower()
-        
-        # replace spaces with underscore
-        file_name = re.sub(r'\s+', '_', file_name)
-
-        # TODO: Implement searching image information and returning it if already exists
-        if self.check_filename_exists(folder_name + file_name):
-            file_name = file_name + "_" + str(uuid.uuid4())
-
-        try:
-            # upload an image
-            upload_result = cloudinary.uploader.upload(base64_image, resource_type="auto", public_id=file_name, folder=folder_name)
-
-            # return upload_result['secure_url']
-            return DAOResponse(success=True, data = {"content_url": upload_result['secure_url']})
-        except Exception as e:
-            return DAOResponse(success=False, error=f"{str(e)}")
 
     async def add_entity_media(self, db_session: AsyncSession, property_unit_assoc_id: str, media_info: Union[List[Media | MediaBase]  | Media | MediaBase], entity_model=None, entity_assoc_id=None) -> Optional[List[Media | MediaBase] | Media | MediaBase]:
         try:

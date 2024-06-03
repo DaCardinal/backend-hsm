@@ -9,5 +9,6 @@ from app.schema.message import MessageCreate, MessageReply, MessageResponseModel
 from app.schema.contract import ContractCreateSchema, ContractResponse, ContractUpdateSchema, ContractBase, UnderContractSchema
 from app.schema.invoice import InvoiceCreateSchema, InvoiceUpdateSchema, InvoiceBase, InvoiceItemBase, InvoiceItemCreateSchema, InvoiceResponse
 from app.schema.transaction import TransactionResponse, TransactionCreateSchema, TransactionUpdateSchema, TransactionBase
-from app.schema.maintenance_request import MaintenanceRequestBase, MaintenanceRequestResponse, MaintenanceRequestCreateSchema, MaintenanceRequestUpdateSchema
+from app.schema.maintenance_request import MaintenanceRequestBase, MaintenanceRequestResponse, MaintenanceRequestCreateSchema, MaintenanceRequestUpdateSchema, MaintenanceRequest
 from app.schema.calendar_event import CalendarEventBase, CalendarEventCreateSchema, CalendarEventResponse, CalendarEventUpdateSchema
+from app.schema.message import EmailBody

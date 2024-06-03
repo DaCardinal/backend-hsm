@@ -1,13 +1,18 @@
-from uuid import UUID, uuid4
+from uuid import UUID
 from typing import Any, List, Type, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.exc import NoResultFound
 from typing_extensions import override
 
 from app.dao.base_dao import BaseDAO
+from app.utils.settings import settings
 from app.utils.response import DAOResponse
-from app.schema import MessageCreate, MessageResponseModel, MessageReply
 from app.models import Message, MessageRecipient
+from app.schema import MessageCreate, MessageResponseModel
+
+EMAIL = settings.EMAIL
+EMAIL_PASSWORD = settings.EMAIL_PASSWORD
+SERVER = settings.EMAIL_SERVER
 
 class MessageDAO(BaseDAO[Message]):
     def __init__(self, model: Type[Message], load_parent_relationships: bool = False, load_child_relationships: bool = False):
@@ -39,19 +44,11 @@ class MessageDAO(BaseDAO[Message]):
 
             await self.commit_and_refresh(db_session=db_session, obj=new_message)
             return DAOResponse[MessageResponseModel](success=True, data=MessageResponseModel.from_orm_model(new_message))
-            # return DAOResponse[MessageResponseModel](success=True, data={
-            #     "message_id": new_message.message_id,
-            #     "sender_id": new_message.sender_id,
-            #     "thread_id": new_message.thread_id,
-            #     "subject": new_message.subject,
-            #     "body": new_message.message_body,
-            #     "date_created": new_message.date_created.isoformat()
-            # })
         except NoResultFound:
-            pass
+            return DAOResponse(success=False, error=f"MessageDAO Create Failure: {str(e)}")
         except Exception as e:
             await db_session.rollback()
-            print(f"Fatal {str(e)}")
+            return DAOResponse(success=False, error=f"MessageDAO Create Failure: {str(e)}")
 
     @override
     async def get_all(self, db_session: AsyncSession, offset=0, limit=100) -> DAOResponse[List[MessageResponseModel]]:

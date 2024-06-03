@@ -62,12 +62,18 @@ class ReadMixin(UtilsMixin):
         
         return result
     
-    async def query(self, db_session: AsyncSession, filters: Dict[str, Any], single=False, options=None) -> list[DBModelType]:
+    async def query(self, db_session: AsyncSession, filters: Dict[str, Any], single=False, options=None, order_by=None) -> list[DBModelType]:
         conditions = [getattr(self.model, k) == v for k, v in filters.items()]
         query = select(self.model).filter(and_(*conditions))
         
+        # check if options
         if options:
             query = query.options(*options)
+
+        # check if order by
+        if order_by:
+            query = query.order_by(*order_by)
+
         query_result = await db_session.execute(query)
 
         return query_result.scalar_one_or_none() if single else query_result.scalars().all()

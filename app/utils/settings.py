@@ -27,6 +27,10 @@ class Settings(BaseSettings):
 
     PYTHON_VERSION: str
 
+    EMAIL : str
+    EMAIL_PASSWORD : str
+    EMAIL_SERVER : str
+
     class Config:
         env_file = ".env"
         env_file_encoding = 'utf-8'

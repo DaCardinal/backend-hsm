@@ -13,6 +13,21 @@ class MaintenanceStatusEnum(str, Enum):
     completed = "completed"
     cancelled = "cancelled"
 
+class MaintenanceRequest(BaseModel):
+    id: Optional[UUID] = Field(None, alias='id')
+    title: Optional[str] = None
+    description: Optional[str] = None
+    status: MaintenanceStatusEnum = Field(alias='status')
+    priority: int = None
+    requested_by: Optional[UUID | UserBase] = None
+    property_unit_assoc_id: Optional[UUID | Property | PropertyUnit | Any] = None
+    scheduled_date: Optional[datetime] = None
+    completed_date: Optional[datetime] = None
+    is_emergency: bool = Field(default=False)
+
+    class Config:
+        from_attributes = True
+
 class MaintenanceRequestBase(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
@@ -51,7 +66,7 @@ class MaintenanceRequestUpdateSchema(BaseModel):
     status: Optional[MaintenanceStatusEnum] = None
     priority: Optional[int] = 0
     requested_by: Optional[UUID | UserBase] = None
-    property_unit_assoc_id: Optional[UUID] = None
+    property_unit_assoc_id: Optional[UUID | Any] = None
     scheduled_date: Optional[datetime] = None
     completed_date: Optional[datetime] = None
     is_emergency: Optional[bool] = False
@@ -69,7 +84,7 @@ class MaintenanceRequestResponse(BaseModel):
     status: MaintenanceStatusEnum = Field(alias='status')
     priority: int = None
     requested_by: Optional[UUID | UserBase] = None
-    property_unit_assoc: Optional[UUID | Property | PropertyUnit] = None
+    property_unit_assoc: Optional[UUID | Property | PropertyUnit | Any] = None
     scheduled_date: Optional[datetime] = None
     completed_date: Optional[datetime] = None
     is_emergency: bool = Field(default=False)
@@ -117,6 +132,9 @@ class MaintenanceRequestResponse(BaseModel):
     @classmethod
     def get_property_unit_assoc(cls, property_unit_assoc: PropertyUnitAssoc):
 
+        if property_unit_assoc is None:
+            return {}
+        
         if property_unit_assoc.property_unit_type == "Units":
             property_unit_assoc = cls.get_property_unit_info(property_unit_assoc)
         else:

@@ -2,13 +2,13 @@ from uuid import UUID
 from typing import List
 from fastapi import HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import and_, or_, select
+from sqlalchemy import and_, or_, select, desc
 
-from app.models import Message, MessageRecipient, PropertyUnitAssoc, UnderContract
 from app.dao.message_dao import MessageDAO
 from app.utils.response import DAOResponse
-from app.schema import MessageSchema, MessageCreate, MessageReply, MessageResponseModel
 from app.router.base_router import BaseCRUDRouter
+from app.models import Message, MessageRecipient, PropertyUnitAssoc, UnderContract
+from app.schema import MessageSchema, MessageCreate, MessageReply, MessageResponseModel
 
 class MessageRouter(BaseCRUDRouter):
 
@@ -39,43 +39,20 @@ class MessageRouter(BaseCRUDRouter):
             messages : List[Message] = await self.dao.query(db_session=db, filters={"sender_id":  user_id, "is_draft": True,  "is_scheduled": False, "is_notification": False})
             
             return DAOResponse[List[MessageResponseModel]](success=True, data=[MessageResponseModel.from_orm_model(r) for r in messages])
-            # return DAOResponse[List[MessageResponseModel]](success=True, data=[{
-            #     "message_id": message.message_id,
-            #     "subject": message.subject,
-            #     "sender_id": message.sender_id,
-            #     "thread_id": message.thread_id,
-            #     "body": message.message_body,
-            #     "date_created": message.date_created.isoformat()
-            # } for message in messages])
         
         @self.router.get("/users/{user_id}/scheduled", response_model=DAOResponse[List[MessageResponseModel]])
         async def get_user_scheduled(user_id: UUID, db: AsyncSession = Depends(self.get_db)):
             messages : List[Message] = await self.dao.query(db_session=db, filters={"sender_id":  user_id, "is_scheduled": True, "is_draft": False, "is_notification": False})
             
             return DAOResponse[List[MessageResponseModel]](success=True, data=[MessageResponseModel.from_orm_model(r) for r in messages])
-            # return DAOResponse[List[MessageResponseModel]](success=True, data=[{
-            #     "message_id": message.message_id,
-            #     "subject": message.subject,
-            #     "sender_id": message.sender_id,
-            #     "thread_id": message.thread_id,
-            #     "body": message.message_body,
-            #     "date_created": message.date_created.isoformat()
-            # } for message in messages])
         
         @self.router.get("/users/{user_id}/outbox", response_model=DAOResponse[List[MessageResponseModel]])
         async def get_user_outbox(user_id: UUID, db: AsyncSession = Depends(self.get_db)):
-            # messages = db.query(Message).filter(Message.sender_id == user_id).order_by(Message.date_created.desc()).all()
-            messages : List[Message]  = await self.dao.query(db_session=db, filters={"sender_id":  user_id, "is_draft": False, "is_scheduled": False, "is_notification": False})
+            messages : List[Message]  = await self.dao.query(db_session=db, 
+                                                             filters={"sender_id":  user_id, "is_draft": False, "is_scheduled": False, "is_notification": False},
+                                                             order_by=[desc(Message.date_created)])
             
             return DAOResponse[List[MessageResponseModel]](success=True, data=[MessageResponseModel.from_orm_model(r) for r in messages])
-            # return DAOResponse[List[MessageResponseModel]](success=True, data=[{
-            #     "message_id": message.message_id,
-            #     "subject": message.subject,
-            #     "sender_id": message.sender_id,
-            #     "thread_id": message.thread_id,
-            #     "body": message.message_body,
-            #     "date_created": message.date_created.isoformat()
-            # } for message in messages])
 
         @self.router.get("/users/{user_id}/inbox", response_model=DAOResponse[List[MessageResponseModel]])
         async def get_user_inbox(user_id: UUID, db: AsyncSession = Depends(self.get_db)):
@@ -109,14 +86,6 @@ class MessageRouter(BaseCRUDRouter):
             inbox_messages = inbox_messages_result.scalars().all()
 
             return DAOResponse[List[MessageResponseModel]](success=True, data=[MessageResponseModel.from_orm_model(r) for r in inbox_messages])
-            # return DAOResponse[List[MessageResponseModel]](success=True, data=[{
-            #     "message_id": message.message_id,
-            #     "subject": message.subject,
-            #     "sender_id": message.sender_id,
-            #     "thread_id": message.thread_id,
-            #     "body": message.message_body,
-            #     "date_created": message.date_created.isoformat()
-            # } for message in inbox_messages])
         
         @self.router.get("/users/{user_id}/notifications", response_model=DAOResponse[List[MessageResponseModel]])
         async def get_user_notifications(user_id: UUID, db: AsyncSession = Depends(self.get_db)):
@@ -150,11 +119,3 @@ class MessageRouter(BaseCRUDRouter):
             inbox_messages = inbox_messages_result.scalars().all()
 
             return DAOResponse[List[MessageResponseModel]](success=True, data=[MessageResponseModel.from_orm_model(r) for r in inbox_messages])
-            # return DAOResponse[List[MessageResponseModel]](success=True, data=[{
-            #     "message_id": message.message_id,
-            #     "subject": message.subject,
-            #     "sender_id": message.sender_id,
-            #     "thread_id": message.thread_id,
-            #     "body": message.message_body,
-            #     "date_created": message.date_created.isoformat()
-            # } for message in inbox_messages])

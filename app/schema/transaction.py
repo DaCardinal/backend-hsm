@@ -36,10 +36,12 @@ class Transaction(TransactionBase):
         populate_by_name = True
 
 class TransactionCreateSchema(TransactionBase):
-    pass
+    class Config:
+        from_attributes = True
 
 class TransactionUpdateSchema(TransactionBase):
-    pass
+    class Config:
+        from_attributes = True
 
 class TransactionResponse(TransactionBase):
     transaction_id: UUID
