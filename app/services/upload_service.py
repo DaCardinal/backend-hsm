@@ -51,7 +51,7 @@ class MediaUploaderService:
         file_name = re.sub(r'\s+', '_', self.file_name)
 
         # TODO: Implement searching image information and returning it if already exists
-        if self.check_filename_exists(folder_name + file_name):
+        if self.check_filename_exists():
             file_name = file_name + "_" + str(uuid.uuid4())
 
         try:

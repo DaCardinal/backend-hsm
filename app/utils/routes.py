@@ -59,3 +59,6 @@ def configure_routes(app: FastAPI):
     
     # Create an instance of CalendarEventRouter
     app.include_router(CalendarEventRouter(prefix="/calendar_event", tags=["CalendarEvent"]).router)
+    
+    # Create an instance of TourBookingRouter
+    app.include_router(TourBookingRouter(prefix="/tour_booking", tags=["TourBooking"]).router)

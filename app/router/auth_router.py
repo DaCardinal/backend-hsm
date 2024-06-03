@@ -110,3 +110,23 @@ class AuthRouter(BaseCRUDRouter):
                     raise HTTPException(status_code=400, detail="User account not verified or using a login provider")
             else:
                 raise HTTPException(status_code=400, detail="User account not verified or using a login provider")
+            
+        @self.router.get("/mail-subscribe")
+        async def mail_subscribe(email: str, token: str, db: AsyncSession = Depends(self.get_db)):
+           
+            current_user : User = await self.dao.user_exists(db_session=db, email=email)
+
+            if current_user is None:
+                raise HTTPException(status_code=400, detail="User not found")
+            
+            if not current_user.is_subscribed and current_user.is_subscribed_token == token:
+                current_user.is_subscribed = True
+                current_user.is_subscribed_token = None
+                response = await self.dao.commit_and_refresh(db_session=db, obj=current_user)
+
+                if response:
+                    return {"data": "User successfully subsribed!"}
+                else:
+                    raise HTTPException(status_code=400, detail="User account not verified or using a login provider")
+            else:
+                raise HTTPException(status_code=400, detail="User account not verified or using a login provider")

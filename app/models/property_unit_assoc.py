@@ -64,3 +64,10 @@ class PropertyUnitAssoc(BaseModel):
         cascade='save-update, merge',
         foreign_keys='MaintenanceRequest.property_unit_assoc_id'
     )
+
+    prop_unit_assoc_tours = relationship(
+        'Tour',
+        back_populates='property_unit_assoc',
+        cascade='save-update, merge',
+        foreign_keys='Tour.property_unit_assoc_id'
+    )

@@ -47,6 +47,12 @@ class Property(PropertyUnitAssoc):
                                         primaryjoin="MaintenanceRequest.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
                                         overlaps="prop_maintenance_requests",
                                         back_populates='property', viewonly=True)
+    
+    tour_bookings = relationship('Tour',
+                                secondary="property_unit_assoc", 
+                                primaryjoin="Tour.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
+                                secondaryjoin="PropertyUnitAssoc.property_unit_assoc_id == Property.property_unit_assoc_id",
+                                back_populates='property', viewonly=True)
     # events = relationship('CalendarEvent',
     #                         secondary="property_unit_assoc", 
     #                         primaryjoin="CalendarEvent.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",

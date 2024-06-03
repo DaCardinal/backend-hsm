@@ -51,3 +51,6 @@ from app.models.property_assignment import PropertyAssignment
 
 from app.models.calendar_event import CalendarEvent
 from app.models.maintenance_request import MaintenanceRequest, MaintenanceStatusEnum
+
+from app.models.tour_bookings import Tour
+from app.models.user_favorites import FavoriteProperties

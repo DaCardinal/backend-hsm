@@ -1,4 +1,4 @@
-from app.models import User, Role, Permissions,EntityAddress, Addresses,Property, Units, Message, Amenities, Media, Contract, ContractType, PaymentTypes, Invoice, InvoiceItem, Transaction, TransactionType, Company, MaintenanceRequest, CalendarEvent
+from app.models import User, Role, Permissions,EntityAddress, Addresses,Property, Units, Message, Amenities, Media, Contract, ContractType, PaymentTypes, Invoice, InvoiceItem, Transaction, TransactionType, Company, MaintenanceRequest, CalendarEvent, Tour
 from app.schema.base_schema import generate_schemas_for_sqlalchemy_model
 
 
@@ -22,3 +22,4 @@ TransactionTypeSchema = generate_schemas_for_sqlalchemy_model(TransactionType, e
 CompanySchema = generate_schemas_for_sqlalchemy_model(Company, excludes=['company_id'])
 MaintenanceRequestSchema = generate_schemas_for_sqlalchemy_model(MaintenanceRequest, excludes=['task_number', 'id'])
 CalendarEventSchema = generate_schemas_for_sqlalchemy_model(CalendarEvent, excludes=['event_id', 'id'])
+TourBookingSchema = generate_schemas_for_sqlalchemy_model(Tour, excludes=['tour_booking_id'])

@@ -53,6 +53,7 @@ class User(Base):
     emergency_address_hash = Column(UUID(as_uuid=True)) # TODO: Change to hash function
 
     maintenance_requests = relationship('MaintenanceRequest', back_populates='user')
+    tours = relationship('Tour', back_populates='user')
     events = relationship('CalendarEvent', back_populates='organizer')
 
     addresses = relationship(
