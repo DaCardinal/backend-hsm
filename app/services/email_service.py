@@ -8,6 +8,7 @@ from smtplib import SMTP_SSL, SMTPAuthenticationError
 
 from app.schema import EmailBody
 from app.utils.settings import settings
+from app.config import template_path
 
 EMAIL = settings.EMAIL
 EMAIL_PASSWORD = settings.EMAIL_PASSWORD
@@ -22,11 +23,10 @@ class EmailSendException(HTTPException):
         )
 
 class EmailService:
-    def __init__(self, settings, email, email_password, server, template_path):
-        self.settings = settings
-        self.EMAIL = email
-        self.EMAIL_PASSWORD = email_password
-        self.SERVER = server
+    def __init__(self):
+        self.EMAIL = EMAIL
+        self.EMAIL_PASSWORD = EMAIL_PASSWORD
+        self.SERVER = SERVER
         self.template_path = template_path
         self.env = Environment(loader=FileSystemLoader(template_path))
 
@@ -52,12 +52,13 @@ class EmailService:
 
     def render_template(self, template_name: str, **context):
         template = self.env.get_template(template_name)
+
         return template.render(context)
 
     async def send_template_email(self, to: str, subject: str, template_name: str, **context):
         html_content = self.render_template(template_name, **context)
         body = EmailBody(to=to, subject=subject, message=html_content)
-        
+
         try:
             await self.send_email(body)
         except EmailSendException as e:
@@ -65,6 +66,7 @@ class EmailService:
             raise HTTPException(status_code=500, detail=error_message)
 
     async def send_user_email(self, user_email: str, user_name: str, verify_link: str, subscription_link: str):
+        
         return await self.send_template_email(
             to=user_email,
             subject='New Account Created',
@@ -76,6 +78,7 @@ class EmailService:
         )
 
     async def send_welcome_email(self, user_email: str, username: str, link: str, subscription_link: str):
+
         return await self.send_template_email(
             to=user_email,
             subject=f'Welcome to {settings.APP_NAME}',

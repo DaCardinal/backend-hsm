@@ -35,3 +35,42 @@ class AuthRouter(BaseCRUDRouter):
                     raise HTTPException(status_code=401, detail="Wrong login details!")
             else:
                 raise HTTPException(status_code=401, detail="User account not verified or using a login provider")
+            
+        @self.router.get("/verify-email")
+        async def verify_email(email: str, token: str, db: AsyncSession = Depends(self.get_db)):
+            current_user : User = await self.dao.user_exists(db_session=db, email=email)
+
+            if current_user is None:
+                raise HTTPException(status_code=400, detail="User not found")
+            
+            if not current_user.is_verified and current_user.verification_token == token:
+                current_user.is_verified = True
+                current_user.verification_token = None
+                response = await self.dao.commit_and_refresh(db_session=db, obj=current_user)
+
+                if response:
+                    return {"data": "User successfully verified!"}
+                else:
+                    raise HTTPException(status_code=400, detail="User account not verified or using a login provider")
+            else:
+                raise HTTPException(status_code=400, detail="User account not verified or using a login provider")
+        
+        @self.router.get("/mail-unsubscribe")
+        async def mail_unsubscribe(email: str, token: str, db: AsyncSession = Depends(self.get_db)):
+           
+            current_user : User = await self.dao.user_exists(db_session=db, email=email)
+
+            if current_user is None:
+                raise HTTPException(status_code=400, detail="User not found")
+            
+            if current_user.is_subscribed and current_user.is_subscribed_token == token:
+                current_user.is_subscribed = False
+                current_user.is_subscribed_token = None
+                response = await self.dao.commit_and_refresh(db_session=db, obj=current_user)
+
+                if response:
+                    return {"data": "User successfully unsubsribed!"}
+                else:
+                    raise HTTPException(status_code=400, detail="User account not verified or using a login provider")
+            else:
+                raise HTTPException(status_code=400, detail="User account not verified or using a login provider")

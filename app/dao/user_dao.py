@@ -1,4 +1,5 @@
 import uuid
+import asyncio
 from uuid import UUID
 from functools import partial
 from pydantic import ValidationError
@@ -9,11 +10,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Any, Dict, List, Type, Optional, Union
 
 from app.dao.base_dao import BaseDAO
-from app.dao.address_dao import AddressDAO
 from app.dao.role_dao import RoleDAO
+from app.services import EmailService
 from app.utils import DAOResponse, Hash
+from app.dao.address_dao import AddressDAO
 from app.models import User, Addresses, Role
-from app.schema import UserResponse, Address, AddressBase, UserAuthInfo, UserRoleInfo, UserUpdateSchema, UserCreateSchema, UserEmergencyInfo, UserBase, UserAuthCreateInfo, UserEmployerInfo
+from app.schema import UserResponse, Address, AddressBase, UserAuthInfo, UserUpdateSchema, UserCreateSchema, UserEmergencyInfo, UserBase, UserAuthCreateInfo, UserEmployerInfo
+
+VERIFICATION_LINK = "https://backend-hsm.onrender.com/auth/verify-email?email={}&token={}"
+RESET_LINK = "https://housekee.netlify.app/account-recovery?token={}"
+ACCOUNT_CREATION_LINK = "https://backend-hsm.onrender.com/update-account?token={}&email={}&first_name={}"
+UNSUBSCRIBE_LINK = "https://backend-hsm.onrender.com/auth/mail-unsubscribe?email={}&token={}"
 
 class UserDAO(BaseDAO[User]):
     def __init__(self, model: Type[User],load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
@@ -67,8 +74,25 @@ class UserDAO(BaseDAO[User]):
                 options=[selectinload(User.addresses)]
             )
             
+            # create verification token and password hash
+            verification_token = str(uuid.uuid4())
+            is_subscribed_token = str(uuid.uuid4())
+            user_load_addr.verification_token = verification_token
+            user_load_addr.is_subscribed_token = is_subscribed_token
+
             # commit object to db session
             await self.commit_and_refresh(db_session, user_load_addr)
+
+            # send email to user
+            email_service = EmailService()
+
+            asyncio.create_task(email_service.send_user_email(
+                new_user.email,
+                new_user.first_name + " " + new_user.last_name,
+                VERIFICATION_LINK.format(new_user.email, verification_token),
+                UNSUBSCRIBE_LINK.format(new_user.email, is_subscribed_token),
+            ))
+
             return DAOResponse[UserResponse](success=True, data=UserResponse.from_orm_model(user_load_addr))
         
         except ValidationError as e:
