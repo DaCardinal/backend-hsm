@@ -33,6 +33,9 @@ class TokenData(BaseModel):
 class Login(BaseModel):
     username: str
     password: str
+
+class ResetPassword(BaseModel):
+    email: str
     
 class GenderEnum(str, Enum):
     male = "male"

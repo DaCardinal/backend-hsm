@@ -18,9 +18,8 @@ from app.models import User, Addresses, Role
 from app.schema import UserResponse, Address, AddressBase, UserAuthInfo, UserUpdateSchema, UserCreateSchema, UserEmergencyInfo, UserBase, UserAuthCreateInfo, UserEmployerInfo
 
 VERIFICATION_LINK = "https://backend-hsm.onrender.com/auth/verify-email?email={}&token={}"
-RESET_LINK = "https://housekee.netlify.app/account-recovery?token={}"
-ACCOUNT_CREATION_LINK = "https://backend-hsm.onrender.com/update-account?token={}&email={}&first_name={}"
 UNSUBSCRIBE_LINK = "https://backend-hsm.onrender.com/auth/mail-unsubscribe?email={}&token={}"
+# ACCOUNT_CREATION_LINK = "https://backend-hsm.onrender.com/update-account?token={}&email={}&first_name={}"
 
 class UserDAO(BaseDAO[User]):
     def __init__(self, model: Type[User],load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):

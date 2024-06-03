@@ -98,5 +98,5 @@ class EmailService:
             first_name=username,
             user_email=email,
             reset_link=reset_link,
-            unsubscribe_link=subscription_link,
+            unsubscribe_link=subscription_link
         )

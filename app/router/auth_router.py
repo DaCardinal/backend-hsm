@@ -1,11 +1,17 @@
+import uuid
+import asyncio
 from typing import List
 from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import User
 from app.dao.auth_dao import AuthDAO
-from app.schema import MediaSchema, Login
+from app.services import EmailService
 from app.router.base_router import BaseCRUDRouter
+from app.schema import MediaSchema, Login, ResetPassword
+
+RESET_LINK = "https://housekee.netlify.app/account-recovery?token={}"
+UNSUBSCRIBE_LINK = "https://backend-hsm.onrender.com/auth/mail-unsubscribe?email={}&token={}"
 
 class AuthRouter(BaseCRUDRouter):
 
@@ -35,6 +41,36 @@ class AuthRouter(BaseCRUDRouter):
                     raise HTTPException(status_code=401, detail="Wrong login details!")
             else:
                 raise HTTPException(status_code=401, detail="User account not verified or using a login provider")
+            
+        @self.router.post("/reset-password")
+        async def reset_passowrd(request: ResetPassword, db: AsyncSession = Depends(self.get_db)):
+           
+            current_user : User = await self.dao.user_exists(db_session=db, email=request.email)
+
+            if current_user is None:
+                raise HTTPException(status_code=400, detail="User not found")
+        
+            if not current_user.reset_token and current_user.password is not None:
+                current_user.reset_token = str(uuid.uuid4())
+                current_user.is_subscribed_token = str(uuid.uuid4())
+                current_user.password = None
+                email_service = EmailService()
+                
+                response = await self.dao.commit_and_refresh(db_session=db, obj=current_user)
+
+                asyncio.create_task(email_service.send_reset_password_email(
+                    current_user.email,
+                    current_user.first_name + " " + current_user.last_name,
+                    RESET_LINK.format(current_user.reset_token),
+                    UNSUBSCRIBE_LINK.format(current_user.email, current_user.is_subscribed_token),
+                ))
+
+                if response:
+                    return {"data": "User password reset!"}
+                else:
+                    raise HTTPException(status_code=400, detail="User account not verified or using a login provider")
+            else:
+                raise HTTPException(status_code=400, detail="User account not verified or using a login provider")
             
         @self.router.get("/verify-email")
         async def verify_email(email: str, token: str, db: AsyncSession = Depends(self.get_db)):
