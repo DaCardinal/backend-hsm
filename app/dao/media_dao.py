@@ -28,7 +28,7 @@ class MediaDAO(BaseDAO[MediaModel]):
             # upload base64 image to cloudinary and get url
             base64_data = media_info.get('content_url')
             uploader_service = MediaUploaderService(base64_image=base64_data, file_name=media_info.get('media_name'), media_type=media_store.lower())
-            upload_response = uploader_service.upload_to_cloudinary()
+            upload_response = uploader_service.upload()
             
             # check for content url succes
             if upload_response.success == False:
@@ -64,7 +64,7 @@ class MediaDAO(BaseDAO[MediaModel]):
             # upload base64 image to cloudinary and get url
             base64_data = media_info.get('content_url')
             uploader_service = MediaUploaderService(base64_image=base64_data, file_name=media_info.get('media_name'), media_type=media_store.lower())
-            upload_response = uploader_service.upload_to_cloudinary()  
+            upload_response = uploader_service.upload()  
 
             # check for content url succes
             if upload_response.success == False:

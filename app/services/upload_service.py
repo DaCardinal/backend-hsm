@@ -43,7 +43,7 @@ class MediaUploaderService:
             print(f"Error checking file_name: {e}")
             return False
         
-    def upload_to_cloudinary(self):
+    def upload(self):
         # specify folder name
         folder_name = str(settings.APP_NAME + "/" + self.media_type + "/").lower()
         
