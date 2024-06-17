@@ -7,8 +7,8 @@ from jinja2 import Environment, FileSystemLoader
 from smtplib import SMTP_SSL, SMTPAuthenticationError
 
 from app.schema import EmailBody
-from app.utils.settings import settings
 from app.config import template_path
+from app.utils.settings import settings
 
 EMAIL = settings.EMAIL
 EMAIL_PASSWORD = settings.EMAIL_PASSWORD
@@ -16,11 +16,7 @@ SERVER = settings.EMAIL_SERVER
 
 class EmailSendException(HTTPException):
     def __init__(self, detail: str):
-        super().__init__(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=detail,
-            headers=None
-        )
+        super().__init__(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail, headers=None)
 
 class EmailService:
     def __init__(self):

@@ -28,11 +28,11 @@ class Units(PropertyUnitAssoc):
                                         overlaps="prop_maintenance_requests",
                                         back_populates='unit', viewonly=True)
     
-    tour_bookings = relationship('Tour',
-                                secondary="property_unit_assoc", 
-                                primaryjoin="Tour.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
-                                secondaryjoin="PropertyUnitAssoc.property_unit_assoc_id == Units.property_unit_assoc_id",
-                                back_populates='unit', viewonly=True)
+    tour_bookings = relationship("Tour", 
+                        secondary="property_unit_assoc", 
+                        primaryjoin="Units.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
+                        secondaryjoin="Tour.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id", viewonly=True,
+                        back_populates="unit", lazy="selectin")
     # events = relationship('CalendarEvent',
     #                         secondary="property_unit_assoc", 
     #                         primaryjoin="CalendarEvent.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
