@@ -62,6 +62,53 @@ class ReadMixin(UtilsMixin):
         
         return result
     
+    async def query_on_joins(self, db_session: AsyncSession, filters: Dict[str, Any], single=False, options=None, order_by=None, join_conditions: Optional[List] = None,  skip=0, limit=100) -> list[DBModelType]:
+        # conditions = [getattr(self.model, k) == v for k, v in filters.items()]
+        # separate main model filters and joined table filters
+        main_model_conditions = []
+        join_conditions_filters = []
+        
+        for key, value in filters.items():
+            if '.' in key:
+                # indicates a filter on a join table
+                table_name, column_name = key.split('.')
+                join_conditions_filters.append((table_name, column_name, value))
+            else:
+                # filter on the main model
+                main_model_conditions.append(getattr(self.model, key) == value)
+        query = select(self.model)
+
+        # apply joins
+        if join_conditions:
+            for join_condition in join_conditions:
+                query = query.join(*join_condition)
+
+        # apply main model conditions
+        query = query.filter(and_(*main_model_conditions))
+        
+        # Apply filters on joined tables
+        for table_name, column_name, value in join_conditions_filters:
+            join_model = None
+            for join_condition in join_conditions:
+                if join_condition[0].__tablename__ == table_name:
+                    join_model = join_condition[0]
+                    break
+            if join_model:
+                query = query.filter(getattr(join_model, column_name) == value)
+        
+        
+        # check if options
+        if options:
+            query = query.options(*options)
+
+        # check if order by
+        if order_by:
+            query = query.order_by(*order_by)
+
+        query_result = await db_session.execute(query.offset(skip).limit(limit))
+
+        return query_result.scalar_one_or_none() if single else query_result.scalars().all()
+
     async def query(self, db_session: AsyncSession, filters: Dict[str, Any], single=False, options=None, order_by=None) -> list[DBModelType]:
         conditions = [getattr(self.model, k) == v for k, v in filters.items()]
         query = select(self.model).filter(and_(*conditions))

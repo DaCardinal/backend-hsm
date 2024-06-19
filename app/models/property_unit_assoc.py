@@ -41,10 +41,10 @@ class PropertyUnitAssoc(BaseModel):
     assignments = relationship('User', secondary='property_assignment', back_populates='property')
     
     # relationship to utilities
-    utilities = relationship("Utilities",
-                         secondary="entity_utilities",
-                         primaryjoin="and_(EntityUtilities.property_unit_assoc_id==PropertyUnitAssoc.property_unit_assoc_id)",
-                         back_populates="units")
+    # utilities = relationship("Utilities",
+    #                      secondary="entity_utilities",
+    #                      primaryjoin="and_(EntityUtilities.property_unit_assoc_id==PropertyUnitAssoc.property_unit_assoc_id)",
+    #                      lazy='selectin')
     
     # relationship to amenities
     amenities = relationship("Amenities",

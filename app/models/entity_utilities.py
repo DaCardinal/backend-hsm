@@ -14,4 +14,5 @@ class EntityUtilities(Base):
     utility_value = Column(String(128))
     apply_to_units = Column(Boolean, default=False)
 
-    payment_type = relationship('PaymentTypes', back_populates='entity_utilities')
+    payment_type = relationship('PaymentTypes', back_populates='entity_utilities', lazy='selectin')
+    utility = relationship('Utilities', lazy='selectin')

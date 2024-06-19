@@ -69,7 +69,11 @@ class Property(PropertyUnitAssoc):
                          lazy="selectin", viewonly=True)
     
     # relationship to link amenities
-    entity_amenities = relationship("EntityAmenities", secondary="property_unit_assoc", viewonly=True)    
+    entity_amenities = relationship("EntityAmenities", secondary="property_unit_assoc", viewonly=True)
+
+    # relationship to utilities
+    utilities = relationship("EntityUtilities", lazy='selectin')
+
     amenities = relationship("Amenities", secondary="entity_amenities",
                              primaryjoin="Property.property_unit_assoc_id == EntityAmenities.property_unit_assoc_id",
                              secondaryjoin="EntityAmenities.amenity_id == Amenities.amenity_id",

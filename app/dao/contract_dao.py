@@ -9,7 +9,7 @@ from app.dao.base_dao import BaseDAO
 from app.dao.contract_type_dao import ContractTypeDAO
 from app.dao.payment_type_dao import PaymentTypeDAO
 from app.utils import DAOResponse
-from app.models import Contract, ContractType, PaymentTypes, UnderContract
+from app.models import Contract, ContractType, PaymentTypes, UnderContract, ContractStatusEnum
 from app.schema import ContractCreateSchema, ContractUpdateSchema, ContractResponse, ContractBase, UnderContractSchema
 
 class ContractDAO(BaseDAO[Contract]):
@@ -27,6 +27,7 @@ class ContractDAO(BaseDAO[Contract]):
             # extract base information
             contract_info = self.extract_model_data(ContractCreateSchema(**obj_in).model_dump(exclude=["contract_info"]), ContractBase)
             contract_type = contract_info.get('contract_type')
+            contract_status = contract_info.get('contract_status')
             payement_type = contract_info.get('payment_type')
 
             # check if contract type exists
@@ -143,12 +144,13 @@ class ContractDAO(BaseDAO[Contract]):
             for contract_item in contract_info:
                 contract_item : UnderContractSchema = contract_item
                 # print(contract_item)
+                # contract_item.contract_status if contract_item.contract_status != contract.contract_status.name else contract.contract_status.name,
 
                 under_contract_obj = {
                     "property_unit_assoc_id": contract_item.property_unit_assoc,
                     "employee_id": contract_item.employee_id,
                     "client_id": contract_item.client_id,
-                    "contract_status": contract_item.contract_status if contract_item.contract_status != contract.contract_status.name else contract.contract_status.name,
+                    "contract_status": contract.contract_status.name,
                     "contract_id": contract_id
                 }
 

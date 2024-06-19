@@ -17,7 +17,7 @@ class UnderContractSchema(BaseModel):
     id: Optional[UUID] = None
     property_unit_assoc: Optional[UUID | Property | PropertyUnit]
     contract_id: Optional[UUID] = None
-    contract_status: ContractStatus = None
+    contract_status: Optional[ContractStatus] = None
     client_id: Optional[UUID | UserBase] = None
     employee_id: Optional[UUID | UserBase] = None
 
@@ -65,10 +65,10 @@ class ContractCreateSchema(BaseModel):
     contract_type: str
     payment_type: str
     contract_status: ContractStatus = Field(...)
-    contract_details: str
+    contract_details: Optional[str] = None
     payment_amount: Decimal
-    fee_percentage: Decimal
-    fee_amount: Decimal
+    fee_percentage: Optional[Decimal]
+    fee_amount: Optional[Decimal]
     date_signed: datetime = Field(default_factory=datetime.now)
     start_date: Optional[datetime] = Field(default_factory=datetime.now)
     end_date: Optional[datetime] = Field(default_factory=datetime.now)
@@ -82,10 +82,10 @@ class ContractUpdateSchema(BaseModel):
     contract_type: str
     payment_type: str
     contract_status: ContractStatus = Field(...)
-    contract_details: str
+    contract_details: Optional[str]
     payment_amount: Decimal
-    fee_percentage: Decimal
-    fee_amount: Decimal
+    fee_percentage: Optional[Decimal]
+    fee_amount: Optional[Decimal]
     date_signed: datetime = Field(default_factory=datetime.now)
     start_date: Optional[datetime] = Field(default_factory=datetime.now)
     end_date: Optional[datetime] = Field(default_factory=datetime.now)
@@ -105,7 +105,7 @@ class ContractResponse(BaseModel):
     contract_type: Optional[str] = Field(..., max_length=128)
     payment_type: Optional[str] = Field(..., max_length=128)
     contract_status: str = Field(..., max_length=128)
-    contract_details: str = Field(..., max_length=50)
+    contract_details: Optional[str] = Field(..., max_length=128)
     num_invoices: Optional[int]
     payment_amount: float
     fee_percentage: float

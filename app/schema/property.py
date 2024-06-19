@@ -1,10 +1,11 @@
 from pydantic import BaseModel, Field
-from typing import Any, List, Optional
+from typing import List, Optional
 from enum import Enum
 from uuid import UUID
 
-from app.models import Property as PropertyModel, Addresses, Units as UnitsModel, Amenities as AmenitiesModel, EntityAmenities as EntityAmenitiesModel
-from app.schema import AddressBase, Address, City, Region, Country, Media, MediaBase, AmenitiesBase, Amenities, EntityAmenitiesBase, EntityAmenities
+from app.models import Property as PropertyModel, Addresses, Units as UnitsModel, Utilities as UtilityModel
+from app.schema import AddressBase, Address, City, Region, Country, Media, MediaBase, AmenitiesBase, Amenities, Utilities
+# from app.schema.utilities import Utilities
 
 
 class PropertyStatus(str, Enum):
@@ -118,10 +119,27 @@ class PropertyUnitResponse(PropertyUnit):
     media: Optional[List[Media] | Media]
     property: Optional[PropertyBase]
     ammenities: Optional[List[Amenities] | Amenities] = None
+    utilities: Optional[List[Utilities] | Utilities ] = None
 
     class Config:
         from_attributes = True
         use_enum_values = True
+    
+    @classmethod
+    def get_utilities(cls, utilities:List[UtilityModel]):
+        result = []
+
+        for utility in utilities:
+            utility_base : Utilities = utility.utility
+
+            result.append(Utilities(
+                name = utility_base.name,
+                description = utility_base.description,
+                utility_id = utility_base.utility_id,
+                utility_value = utility.utility_value,
+                apply_to_units = utility.apply_to_units
+            ))
+        return result
     
     @classmethod
     def from_orm_model(cls, property_unit: UnitsModel):
@@ -140,13 +158,15 @@ class PropertyUnitResponse(PropertyUnit):
             property_unit_commission = property_unit.property_unit_commission,
             property = property_unit.property,
             media = property_unit.media,
-            ammenities = property_unit.amenities
+            ammenities = property_unit.amenities,
+            utilities=cls.get_utilities(property_unit.utilities)
         ).model_dump()
     
 class PropertyResponse(Property):
     units: Optional[List[PropertyUnit] | PropertyUnit]
     media: Optional[List[Media] | Media]
     ammenities: Optional[List[Amenities] | Amenities] = None
+    utilities: Optional[List[Utilities] | Utilities ] = None
 
     class Config:
         from_attributes = True
@@ -175,6 +195,22 @@ class PropertyResponse(Property):
         return result
     
     @classmethod
+    def get_utilities(cls, utilities:List[UtilityModel]):
+        result = []
+
+        for utility in utilities:
+            utility_base : Utilities = utility.utility
+
+            result.append(Utilities(
+                name = utility_base.name,
+                description = utility_base.description,
+                utility_id = utility_base.utility_id,
+                utility_value = utility.utility_value,
+                apply_to_units = utility.apply_to_units
+            ))
+        return result
+    
+    @classmethod
     def from_orm_model(cls, property: PropertyModel):
 
         return cls(
@@ -197,5 +233,6 @@ class PropertyResponse(Property):
             address=cls.get_address_base(property.addresses),
             units=property.units,
             media=property.media,
-            ammenities=property.amenities
+            ammenities=property.amenities,
+            utilities=cls.get_utilities(property.utilities)
         ).model_dump()

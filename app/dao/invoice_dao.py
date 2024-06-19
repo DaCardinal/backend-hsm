@@ -4,10 +4,13 @@ from pydantic import ValidationError
 from typing_extensions import override
 from typing import Any, List, Type, Union
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import and_, select
+from sqlalchemy.orm import joinedload
+
 
 from app.dao.base_dao import BaseDAO
 from app.dao.invoice_item_dao import InvoiceItemDAO
-from app.models import Invoice
+from app.models import Invoice, UnderContract, User, Contract, ContractInvoice, ContractStatusEnum, PaymentStatusEnum, ContractType
 from app.utils import DAOResponse
 from app.models import InvoiceItem
 from app.schema import InvoiceCreateSchema, InvoiceItemBase, InvoiceResponse
@@ -62,7 +65,70 @@ class InvoiceDAO(BaseDAO[Invoice]):
 
         return DAOResponse[InvoiceResponse](success=True, data=InvoiceResponse.from_orm_model(result))
     
-    async def add_invoice_details(self, db_session: AsyncSession, invoice_number: str,  invoice_info: InvoiceItemBase, invoice : Invoice= None):
+    # TODO Remove
+    async def get_leases_due_old(self, db_session: AsyncSession, contract_type_name: str = "lease", user_id : str = None, offset=0, limit=100):
+        under_contract_dao = BaseDAO(UnderContract)
+        contract_dao = BaseDAO(Contract)
+        user_dao = BaseDAO(User)
+        
+        filters = [
+            ContractType.contract_type_name == contract_type_name,
+            UnderContract.contract_status == ContractStatusEnum.active.name,
+            Invoice.status == PaymentStatusEnum.pending.name
+        ]
+        
+        if user_id:
+            filters.append(UnderContract.client_id == user_id)
+
+        lease_due_stmt = select(Invoice).join(
+            ContractInvoice, ContractInvoice.invoice_number == Invoice.invoice_number
+        ).join(
+            Contract, Contract.contract_id == ContractInvoice.contract_id
+        ).join(
+            UnderContract, UnderContract.contract_id == Contract.contract_id
+        ).join(
+            ContractType, Contract.contract_type_id == ContractType.contract_type_id
+        ).filter(
+            and_(*filters)
+        )
+
+        leases_due_result = await db_session.execute(lease_due_stmt)
+        leases_due = leases_due_result.scalars().all()
+
+        return leases_due
+    
+    async def get_leases_due(self, db_session: AsyncSession, contract_type_name: str = "lease", user_id : str = None, offset=0, limit=100):
+
+        filters = {
+            "status": PaymentStatusEnum.pending.name,
+            "ContractType.contract_type_name": contract_type_name,
+            # "UnderContract.contract_status": ContractStatusEnum.active.name,
+        }
+        
+        join_conditions = [
+            (ContractInvoice, ContractInvoice.invoice_number == Invoice.invoice_number),
+            (Contract, Contract.contract_id == ContractInvoice.contract_id),
+            (UnderContract, UnderContract.contract_id == Contract.contract_id),
+            (ContractType, ContractType.contract_type_id == Contract.contract_type_id)
+        ]
+
+        if user_id:
+            filters["UnderContract.client_id"] = user_id
+        
+        options = [
+            joinedload(Invoice.contracts),
+            joinedload(Invoice.transaction),
+            joinedload(Invoice.invoice_items)
+        ]
+        
+        return await self.query_on_joins(
+            db_session=db_session, 
+            filters=filters, 
+            join_conditions=join_conditions, 
+            options=options,
+        )
+
+    async def add_invoice_details(self, db_session: AsyncSession, invoice_number: str,  invoice_info: InvoiceItemBase, invoice : Invoice = None):
         invoice_item_dao = InvoiceItemDAO(InvoiceItem)
 
         try:

@@ -27,10 +27,10 @@ from app.models.user_role import UserRoles
 from app.models.transaction_type import TransactionType
 from app.models.payment_type import PaymentTypes
 from app.models.contract_type import ContractType
-from app.models.contract import Contract
+from app.models.contract import Contract, ContractStatusEnum
 from app.models.document import Documents
 from app.models.under_contract import UnderContract
-from app.models.invoice import Invoice
+from app.models.invoice import Invoice, PaymentStatusEnum
 from app.models.invoice_item import InvoiceItem
 from app.models.contract_invoice import ContractInvoice
 from app.models.contract_documents import ContractDocuments
