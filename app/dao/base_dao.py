@@ -3,17 +3,49 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional, Type, TypeVar, Generic, Union
 
-from app.db.dbCrud import DBOperations
 from app.utils import DAOResponse
+from app.db.dbCrud import DBOperations
 
 DBModelType = TypeVar("DBModelType")
 
 class BaseDAO(DBOperations, Generic[DBModelType]):
-    def __init__(self, model: Type[DBModelType], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
+    # nesting type
+    IMMEDIATE_CHILD = "immediate_child"
+    NESTED_CHILD = "nested_child"
+    NO_NESTED_CHILD = "parents_only"
+
+    def __init__(self, model: Type[DBModelType], excludes = [], nesting_degree: str = NO_NESTED_CHILD):
         self.model = model
-        self.load_parent_relationships = load_parent_relationships
-        self.load_child_relationships = load_child_relationships
+        self.nesting_degree = nesting_degree
+
+        if self.nesting_degree == self.IMMEDIATE_CHILD:
+            self.load_parent_relationships = True
+            self.load_child_relationships = False
+        elif self.nesting_degree == self.NESTED_CHILD:
+            self.load_parent_relationships = True
+            self.load_child_relationships = True
+        elif self.nesting_degree == self.NO_NESTED_CHILD:
+            self.load_parent_relationships = False
+            self.load_child_relationships = False
+
         self.excludes = excludes
+
+    def determine_schema(entity_data, key, full_schema, base_schema, id_key='id'):
+        """
+        Determines the appropriate schema class based on the provided entity data.
+
+        :param entity_data: The data dictionary to check for the schema key.
+        :param key: The key to look for in the entity_data dictionary.
+        :param full_schema: The full schema class to return if the conditions are met.
+        :param base_schema: The base schema class to return if the conditions are not met.
+        :param id_key: The key to check for existence in the entity data's key.
+        :return: The appropriate schema class.
+        """
+        if key in entity_data and entity_data[key]:
+            # Check if id_key exists directly or in the first item of the list if the value is a list
+            if id_key in entity_data[key] or (isinstance(entity_data[key], list) and id_key in entity_data[key][0]):
+                return full_schema
+        return base_schema
 
     def decompose_dict(self, d):
         def is_class_instance_with_to_dict(val):

@@ -14,14 +14,15 @@ class ContractStatusEnum(enum.Enum):
 class UnderContract(Base):
     __tablename__ = 'under_contract'
 
-    id = Column(UUID(as_uuid=True), primary_key=True, unique=True, index=True, default=uuid.uuid4)
+    under_contract_id = Column(UUID(as_uuid=True), primary_key=True, unique=True, index=True, default=uuid.uuid4)
     property_unit_assoc_id = Column(UUID(as_uuid=True), ForeignKey('property_unit_assoc.property_unit_assoc_id'))
-    contract_id = Column(UUID(as_uuid=True), ForeignKey('contract.contract_id'))
     contract_status = Column(Enum(ContractStatusEnum))
+    contract_id = Column(UUID(as_uuid=True), ForeignKey('contract.contract_id'))
     client_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'), nullable=True)
     employee_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'), nullable=True)
-    start_date = Column(DateTime(timezone=True))
-    end_date = Column(DateTime(timezone=True))
+    start_date = Column(DateTime(timezone=True)) # TODO: Value determined by contract start date
+    end_date = Column(DateTime(timezone=True)) # TODO: Value determined by contract end date
+    next_payment_due = Column(DateTime(timezone=True)) # TODO: Value determined by system
 
     properties  = relationship('PropertyUnitAssoc', back_populates='under_contract', lazy='selectin')
     contract  = relationship('Contract', back_populates='under_contract', lazy='selectin')

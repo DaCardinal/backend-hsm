@@ -14,10 +14,27 @@ class PaymentStatusEnum(str, Enum):
     cancelled = "cancelled"
 
 class InvoiceItemBase(BaseModel):
-    description: str = Field(alias='description')
-    quantity: int = Field(alias='quantity')
-    unit_price: Decimal = Field(alias='unit_price')
-    total_price: Decimal = Field(alias='total_price')
+    # invoice_item_id: Optional[UUID]
+    # invoice_number: Optional[UUID]
+    reference_id: Optional[str] = None
+    description: Optional[str] = None
+    quantity: int
+    unit_price: Decimal
+    total_price: Decimal
+
+    class Config:
+        from_attributes = True
+        use_enum_values = True
+        populate_by_name = True
+
+class InvoiceItem(BaseModel):
+    invoice_item_id: UUID
+    invoice_number: UUID
+    reference_id: Optional[str]
+    description: Optional[str]
+    quantity: int
+    unit_price: Decimal
+    total_price: Decimal
 
     class Config:
         from_attributes = True
@@ -25,7 +42,7 @@ class InvoiceItemBase(BaseModel):
         populate_by_name = True
 
 class InvoiceItemUpdate(InvoiceItemBase):
-    invoice_item_id: Optional[UUID] = Field(None, alias='invoice_item_id')
+    invoice_item_id: Optional[UUID] = None
 
     class Config:
         from_attributes = True
@@ -45,7 +62,7 @@ class InvoiceBase(BaseModel):
     invoice_details: Optional[str] = Field(None, alias='invoice_details')
     due_date: Optional[datetime] = Field(None, alias='due_date')
     date_paid: Optional[datetime] = Field(None, alias='date_paid')
-    status: PaymentStatusEnum = Field(alias='status')
+    status: PaymentStatusEnum | str = Field(alias='status')
     transaction_id: Optional[UUID] = Field(None, alias='transaction_id')
     invoice_items: List[InvoiceItemBase] = []
 
@@ -90,10 +107,12 @@ class InvoiceResponse(BaseModel):
 
         for invoice in invoice_details:
             result.append(InvoiceItemBase(
+                # invoice_item_id=invoice.invoice_item_id,
                 description=invoice.description,
                 quantity = invoice.quantity,
                 unit_price= invoice.unit_price,
-                total_price= invoice.total_price
+                total_price= invoice.total_price,
+                reference_id=invoice.reference_id
             ))
 
         return result

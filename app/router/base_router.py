@@ -1,9 +1,9 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Any, List, TypeVar, Generic, Optional
-from pydantic import BaseModel, create_model
 from sqlalchemy import inspect
+from pydantic import BaseModel, create_model
+from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Any, List, TypeVar, Generic, Optional, Union
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 
 from app.dao.base_dao import BaseDAO
 from app.utils.response import DAOResponse
@@ -11,7 +11,6 @@ from app.utils.lifespan import get_db
 from app.schema.base_schema import SchemasDictType
 
 DBModelType = TypeVar("DBModelType")
-
 
 class CustomBaseModel(BaseModel):
     class Config:
@@ -57,6 +56,11 @@ def create_pydantic_model_from_sqlalchemy(sqlalchemy_model, load_parent_relation
     return pydantic_model
 
 class BaseCRUDRouter(Generic[DBModelType]):
+    # nesting type
+    IMMEDIATE_CHILD = "immediate_child"
+    NESTED_CHILD = "nested_child"
+    NO_NESTED_CHILD = "parents_only"
+    
     def __init__(
         self,
         dao: BaseDAO[DBModelType],
@@ -120,7 +124,7 @@ class BaseCRUDRouter(Generic[DBModelType]):
             
     def add_get_route(self):
         @self.router.get("/{id}")
-        async def get(id: UUID, db: AsyncSession = Depends(self.get_db)) -> DAOResponse:
+        async def get(id: Union[UUID | str], db: AsyncSession = Depends(self.get_db)) -> DAOResponse:
             # item = await self.dao.query(db_session=db, filters={f"{self.model_pk[0]}": id}, single=True)
             item = await self.dao.get(db_session=db, id=id)
 
@@ -170,26 +174,3 @@ class BaseCRUDRouter(Generic[DBModelType]):
                 return {"detail": "Item deleted successfully"}
             except Exception as e:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-
-# Endpoint with pagination
-# @app.get("/items/", response_model=PaginatedResponse)
-# def get_items(limit: int = Query(default=10, ge=1), offset: int = Query(default=0, ge=0), db: Session = Depends(get_db)):
-#     total = db.query(YourModel).count()
-#     items = db.query(YourModel).offset(offset).limit(limit).all()
-    
-#     # Generate next and previous links
-#     base_url = "/items/"
-#     next_offset = offset + limit
-#     previous_offset = offset - limit if offset - limit >= 0 else 0
-    
-#     next_link = f"{base_url}?limit={limit}&offset={next_offset}" if next_offset < total else None
-#     previous_link = f"{base_url}?limit={limit}&offset={previous_offset}" if offset > 0 else None
-    
-#     return {
-#         "items": items,
-    #     "total": total,
-    #     "limit": limit,
-    #     "offset": offset,
-    #     "next": next_link,
-    #     "previous": previous_link
-    # }

@@ -3,7 +3,7 @@ from app.router.role_router import RoleRouter
 from app.router.permission_router import PermissionRouter
 from app.router.property_router import PropertyRouter
 from app.router.property_unit_router import PropertyUnitRouter
-from app.router.amenities_router import AmmenitiesRouter
+from app.router.amenities_router import AmenitiesRouter
 from app.router.media_router import MediaRouter
 from app.router.message_router import MessageRouter
 from app.router.auth_router import AuthRouter
@@ -17,3 +17,6 @@ from app.router.company_router import CompanyRouter
 from app.router.maintenance_request_router import MaintenanceRequestRouter
 from app.router.calendar_event_router import CalendarEventRouter
 from app.router.tour_bookings_router import TourBookingRouter
+from app.router.utilities_router import UtilitiesRouter
+from app.router.under_contract_router import UnderContractRouter
+from app.router.property_assignment_router import PropertyAssignmentRouter

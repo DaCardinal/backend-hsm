@@ -7,12 +7,14 @@ from app.router.base_router import BaseCRUDRouter
 
 class MediaRouter(BaseCRUDRouter):
 
-    def __init__(self, dao: MediaDAO = MediaDAO(Media, load_parent_relationships=False, load_child_relationships=False), prefix: str = "", tags: List[str] = []):
+    def __init__(self, prefix: str = "", tags: List[str] = []):
         
-        self.dao = dao
+        # initialize router dao
         MediaSchema["create_schema"] = MediaCreateSchema
         MediaSchema["update_schema"] = MediaUpdateSchema
-        super().__init__(dao=dao, schemas=MediaSchema, prefix=prefix,tags = tags)
+        self.dao: MediaDAO = MediaDAO(nesting_degree=BaseCRUDRouter.IMMEDIATE_CHILD, excludes=[''])
+
+        super().__init__(dao=self.dao, schemas=MediaSchema, prefix=prefix,tags = tags)
         self.register_routes()
 
     def register_routes(self):

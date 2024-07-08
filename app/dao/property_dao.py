@@ -4,25 +4,29 @@ from pydantic import ValidationError
 from sqlalchemy.orm import selectinload
 from typing_extensions import override
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Any, Dict, List, Type, Union
+from typing import Any, Dict, List, Union
 
+from app.models import Property
 from app.dao.base_dao import BaseDAO
 from app.dao.media_dao import MediaDAO
 from app.utils.response import DAOResponse
 from app.dao.address_dao import AddressDAO
-from app.dao.ammenities_dao import AmenitiesDAO
+from app.dao.utilities_dao import UtilitiesDAO
+from app.dao.amenities_dao import AmenitiesDAO
 from app.dao.property_unit_assoc_dao import PropertyUnitAssocDAO
-from app.models import Property, Addresses, PropertyUnitAssoc, Media as MediaModel, Amenities as AmenitiesModel
-from app.schema import PropertyResponse, PropertyBase, PropertyCreateSchema, PropertyUpdateSchema, Address, AddressBase, MediaBase, Media, Amenities, AmenitiesBase
+from app.schema import PropertyResponse, PropertyBase, PropertyCreateSchema, PropertyUpdateSchema, Address, AddressBase, MediaBase, Media, Amenities, AmenitiesBase, AmenitiesCreateSchema, MediaCreateSchema, EntityBillableCreate
 
 class PropertyDAO(BaseDAO[Property]):
-    def __init__(self, model: Type[Property]):
-        super().__init__(model)
+    def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):
+        self.model = Property
+        self.media_dao = MediaDAO()
+        self.address_dao = AddressDAO()
+        self.utility_dao = UtilitiesDAO()
+        self.ammenity_dao = AmenitiesDAO()
         self.primary_key = "property_unit_assoc_id"
-        self.address_dao = AddressDAO(Addresses)
-        self.property_unit_assoc_dao = PropertyUnitAssocDAO(PropertyUnitAssoc)
-        self.media_dao = MediaDAO(MediaModel)
-        self.ammenity_dao = AmenitiesDAO(AmenitiesModel)
+        self.property_unit_assoc_dao = PropertyUnitAssocDAO()
+
+        super().__init__(self.model, nesting_degree = nesting_degree, excludes=excludes)
 
     @override
     async def create(self, db_session: AsyncSession, obj_in: Union[PropertyCreateSchema | Dict]) -> DAOResponse:
@@ -35,21 +39,17 @@ class PropertyDAO(BaseDAO[Property]):
             new_property: Property = await super().create(db_session=db_session, obj_in=property_info)
 
             # add additional info if exists
-            address_schema = Address if 'address' in obj_in and obj_in['address'] and 'address_id' in obj_in['address'] else AddressBase
-            ammenities_schema = Amenities if 'ammenities' in obj_in and obj_in['ammenities'] and ('amenity_id' in obj_in['ammenities'] or 'amenity_id' in obj_in['ammenities'][0]) else AmenitiesBase
-            media_schema = Media if 'media' in obj_in and obj_in['media'] and ('media_id' in obj_in['media'] or 'media_id' in obj_in['media'][0]) else MediaBase
+            # address_schema = Address if 'address' in obj_in and obj_in['address'] and 'address_id' in obj_in['address'] else AddressBase
+            # amenities_schema = Amenities if 'amenities' in obj_in and obj_in['amenities'] and ('amenity_id' in obj_in['amenities'] or 'amenity_id' in obj_in['amenities'][0]) else AmenitiesCreateSchema
+            # media_schema = Media if 'media' in obj_in and obj_in['media'] and ('media_id' in obj_in['media'] or 'media_id' in obj_in['media'][0]) else MediaCreateSchema
             
-            # Create a link for PropertyUnitAssoc
-            # property_unit_assoc_obj : PropertyUnitAssoc = await self.property_unit_assoc_dao.create(db_session = db_session, obj_in = {
-            #     "property_unit_assoc_id": new_property.property_unit_assoc_id,
-            #     "property_unit_type": self.model.__name__
-            # })
-
             details_methods : dict = {
-                'media': (partial(self.media_dao.add_entity_media, entity_model=self.model.__name__, entity_assoc_id=new_property.property_unit_assoc_id), media_schema),
-                'ammenities': (partial(self.ammenity_dao.add_entity_ammenity, entity_model=self.model.__name__, entity_assoc_id=new_property.property_unit_assoc_id), ammenities_schema),
-                'address': (partial(self.address_dao.add_entity_address, entity_model=self.model.__name__), address_schema)
+                'address': (partial(self.address_dao.add_entity_address, entity_model=self.model.__name__), AddressBase),
+                'media': (partial(self.media_dao.add_entity_media, entity_model=self.model.__name__, entity_assoc_id=new_property.property_unit_assoc_id), MediaCreateSchema),
+                'amenities': (partial(self.ammenity_dao.add_entity_ammenity, entity_model=self.model.__name__, entity_assoc_id=new_property.property_unit_assoc_id), AmenitiesCreateSchema),
+                'utilities': (partial(self.utility_dao.add_entity_utility, entity_model=self.model.__name__, entity_assoc_id=new_property.property_unit_assoc_id), EntityBillableCreate)
             }
+
             if set(details_methods.keys()).issubset(set(obj_in.keys())):
                 await self.process_entity_details(db_session, new_property.property_unit_assoc_id, obj_in, details_methods)
             
@@ -74,25 +74,31 @@ class PropertyDAO(BaseDAO[Property]):
         try:
             # get the entity dump info
             entity_data = obj_in.model_dump()
-            property_data = self.extract_model_data(obj_in.model_dump(exclude=['address', 'media', 'ammenities']), PropertyBase)
+            property_data = self.extract_model_data(obj_in.model_dump(exclude=['address', 'media', 'amenities']), PropertyBase)
 
             # update property info
             existing_property : Property = await super().update(db_session=db_session, db_obj=db_obj, obj_in=PropertyBase(**property_data))
             
+            # # add additional info if exists
+            # address_schema = Address if 'address' in entity_data and entity_data['address'] and 'address_id' in entity_data['address'] else AddressBase
+            # media_schema = Media if 'media' in entity_data and entity_data['media'] and ('media_id' in entity_data['media'] or 'media_id' in entity_data['media'][0]) else MediaBase
+            # amenities_schema = Amenities if 'amenities' in entity_data and entity_data['amenities'] and ('amenity_id' in entity_data['amenities'] or 'amenity_id' in entity_data['amenities'][0]) else AmenitiesBase
+
             # add additional info if exists
-            address_schema = Address if 'address' in entity_data and entity_data['address'] and 'address_id' in entity_data['address'] else AddressBase
-            media_schema = Media if 'media' in entity_data and entity_data['media'] and ('media_id' in entity_data['media'] or 'media_id' in entity_data['media'][0]) else MediaBase
-            ammenities_schema = Amenities if 'ammenities' in entity_data and entity_data['ammenities'] and ('amenity_id' in entity_data['ammenities'] or 'amenity_id' in entity_data['ammenities'][0]) else AmenitiesBase
+            address_schema = self.determine_schema(entity_data, 'address', Address, AddressBase, 'address_id')
+            media_schema = self.determine_schema(entity_data, 'media', Media, MediaBase, 'media_id')
+            amenities_schema = self.determine_schema(entity_data, 'amenities', Amenities, AmenitiesBase, 'amenity_id')
 
             # get the property association key
-            property_unit_assoc_obj : PropertyUnitAssoc = await self.property_unit_assoc_dao.query(db_session=db_session,
-                filters={f"property_unit_assoc_id":existing_property.property_unit_assoc_id},
-                single=True)
+            # property_unit_assoc_obj : PropertyUnitAssoc = await self.property_unit_assoc_dao.query(db_session=db_session,
+            #     filters={f"property_unit_assoc_id":existing_property.property_unit_assoc_id},
+            #     single=True)
             
             details_methods = {
-                'media': (partial(self.media_dao.add_entity_media, entity_model=self.model.__name__, entity_assoc_id=property_unit_assoc_obj.property_unit_assoc_id), media_schema),
-                'ammenities': (partial(self.ammenity_dao.add_entity_ammenity, entity_model=self.model.__name__, entity_assoc_id=property_unit_assoc_obj.property_unit_assoc_id), ammenities_schema),
-                'address': (partial(self.address_dao.add_entity_address, entity_model=self.model.__name__), address_schema)
+                'media': (partial(self.media_dao.add_entity_media, entity_model=self.model.__name__, entity_assoc_id=existing_property.property_unit_assoc_id), media_schema),
+                'amenities': (partial(self.ammenity_dao.add_entity_ammenity, entity_model=self.model.__name__, entity_assoc_id=existing_property.property_unit_assoc_id), amenities_schema),
+                'address': (partial(self.address_dao.add_entity_address, entity_model=self.model.__name__), address_schema),
+                'utilities': (partial(self.utility_dao.add_entity_utility, entity_model=self.model.__name__, entity_assoc_id=existing_property.property_unit_assoc_id), EntityBillableCreate)
             }
             if set(details_methods.keys()).issubset(set(entity_data.keys())):
                 await self.process_entity_details(db_session, existing_property.property_unit_assoc_id, entity_data, details_methods)

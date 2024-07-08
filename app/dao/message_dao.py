@@ -15,9 +15,11 @@ EMAIL_PASSWORD = settings.EMAIL_PASSWORD
 SERVER = settings.EMAIL_SERVER
 
 class MessageDAO(BaseDAO[Message]):
-    def __init__(self, model: Type[Message], load_parent_relationships: bool = False, load_child_relationships: bool = False):
-        super().__init__(model, load_parent_relationships, load_child_relationships)
+    def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):
+        self.model = Message
         self.primary_key = "message_id"
+       
+        super().__init__(self.model, nesting_degree = nesting_degree, excludes=excludes)
 
     @override
     async def create(self, db_session: AsyncSession, obj_in: MessageCreate) -> DAOResponse[MessageResponseModel]:

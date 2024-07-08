@@ -1,9 +1,9 @@
-from typing import Type
-
-from app.dao.base_dao import BaseDAO
 from app.models import ContractType
+from app.dao.base_dao import BaseDAO
 
 class ContractTypeDAO(BaseDAO[ContractType]):
-    def __init__(self, model: Type[ContractType], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
-        super().__init__(model, load_parent_relationships, load_child_relationships, excludes=excludes)
-        self.primary_key = "ContractType_id"
+    def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):
+        self.model = ContractType
+        self.primary_key = "contract_type_id"
+
+        super().__init__(self.model, nesting_degree = nesting_degree, excludes=excludes)

@@ -15,9 +15,10 @@ UNSUBSCRIBE_LINK = "https://backend-hsm.onrender.com/auth/mail-unsubscribe?email
 
 class AuthRouter(BaseCRUDRouter):
 
-    def __init__(self, dao: AuthDAO = AuthDAO(User), prefix: str = "", tags: List[str] = []):
-        super().__init__(dao=dao, schemas=MediaSchema, prefix=prefix,tags = tags, show_default_routes=False)
-        self.dao = dao
+    def __init__(self, prefix: str = "", tags: List[str] = []):
+        self.dao: AuthDAO = AuthDAO()
+        super().__init__(dao=self.dao, schemas=MediaSchema, prefix=prefix,tags = tags, show_default_routes=False)
+
         self.register_routes()
 
     def register_routes(self):

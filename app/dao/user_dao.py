@@ -7,14 +7,14 @@ from typing_extensions import override
 from sqlalchemy.orm import selectinload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Any, Dict, List, Type, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
+from app.models import User, Role
 from app.dao.base_dao import BaseDAO
 from app.dao.role_dao import RoleDAO
 from app.services import EmailService
 from app.utils import DAOResponse, Hash
 from app.dao.address_dao import AddressDAO
-from app.models import User, Addresses, Role
 from app.schema import UserResponse, Address, AddressBase, UserAuthInfo, UserUpdateSchema, UserCreateSchema, UserEmergencyInfo, UserBase, UserAuthCreateInfo, UserEmployerInfo
 
 VERIFICATION_LINK = "https://backend-hsm.onrender.com/auth/verify-email?email={}&token={}"
@@ -22,10 +22,12 @@ UNSUBSCRIBE_LINK = "https://backend-hsm.onrender.com/auth/mail-unsubscribe?email
 # ACCOUNT_CREATION_LINK = "https://backend-hsm.onrender.com/update-account?token={}&email={}&first_name={}"
 
 class UserDAO(BaseDAO[User]):
-    def __init__(self, model: Type[User],load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
-        super().__init__(model, load_parent_relationships, load_child_relationships, excludes=excludes)
+    def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):
+        self.model = User
         self.primary_key = "user_id"
-        self.address_dao = AddressDAO(Addresses)
+        self.address_dao = AddressDAO()
+
+        super().__init__(self.model, nesting_degree = nesting_degree, excludes=excludes)
 
     @override
     async def create(self, db_session: AsyncSession, obj_in: Union[UserCreateSchema | Dict]) -> DAOResponse[UserResponse]:
@@ -33,7 +35,8 @@ class UserDAO(BaseDAO[User]):
             user_data = obj_in
             
             # check if user exists
-            existing_user : User = await self._user_exists(db_session, user_data.get('email'))
+            existing_user : User = await self.query(db_session=db_session, filters={"email": user_data.get('email')}, single=True)
+
             if existing_user:
                 return DAOResponse[UserResponse](success=False, error="User already exists", data=UserResponse.from_orm_model(existing_user))
 
@@ -51,12 +54,11 @@ class UserDAO(BaseDAO[User]):
                 user_data['user_auth_info']['is_subscribed_token'] = str(uuid.uuid4())
 
             # add additional info if exists | Determine the correct schema for the address
-            address_schema = Address if 'address' in user_data and user_data['address'] and 'address_id' in user_data['address'] else AddressBase
             details_methods = {
                 'user_emergency_info': (self.add_emergency_info, UserEmergencyInfo),
                 'user_employer_info': (self.add_employment_info, UserEmployerInfo),
                 'user_auth_info': (self.add_auth_info, UserAuthCreateInfo),
-                'address': (partial(self.address_dao.add_entity_address, entity_model=self.model.__name__), address_schema)
+                'address': (partial(self.address_dao.add_entity_address, entity_model=self.model.__name__), AddressBase)
             }
 
             if set(details_methods.keys()).issubset(set(user_data.keys())):
@@ -114,9 +116,9 @@ class UserDAO(BaseDAO[User]):
             address_schema = Address if 'address' in obj_in.model_fields and entity_data['address'] and 'address_id' in entity_data['address'] else AddressBase
 
             details_methods = {
-                'user_emergency_info': (self.add_emergency_info, UserEmergencyInfo),
-                'user_employer_info': (self.add_employment_info, UserEmployerInfo),
                 'user_auth_info': (self.add_auth_info, UserAuthInfo),
+                'user_employer_info': (self.add_employment_info, UserEmployerInfo),
+                'user_emergency_info': (self.add_emergency_info, UserEmergencyInfo),
                 'address': (partial(self.address_dao.add_entity_address, entity_model=self.model.__name__), address_schema)
             }
 
@@ -160,10 +162,6 @@ class UserDAO(BaseDAO[User]):
             return DAOResponse(success=True, data={})
 
         return DAOResponse[UserResponse](success=True, data=UserResponse.from_orm_model(result))
- 
-    async def _user_exists(self, db_session: AsyncSession, email: str) -> bool:
-        existing_user : User = await self.query(db_session=db_session, filters={"email": email}, single=True)
-        return existing_user
     
     async def add_user_role(self, db_session: AsyncSession, user_id: str, role_alias: str):
         role_dao = RoleDAO(Role)

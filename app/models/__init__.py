@@ -11,7 +11,6 @@ from app.models.entity_address import EntityAddress
 from app.models.media import Media
 from app.models.entity_media import EntityMedia
 
-
 from app.models.message import Message
 from app.models.reminder_frequency import ReminderFrequency
 from app.models.message_recipient import MessageRecipient
@@ -23,6 +22,7 @@ from app.models.user_company import UsersCompany
 from app.models.user_interactions import UserInteractions
 from app.models.role_permissions import RolePermissions
 from app.models.user_role import UserRoles
+from app.models.user_account import UserAccounts
 
 from app.models.transaction_type import TransactionType
 from app.models.payment_type import PaymentTypes
@@ -37,10 +37,12 @@ from app.models.contract_documents import ContractDocuments
 
 from app.models.transaction import Transaction
 
+
+from app.models.billable import BillableAssoc
 from app.models.utility import Utilities
 from app.models.entity_amenities import EntityAmenities
 from app.models.ammenity import Amenities
-from app.models.entity_utilities import EntityUtilities
+from app.models.entity_billable import EntityBillable
 
 from app.models.property_unit_assoc import PropertyUnitAssoc
 from app.models.unit import Units

@@ -664,20 +664,55 @@ class PaymentTypesFactory:
         ]
         return query_key, payment_types_data
 
-class UtilitiesFactory:
+class UtilitiesFactory(DataFactory):
     def __init__(self):
         models_module = import_module("app.models")
         self.model = getattr(models_module, "Utilities")
     
-    def create_data(self) -> List[dict]:
-        query_key = 'name'
+    def create_data(self):
+        query_key = "name"
 
-        utilities_data = [
-            {"name": "Electricity", "description": "Utility for providing electrical power"},
-            {"name": "Water", "description": "Utility for providing water supply"}
+        default_items = [
+            {
+                "name": "Electricity",
+                "description": "Provides electrical power to homes and businesses."
+            },
+            {
+                "name": "Water",
+                "description": "Provides clean and potable water for drinking, cooking, and sanitation."
+            },
+            {
+                "name": "Natural Gas",
+                "description": "Provides natural gas for heating, cooking, and hot water."
+            },
+            {
+                "name": "Internet",
+                "description": "Provides access to the internet for communication, entertainment, and work."
+            },
+            {
+                "name": "Sewage",
+                "description": "Manages the removal and treatment of waste water from homes and businesses."
+            },
+            {
+                "name": "Trash Collection",
+                "description": "Provides regular collection and disposal of household and business waste."
+            },
+            {
+                "name": "Recycling",
+                "description": "Provides collection and processing of recyclable materials such as paper, plastic, and glass."
+            },
+            {
+                "name": "Telephone",
+                "description": "Provides landline telephone services for communication."
+            },
+            {
+                "name": "Cable TV",
+                "description": "Provides access to cable television channels for entertainment."
+            }
         ]
-        return query_key, utilities_data
 
+        return query_key, default_items
+    
 class AmmenityFactory(DataFactory):
     def __init__(self):
         models_module = import_module("app.models")

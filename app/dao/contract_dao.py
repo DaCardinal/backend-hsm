@@ -2,23 +2,26 @@ from uuid import UUID
 from functools import partial
 from pydantic import ValidationError
 from typing_extensions import override
+from typing import Any, Dict, List, Union
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Any, Dict, List, Type, Union
 
-from app.dao.base_dao import BaseDAO
-from app.dao.contract_type_dao import ContractTypeDAO
-from app.dao.payment_type_dao import PaymentTypeDAO
 from app.utils import DAOResponse
-from app.models import Contract, ContractType, PaymentTypes, UnderContract, ContractStatusEnum
-from app.schema import ContractCreateSchema, ContractUpdateSchema, ContractResponse, ContractBase, UnderContractSchema
+from app.dao.base_dao import BaseDAO
+from app.dao.utilities_dao import UtilitiesDAO
+from app.dao.payment_type_dao import PaymentTypeDAO
+from app.dao.contract_type_dao import ContractTypeDAO
+from app.models import Contract, ContractType, PaymentTypes, UnderContract, Utilities
+from app.schema import ContractCreateSchema, ContractUpdateSchema, ContractResponse, ContractBase, UnderContractSchema, EntityBillableCreate
 
 class ContractDAO(BaseDAO[Contract]):
-    def __init__(self, model: Type[Contract], load_parent_relationships: bool = True, load_child_relationships: bool = False, excludes = []):
-        super().__init__(model, load_parent_relationships, load_child_relationships, excludes=excludes)
-        
-        self.primary_key = "contract_id"
-        self.contract_type_dao = ContractTypeDAO(ContractType)
+    def __init__(self, excludes = [], nesting_degree : str = BaseDAO.IMMEDIATE_CHILD):
+        self.model = Contract
+        self.primary_key = "contract_number"
+        self.utility_dao = UtilitiesDAO(Utilities)
         self.payment_type_dao = PaymentTypeDAO(PaymentTypes)
+        self.contract_type_dao = ContractTypeDAO(ContractType)
+
+        super().__init__(self.model, nesting_degree = nesting_degree, excludes=excludes)
 
     @override
     async def create(self, db_session: AsyncSession, obj_in: ContractCreateSchema) -> DAOResponse[ContractResponse | Dict]:
@@ -50,7 +53,8 @@ class ContractDAO(BaseDAO[Contract]):
             new_contract: Contract = await super().create(db_session=db_session, obj_in=contract_info)
 
             details_methods = {
-                'contract_info': (partial(self.add_contract_details, contract=new_contract), UnderContractSchema)
+                'contract_info': (partial(self.add_contract_details, contract=new_contract), UnderContractSchema),
+                'utilities': (partial(self.utility_dao.add_entity_utility, entity_model=self.model.__name__, entity_assoc_id=new_contract.contract_id), EntityBillableCreate),
             }
 
             if set(details_methods.keys()).issubset(set(obj_in.keys())):
@@ -88,14 +92,14 @@ class ContractDAO(BaseDAO[Contract]):
     async def update(self, db_session: AsyncSession, db_obj: Contract, obj_in: ContractUpdateSchema) -> DAOResponse[ContractResponse | Dict]:
         try:
             # get the entity dump info
-            contract_info = obj_in.model_dump(exclude=["contract_info"])
+            contract_info = obj_in.model_dump(exclude=["contract_info", "utilities"])
 
             contract_type = contract_info.get('contract_type')
             payement_type = contract_info.get('payment_type')
 
             # check if contract type exists
             existing_contract_type : ContractType = await self.contract_type_dao.query(db_session=db_session, filters={"contract_type_name": contract_type}, single=True)
-
+            
             if not existing_contract_type:
                 return DAOResponse(success=False, error="Contract type does not exist", data={})
             
@@ -116,7 +120,8 @@ class ContractDAO(BaseDAO[Contract]):
             
             # add additional info if exists | Determine the correct schema for the contract
             details_methods = {
-                'contract_info': (partial(self.add_contract_details, contract=existing_contract), UnderContractSchema)
+                'contract_info': (partial(self.add_contract_details, contract=existing_contract), UnderContractSchema),
+                'utilities': (partial(self.utility_dao.add_entity_utility, entity_model=self.model.__name__, entity_assoc_id=existing_contract.contract_id), EntityBillableCreate),
             }
 
             # add additional info if exists
@@ -133,7 +138,7 @@ class ContractDAO(BaseDAO[Contract]):
         except Exception as e:
             await db_session.rollback()
             return DAOResponse[ContractResponse](success=False, error=f"Fatal Update {str(e)}")
-        
+   
     async def add_contract_details(self, db_session: AsyncSession, contract_id: str,  contract_info: UnderContractSchema, contract : Contract= None, under_contract : UnderContract= None):
         under_contract_dao = BaseDAO(UnderContract)
 
@@ -143,7 +148,6 @@ class ContractDAO(BaseDAO[Contract]):
 
             for contract_item in contract_info:
                 contract_item : UnderContractSchema = contract_item
-                # print(contract_item)
                 # contract_item.contract_status if contract_item.contract_status != contract.contract_status.name else contract.contract_status.name,
 
                 under_contract_obj = {
@@ -155,11 +159,12 @@ class ContractDAO(BaseDAO[Contract]):
                 }
 
                 # Check if the contract info already exists
-                if "id" in contract_item.model_fields:
-                    existing_contract_details : UnderContract = await under_contract_dao.query(db_session=db_session, filters={"id": contract_item.id}, single=True)
+                if "under_contract_id" in contract_item.model_fields:
+                    existing_contract_details : UnderContract = await under_contract_dao.query(db_session=db_session, filters={"under_contract_id": contract_item.under_contract_id}, single=True)
                 else: 
                     existing_contract_details = None
                 
+                # create or update contract info
                 if existing_contract_details:
                     contract_details = await under_contract_dao.update(db_session=db_session, db_obj=existing_contract_details, obj_in=under_contract_obj.items())
                 else:

@@ -1,9 +1,9 @@
-from typing import Type
-
-from app.dao.base_dao import BaseDAO
 from app.models import Company
+from app.dao.base_dao import BaseDAO
 
 class CompanyDAO(BaseDAO[Company]):
-    def __init__(self, model: Type[Company], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
-        super().__init__(model, load_parent_relationships, load_child_relationships, excludes=excludes)
+    def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):
+        self.model = Company
         self.primary_key = "company_id"
+
+        super().__init__(self.model, nesting_degree = nesting_degree, excludes=excludes)

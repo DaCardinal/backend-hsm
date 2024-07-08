@@ -49,7 +49,7 @@ class PropertyUnitAssoc(BaseModel):
     # relationship to amenities
     amenities = relationship("Amenities",
                          secondary="entity_amenities",
-                         primaryjoin="and_(EntityAmenities.property_unit_assoc_id==PropertyUnitAssoc.property_unit_assoc_id)",
+                         primaryjoin="and_(EntityAmenities.entity_assoc_id==PropertyUnitAssoc.property_unit_assoc_id)",
                          overlaps="ammenities")
 
     # relationship to message recipients   

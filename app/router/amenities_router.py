@@ -4,16 +4,17 @@ from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Amenities, EntityMedia, EntityAmenities
-from app.dao.ammenities_dao import AmenitiesDAO
-from app.schema import AmmenitiesSchema
+from app.dao.amenities_dao import AmenitiesDAO
+from app.schema import AmenitiesSchema
 from app.utils import DAOResponse
 from app.router.base_router import BaseCRUDRouter
 
-class AmmenitiesRouter(BaseCRUDRouter):
+class AmenitiesRouter(BaseCRUDRouter):
 
-    def __init__(self, dao: AmenitiesDAO = AmenitiesDAO(Amenities, load_parent_relationships=True, load_child_relationships=False), prefix: str = "", tags: List[str] = []):
-        super().__init__(dao=dao, schemas=AmmenitiesSchema, prefix=prefix,tags = tags)
-        self.dao = dao
+    def __init__(self, prefix: str = "", tags: List[str] = []):
+        self.dao: AmenitiesDAO = AmenitiesDAO(nesting_degree=BaseCRUDRouter.IMMEDIATE_CHILD, excludes=[''])
+
+        super().__init__(dao=self.dao, schemas=AmenitiesSchema, prefix=prefix,tags = tags)
         self.register_routes()
 
     def register_routes(self):

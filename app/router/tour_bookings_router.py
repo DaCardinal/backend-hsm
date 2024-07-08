@@ -1,15 +1,15 @@
 from typing import List
 
-from app.models import Tour
-from app.dao.tour_booking_dao import TourBookingDAO
 from app.schema import TourBookingSchema
 from app.router.base_router import BaseCRUDRouter
+from app.dao.tour_booking_dao import TourBookingDAO
 
 class TourBookingRouter(BaseCRUDRouter):
 
-    def __init__(self, dao: TourBookingDAO = TourBookingDAO(Tour, load_parent_relationships=False, load_child_relationships=False), prefix: str = "", tags: List[str] = []):
-        super().__init__(dao=dao, schemas=TourBookingSchema, prefix=prefix, tags=tags)
-        self.dao = dao
+    def __init__(self, prefix: str = "", tags: List[str] = []):
+        self.dao : TourBookingDAO = TourBookingDAO(nesting_degree=BaseCRUDRouter.NO_NESTED_CHILD, excludes=[''])
+
+        super().__init__(dao=self.dao, schemas=TourBookingSchema, prefix=prefix,tags = tags)
         self.register_routes()
 
     def register_routes(self):

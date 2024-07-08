@@ -1,18 +1,20 @@
 from typing import List
 
 from app.models import CalendarEvent
+from app.router.base_router import BaseCRUDRouter
 from app.dao.calendar_event_dao import CalendarEventDAO
 from app.schema import CalendarEventSchema, CalendarEventCreateSchema, CalendarEventUpdateSchema
-from app.router.base_router import BaseCRUDRouter
 
 class CalendarEventRouter(BaseCRUDRouter):
 
-    def __init__(self, dao: CalendarEventDAO = CalendarEventDAO(CalendarEvent, load_parent_relationships=False, load_child_relationships=False), prefix: str = "", tags: List[str] = []):
-       
-        self.dao = dao
+    def __init__(self, prefix: str = "", tags: List[str] = []):
+
+        # initialize router dao
         CalendarEventSchema["create_schema"] = CalendarEventCreateSchema
         CalendarEventSchema["update_schema"] = CalendarEventUpdateSchema
-        super().__init__(dao=dao, schemas=CalendarEventSchema, prefix=prefix, tags=tags)
+        self.dao: CalendarEventDAO = CalendarEventDAO(nesting_degree=BaseCRUDRouter.NO_NESTED_CHILD, excludes=[''])
+
+        super().__init__(dao=self.dao, schemas=CalendarEventSchema, prefix=prefix, tags=tags)
         self.register_routes()
 
     def register_routes(self):

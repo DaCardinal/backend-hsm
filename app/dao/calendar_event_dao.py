@@ -1,20 +1,20 @@
 from uuid import UUID
-from functools import partial
-import uuid
 from pydantic import ValidationError
 from typing_extensions import override
 from typing import Any, List, Type, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dao.base_dao import BaseDAO
 from app.utils import DAOResponse
-from app.models import CalendarEvent, MaintenanceStatusEnum
+from app.models import CalendarEvent
+from app.dao.base_dao import BaseDAO
 from app.schema import CalendarEventCreateSchema, CalendarEventResponse, CalendarEventBase, CalendarEventUpdateSchema
 
 class CalendarEventDAO(BaseDAO[CalendarEvent]):
-    def __init__(self, model: Type[CalendarEvent], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
-        super().__init__(model, load_parent_relationships, load_child_relationships, excludes=excludes)
+    def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):
+        self.model = CalendarEvent
         self.primary_key = "event_id"
+
+        super().__init__(self.model, nesting_degree = nesting_degree, excludes=excludes)
 
     @override
     async def create(self, db_session: AsyncSession, obj_in: CalendarEventCreateSchema) -> DAOResponse[CalendarEventResponse]:

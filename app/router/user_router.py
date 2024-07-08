@@ -1,22 +1,23 @@
-from typing import Any, List
 from uuid import UUID
+from typing import List
 from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import User
-from app.utils.lifespan import AppLogger
-from app.utils import DAOResponse
 from app.dao.user_dao import UserDAO
-from app.schema import UserSchema, UserCreateSchema, UserUpdateSchema, UserResponse
+from app.utils.lifespan import AppLogger
 from app.router.base_router import BaseCRUDRouter
+from app.schema import UserSchema, UserCreateSchema, UserUpdateSchema
 
 class UserRouter(BaseCRUDRouter):
 
-    def __init__(self, dao: UserDAO = UserDAO(User, load_parent_relationships=True, load_child_relationships=False, excludes=['']), prefix: str = "", tags: List[str] = []):
-        self.dao = dao
+    def __init__(self, prefix: str = "", tags: List[str] = []):
+
+        # initialize router dao
         UserSchema["create_schema"] = UserCreateSchema
         UserSchema["update_schema"] = UserUpdateSchema
-        super().__init__(dao=dao, schemas=UserSchema, prefix=prefix,tags = tags)
+        self.dao : UserDAO = UserDAO(nesting_degree=BaseCRUDRouter.IMMEDIATE_CHILD, excludes=[''])
+
+        super().__init__(dao=self.dao, schemas=UserSchema, prefix=prefix,tags = tags)
         self.register_routes()
 
     def register_routes(self):

@@ -1,4 +1,4 @@
-from app.models import User, Role, Permissions,EntityAddress, Addresses,Property, Units, Message, Amenities, Media, Contract, ContractType, PaymentTypes, Invoice, InvoiceItem, Transaction, TransactionType, Company, MaintenanceRequest, CalendarEvent, Tour
+from app.models import User, Role, Permissions,EntityAddress, Addresses,Property, Units, Message, Amenities, Media, Contract, ContractType, PaymentTypes, Invoice, InvoiceItem, Transaction, TransactionType, Company, MaintenanceRequest, CalendarEvent, Tour, Utilities, UnderContract, PropertyAssignment
 from app.schema.base_schema import generate_schemas_for_sqlalchemy_model
 
 
@@ -9,7 +9,7 @@ EntityAddressSchema =  generate_schemas_for_sqlalchemy_model(EntityAddress, excl
 AddressSchema = generate_schemas_for_sqlalchemy_model(Addresses, excludes=['address_id'])
 PropertySchema = generate_schemas_for_sqlalchemy_model(Property, excludes=['property_id'])
 PropertyUnitSchema = generate_schemas_for_sqlalchemy_model(Units, excludes=['property_unit_id'])
-AmmenitiesSchema = generate_schemas_for_sqlalchemy_model(Amenities, excludes=['amenity_id'])
+AmenitiesSchema = generate_schemas_for_sqlalchemy_model(Amenities, excludes=['amenity_id'])
 MediaSchema = generate_schemas_for_sqlalchemy_model(Media, excludes=['media_id'])
 MessageSchema = generate_schemas_for_sqlalchemy_model(Message, excludes=['message_id'])
 ContractSchema = generate_schemas_for_sqlalchemy_model(Contract, excludes=['contract_id'])
@@ -23,3 +23,6 @@ CompanySchema = generate_schemas_for_sqlalchemy_model(Company, excludes=['compan
 MaintenanceRequestSchema = generate_schemas_for_sqlalchemy_model(MaintenanceRequest, excludes=['task_number', 'id'])
 CalendarEventSchema = generate_schemas_for_sqlalchemy_model(CalendarEvent, excludes=['event_id', 'id'])
 TourBookingSchema = generate_schemas_for_sqlalchemy_model(Tour, excludes=['tour_booking_id'])
+UtilitiesSchema = generate_schemas_for_sqlalchemy_model(Utilities, excludes=['utility_id'])
+UnderContractSchema = generate_schemas_for_sqlalchemy_model(UnderContract, excludes=['under_contract_id'])
+PropertyAssignmentSchema = generate_schemas_for_sqlalchemy_model(PropertyAssignment, excludes=['property_assignment_id'])

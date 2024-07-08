@@ -1,12 +1,14 @@
-from typing import Type, Optional
+from typing import Optional
 
 from app.dao.base_dao import BaseDAO
 from app.models.permissions import Permissions
 
 class PermissionDAO(BaseDAO[Permissions]):
-    def __init__(self, model: Type[Permissions], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
-        super().__init__(model, load_parent_relationships, load_child_relationships, excludes=excludes)
+    def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):
+        self.model = Permissions
         self.primary_key = "permission_id"
+        
+        super().__init__(self.model, nesting_degree = nesting_degree, excludes=excludes)
 
     async def remove_role(self, role_alias: str) -> Optional[Permissions]:
         pass

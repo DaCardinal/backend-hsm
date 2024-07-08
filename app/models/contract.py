@@ -1,7 +1,8 @@
 import uuid
 import enum
+import datetime
 from sqlalchemy.orm import relationship, column_property
-from sqlalchemy import Numeric, Column, ForeignKey, DateTime, Enum, Integer, Text, UUID, select
+from sqlalchemy import Numeric, String, event, Column, ForeignKey, DateTime, Enum, Integer, Text, UUID, select
 
 from app.models.model_base import BaseModel as Base
 from app.models import ContractType, PaymentTypes
@@ -16,11 +17,12 @@ class Contract(Base):
     __tablename__ = 'contract'
 
     contract_id = Column(UUID(as_uuid=True), primary_key=True, unique=True, index=True, default=uuid.uuid4)
+    contract_number = Column(String(128), unique=True, nullable=False)
     contract_type_id = Column(UUID(as_uuid=True), ForeignKey('contract_type.contract_type_id'))
-    payment_type_id = Column(UUID(as_uuid=True), ForeignKey('payment_types.payment_type_id'))
+    payment_type_id = Column(UUID(as_uuid=True), ForeignKey('payment_types.payment_type_id')) # [one_time, monthly, quarterly, semi_annual, annual]
     contract_status = Column(Enum(ContractStatusEnum))
     contract_details = Column(Text)
-    num_invoices = Column(Integer)
+    num_invoices = Column(Integer, default=0)
     payment_amount = Column(Numeric(10, 2))
     fee_percentage = Column(Numeric(5, 2))
     fee_amount = Column(Numeric(10, 2))
@@ -46,7 +48,14 @@ class Contract(Base):
     contract_documents = relationship('Documents', secondary='contract_documents', back_populates='contract')
     invoices = relationship('Invoice', secondary='contract_invoice', back_populates='contracts')
     under_contract = relationship('UnderContract', back_populates='contract', lazy='selectin')
-
+    
+    # relationship to utilities
+    utilities = relationship("EntityBillable",
+                            primaryjoin="and_(EntityBillable.entity_assoc_id==Contract.contract_id, EntityBillable.entity_type=='Contract', EntityBillable.billable_type=='Utilities')", 
+                            foreign_keys="[EntityBillable.entity_assoc_id]",
+                            overlaps="entity_billable,utilities",
+                            lazy="selectin", viewonly=True)
+    
     contract_type = relationship('ContractType', back_populates='contracts', lazy='selectin')
     payment_type = relationship('PaymentTypes', back_populates='contracts', lazy='selectin')
 
@@ -70,3 +79,21 @@ class Contract(Base):
                 data[key] = value
 
         return data
+    
+
+@event.listens_for(Contract, 'before_insert')
+def receive_before_insert(mapper, connection, target):
+    if not target.contract_number:
+        current_time_str = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        target.contract_number = f"CTR{current_time_str}"
+
+@event.listens_for(Contract, 'after_insert')
+def receive_after_insert(mapper, connection, target):
+    if not target.contract_number:
+        current_time_str = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        target.contract_number = f"CTR{current_time_str}"
+        connection.execute(
+            target.__table__.update()
+            .where(target.__table__.c.contract_id == target.contract_id)
+            .values(contract_number=target.contract_number)
+        )

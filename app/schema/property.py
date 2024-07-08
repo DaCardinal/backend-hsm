@@ -1,12 +1,10 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import Any, List, Optional
 from enum import Enum
 from uuid import UUID
 
-from app.models import Property as PropertyModel, Addresses, Units as UnitsModel, Utilities as UtilityModel
-from app.schema import AddressBase, Address, City, Region, Country, Media, MediaBase, AmenitiesBase, Amenities, Utilities
-# from app.schema.utilities import Utilities
-
+from app.models import Property as PropertyModel, Addresses, Units as UnitsModel, Utilities as UtilityModel, EntityAmenities as EntityAmenitiesModel, EntityBillable as EntityBillableModel, PaymentTypes
+from app.schema import AddressBase, Address, City, Region, Country, Media, MediaBase, AmenitiesBase, Amenities, Utilities, AmenitiesCreateSchema, EntityBillableCreate, EntityBillable
 
 class PropertyStatus(str, Enum):
     available = "available"
@@ -42,8 +40,9 @@ class PropertyUnit(PropertyUnitBase):
 
 class PropertyUnitCreateSchema(PropertyUnitBase):
     # property_id: UUID = Field(...)
-    media: Optional[List[MediaBase] | MediaBase] = None
-    ammenities: Optional[List[Amenities] | List[AmenitiesBase] | Amenities | AmenitiesBase] = None
+    media: Optional[List[Media] | List[MediaBase] | Media | MediaBase] = None
+    amenities: Optional[List[AmenitiesCreateSchema] | AmenitiesCreateSchema] = None
+    utilities: Optional[List[EntityBillableCreate] | EntityBillableCreate] = None
 
     class Config:
         from_attributes = True
@@ -51,7 +50,8 @@ class PropertyUnitCreateSchema(PropertyUnitBase):
 
 class PropertyUnitUpdateSchema(PropertyUnit):
     media: Optional[List[Media] | Media] = None
-    ammenities: Optional[List[Amenities] | Amenities] = None
+    amenities: Optional[List[Amenities] | Amenities] = None
+    utilities: Optional[List[EntityBillableCreate] | EntityBillableCreate] = None
 
     class Config:
         from_attributes = True
@@ -80,7 +80,9 @@ class PropertyBase(BaseModel):
 class PropertyCreateSchema(PropertyBase):
     address: Optional[AddressBase] = None
     media: Optional[List[Media] | List[MediaBase] | Media | MediaBase] = None
-    ammenities: Optional[List[Amenities] | List[AmenitiesBase] | Amenities | AmenitiesBase] = None
+    # amenities: Optional[List[Amenities] | List[AmenitiesBase] | Amenities | AmenitiesBase] = None
+    amenities: Optional[List[AmenitiesCreateSchema] | AmenitiesCreateSchema] = None
+    utilities: Optional[List[EntityBillableCreate] | EntityBillableCreate] = None
 
     class Config:
         from_attributes = True
@@ -89,7 +91,8 @@ class PropertyCreateSchema(PropertyBase):
 class PropertyUpdateSchema(PropertyBase):
     address: Optional[Address] = None
     media: Optional[List[Media] | Media] = None
-    ammenities: Optional[List[Amenities] | Amenities] = None
+    amenities: Optional[List[Amenities] | Amenities] = None
+    utilities: Optional[List[EntityBillableCreate] | EntityBillableCreate] = None
 
     class Config:
         from_attributes = True
@@ -118,34 +121,59 @@ class Property(PropertyBase):
 class PropertyUnitResponse(PropertyUnit):
     media: Optional[List[Media] | Media]
     property: Optional[PropertyBase]
-    ammenities: Optional[List[Amenities] | Amenities] = None
-    utilities: Optional[List[Utilities] | Utilities ] = None
+    amenities: Optional[List[Amenities] | Amenities] = None
+    utilities: Optional[List[Any]] = None
 
     class Config:
         from_attributes = True
         use_enum_values = True
     
     @classmethod
-    def get_utilities(cls, utilities:List[UtilityModel]):
+    def get_amenitites(cls, entity_amenitites:List[EntityAmenitiesModel]):
         result = []
 
-        for utility in utilities:
-            utility_base : Utilities = utility.utility
+        for entity_amenitity in entity_amenitites:
+            amenities_info = entity_amenitity.amenity
 
-            result.append(Utilities(
-                name = utility_base.name,
-                description = utility_base.description,
-                utility_id = utility_base.utility_id,
-                utility_value = utility.utility_value,
-                apply_to_units = utility.apply_to_units
-            ))
+            if not isinstance(amenities_info, list):
+                amenities_info = [amenities_info]
+            
+            for amenity in amenities_info:
+                amenity : Amenities = amenity
+
+                result.append(Amenities(
+                    amenity_id=amenity.amenity_id,
+                    amenity_name = amenity.amenity_name,
+                    amenity_short_name = amenity.amenity_short_name,
+                    amenity_value_type = amenity.amenity_value_type,
+                    description = amenity.description, 
+                    media = entity_amenitity.media
+                ))
+            
+        return result
+    
+    @classmethod
+    def get_utilities_info(cls, utilities: List[EntityBillable]):
+        result = []
+
+        for entity_utility in utilities:
+            entity_utility : EntityBillableModel = entity_utility
+            payment_type: PaymentTypes = entity_utility.payment_type
+            utility : Utilities = entity_utility.utility
+
+            result.append({
+                "utility": utility.name,
+                "payment_type": payment_type.payment_type_name,
+                "utility_value": entity_utility.billable_amount,
+                "apply_to_units": False,
+                "entity_utilities_id": entity_utility.billable_assoc_id
+            })
         return result
     
     @classmethod
     def from_orm_model(cls, property_unit: UnitsModel):
 
         return cls(
-            # property_unit_id = property_unit.property_unit_id,
             property_unit_assoc_id = property_unit.property_unit_assoc_id,
             property_unit_code = property_unit.property_unit_code,
             property_unit_floor_space = property_unit.property_unit_floor_space,
@@ -158,15 +186,15 @@ class PropertyUnitResponse(PropertyUnit):
             property_unit_commission = property_unit.property_unit_commission,
             property = property_unit.property,
             media = property_unit.media,
-            ammenities = property_unit.amenities,
-            utilities=cls.get_utilities(property_unit.utilities)
+            amenities=cls.get_amenitites(property_unit.entity_amenities),
+            utilities=cls.get_utilities_info(property_unit.utilities)
         ).model_dump()
     
 class PropertyResponse(Property):
     units: Optional[List[PropertyUnit] | PropertyUnit]
     media: Optional[List[Media] | Media]
-    ammenities: Optional[List[Amenities] | Amenities] = None
-    utilities: Optional[List[Utilities] | Utilities ] = None
+    amenities: Optional[List[Amenities] | Amenities] = None
+    utilities: Optional[List[Any]] = None
 
     class Config:
         from_attributes = True
@@ -195,26 +223,51 @@ class PropertyResponse(Property):
         return result
     
     @classmethod
-    def get_utilities(cls, utilities:List[UtilityModel]):
+    def get_utilities_info(cls, utilities: List[EntityBillable]):
         result = []
 
-        for utility in utilities:
-            utility_base : Utilities = utility.utility
+        for entity_utility in utilities:
+            entity_utility : EntityBillableModel = entity_utility
+            payment_type: PaymentTypes = entity_utility.payment_type
+            utility : Utilities = entity_utility.utility
 
-            result.append(Utilities(
-                name = utility_base.name,
-                description = utility_base.description,
-                utility_id = utility_base.utility_id,
-                utility_value = utility.utility_value,
-                apply_to_units = utility.apply_to_units
-            ))
+            result.append({
+                "utility": utility.name,
+                "payment_type": payment_type.payment_type_name,
+                "utility_value": entity_utility.billable_amount,
+                "apply_to_units": False,
+                "entity_utilities_id": entity_utility.billable_assoc_id
+            })
+        return result
+    
+    @classmethod
+    def get_amenitites(cls, entity_amenitites:List[EntityAmenitiesModel]):
+        result = []
+
+        for entity_amenitity in entity_amenitites:
+            amenities_info = entity_amenitity.amenity
+
+            if not isinstance(amenities_info, list):
+                amenities_info = [amenities_info]
+            
+            for amenity in amenities_info:
+                amenity : Amenities = amenity
+
+                result.append(Amenities(
+                    amenity_id=amenity.amenity_id,
+                    amenity_name = amenity.amenity_name,
+                    amenity_short_name = amenity.amenity_short_name,
+                    amenity_value_type = amenity.amenity_value_type,
+                    description = amenity.description, 
+                    media = entity_amenitity.media
+                ))
+            
         return result
     
     @classmethod
     def from_orm_model(cls, property: PropertyModel):
 
         return cls(
-            # property_id = property.property_id,
             name = property.name,
             property_type = property.property_type,
             amount = property.amount,
@@ -233,6 +286,6 @@ class PropertyResponse(Property):
             address=cls.get_address_base(property.addresses),
             units=property.units,
             media=property.media,
-            ammenities=property.amenities,
-            utilities=cls.get_utilities(property.utilities)
+            amenities=cls.get_amenitites(property.entity_amenities),
+            utilities=cls.get_utilities_info(property.utilities)
         ).model_dump()

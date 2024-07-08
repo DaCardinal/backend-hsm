@@ -1,18 +1,20 @@
 from uuid import UUID
+from typing import Any, List, Union
 from pydantic import ValidationError
 from typing_extensions import override
-from typing import Any, List, Type, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dao.base_dao import BaseDAO
 from app.utils import DAOResponse
+from app.dao.base_dao import BaseDAO
 from app.models import MaintenanceRequest
 from app.schema import MaintenanceRequestCreateSchema, MaintenanceRequestResponse, MaintenanceRequestBase, MaintenanceRequestUpdateSchema
 
 class MaintenanceRequestDAO(BaseDAO[MaintenanceRequest]):
-    def __init__(self, model: Type[MaintenanceRequest], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
-        super().__init__(model, load_parent_relationships, load_child_relationships, excludes=excludes)
+    def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):
+        self.model = MaintenanceRequest
         self.primary_key = "task_number"
+
+        super().__init__(self.model, nesting_degree = nesting_degree, excludes=excludes)
 
     @override
     async def create(self, db_session: AsyncSession, obj_in: MaintenanceRequestCreateSchema) -> DAOResponse[MaintenanceRequestResponse]:

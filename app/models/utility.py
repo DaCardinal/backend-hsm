@@ -1,12 +1,16 @@
-import uuid
-from sqlalchemy.orm import relationship
-from sqlalchemy import Column, String, UUID
+from sqlalchemy import Column, ForeignKey, String, UUID
 
 from app.models.model_base import BaseModel as Base
+from app.models.billable import BillableAssoc
 
-class Utilities(Base):
+class Utilities(BillableAssoc):
     __tablename__ = 'utilities'
     
-    utility_id = Column(UUID(as_uuid=True), primary_key=True, unique=True, index=True, default=uuid.uuid4)
+    utility_id = Column(UUID(as_uuid=True), ForeignKey('billable_assoc.billable_assoc_id'), primary_key=True)
     name = Column(String(128))
     description = Column(String(50))
+
+    __mapper_args__ = {
+        "polymorphic_identity": "Utilities",
+        'inherit_condition': utility_id == BillableAssoc.billable_assoc_id
+    }

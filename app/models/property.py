@@ -69,13 +69,17 @@ class Property(PropertyUnitAssoc):
                          lazy="selectin", viewonly=True)
     
     # relationship to link amenities
-    entity_amenities = relationship("EntityAmenities", secondary="property_unit_assoc", viewonly=True)
+    entity_amenities = relationship("EntityAmenities", secondary="property_unit_assoc", viewonly=True, lazy="selectin")
 
     # relationship to utilities
-    utilities = relationship("EntityUtilities", lazy='selectin')
+    utilities = relationship("EntityBillable",
+                            primaryjoin="and_(EntityBillable.entity_assoc_id==Property.property_unit_assoc_id, EntityBillable.entity_type=='Property', EntityBillable.billable_type=='Utilities')",
+                            foreign_keys="[EntityBillable.entity_assoc_id]",
+                            overlaps="entity_billable,utilities",
+                            lazy="selectin", viewonly=True)
 
     amenities = relationship("Amenities", secondary="entity_amenities",
-                             primaryjoin="Property.property_unit_assoc_id == EntityAmenities.property_unit_assoc_id",
+                             primaryjoin="Property.property_unit_assoc_id == EntityAmenities.entity_assoc_id",
                              secondaryjoin="EntityAmenities.amenity_id == Amenities.amenity_id",
                              lazy="selectin", viewonly=True)
     

@@ -12,6 +12,15 @@ from app.utils.response import DAOResponse
 DBModelType = TypeVar("DBModelType")
 
 class UtilsMixin:
+    def is_valid_uuid(uuid_to_test, version=4):
+
+        try:
+            uuid_obj = UUID(uuid_to_test, version=version)
+        except ValueError:
+            return str(uuid_to_test)
+        
+        return uuid_obj
+
     async def commit_and_refresh(self, db_session: AsyncSession, obj: DBModelType):
         try:
             await db_session.commit()
@@ -35,15 +44,23 @@ class ReadMixin(UtilsMixin):
     load_parent_relationships: bool
 
     async def get(self, db_session: AsyncSession, id: Union[UUID | Any | int], skip=0, limit=100) -> DBModelType:
-        # find primary key
-        primary_keys = [(key.name, key) for key in inspect(self.model).primary_key]
-        primary_key = primary_keys[0]
+        # check if uuid 
+        gen_primary_id = UtilsMixin.is_valid_uuid(id)
+
+        # define primary key
+        # primary_keys = [(key.name, key) for key in inspect(self.model).primary_key]
+        # primary_key = primary_keys[0]
+        primary_key = self.primary_key
         
         mapper = inspect(self.model)
         relationships = [relationship.key for relationship in mapper.relationships]
         query_options = [selectinload(getattr(self.model, attr)) for attr in relationships] if self.load_parent_relationships else []
+        
+        # find model object based on primary key
+        filter = {f"{primary_key}":gen_primary_id}
+        conditions = [getattr(self.model, k) == v for k, v in filter.items()]
+        query = select(self.model).filter(and_(*conditions)).options(*query_options).offset(skip).limit(limit)
 
-        query = select(self.model).filter(primary_key[1] == id).options(*query_options).offset(skip).limit(limit)
         executed_query = await db_session.execute(query)
         result = executed_query.scalar_one_or_none()
 
@@ -51,7 +68,7 @@ class ReadMixin(UtilsMixin):
 
     async def get_all(self, db_session: AsyncSession, offset=0, limit=100) -> list[DBModelType]:
 
-        # Dynamically access the relationship attribute using getattr
+        # dynamically access the relationship attribute using getattr
         mapper = inspect(self.model)
         relationships = [relationship.key for relationship in mapper.relationships]
         query_options = [selectinload(getattr(self.model, attr)) for attr in relationships] if self.load_parent_relationships else []
@@ -63,7 +80,6 @@ class ReadMixin(UtilsMixin):
         return result
     
     async def query_on_joins(self, db_session: AsyncSession, filters: Dict[str, Any], single=False, options=None, order_by=None, join_conditions: Optional[List] = None,  skip=0, limit=100) -> list[DBModelType]:
-        # conditions = [getattr(self.model, k) == v for k, v in filters.items()]
         # separate main model filters and joined table filters
         main_model_conditions = []
         join_conditions_filters = []
@@ -90,7 +106,7 @@ class ReadMixin(UtilsMixin):
         for table_name, column_name, value in join_conditions_filters:
             join_model = None
             for join_condition in join_conditions:
-                if join_condition[0].__tablename__ == table_name:
+                if join_condition[0].__name__ == table_name:
                     join_model = join_condition[0]
                     break
             if join_model:
@@ -107,7 +123,7 @@ class ReadMixin(UtilsMixin):
 
         query_result = await db_session.execute(query.offset(skip).limit(limit))
 
-        return query_result.scalar_one_or_none() if single else query_result.scalars().all()
+        return query_result.unique().scalar_one_or_none() if single else query_result.unique().scalars().all()
 
     async def query(self, db_session: AsyncSession, filters: Dict[str, Any], single=False, options=None, order_by=None) -> list[DBModelType]:
         conditions = [getattr(self.model, k) == v for k, v in filters.items()]
@@ -163,6 +179,7 @@ class DeleteMixin(UtilsMixin):
         await db_session.commit()
         
 class DBOperations(CreateMixin, ReadMixin, UpdateMixin, DeleteMixin):
+    
     def __init__(self, model: Generic[DBModelType], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
         self.model = model
         self.load_parent_relationships = load_parent_relationships

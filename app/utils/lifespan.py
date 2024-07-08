@@ -1,11 +1,11 @@
-from importlib import import_module
 from fastapi import FastAPI
+from importlib import import_module
 from contextlib import asynccontextmanager
 
 from app.db.dbManager import DBManager
 from app.utils.logger import AppLogger
-from app.factory.dataFactory import AmmenityFactory, PaymentTypesFactory, UtilitiesFactory, MediaFactory, UserFactory, RolesFactory, PermissionsFactory, RolePermissionsFactory, ContractTypeFactory, TransactionTypeFactory
 from app.factory.dataSeeder import DataSeeder
+from app.factory.dataFactory import AmmenityFactory, PaymentTypesFactory, UtilitiesFactory, MediaFactory, UserFactory, RolesFactory, PermissionsFactory, RolePermissionsFactory, ContractTypeFactory, TransactionTypeFactory
 
 logger = AppLogger().get_logger()
 
@@ -26,10 +26,7 @@ async def lifespan(app: FastAPI):
     # TODO: Instantiate db
     await db_manager.db_module.create_all_tables()
 
-    # Import Amenities model after it's been created
-
-
-    # seed ammenities model
+    # seed models
     user_info_seeder = DataSeeder([RolesFactory(), PermissionsFactory(), RolePermissionsFactory(), UserFactory()])
     await user_info_seeder.seed_data()               
     

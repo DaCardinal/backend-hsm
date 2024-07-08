@@ -2,11 +2,11 @@ from enum import Enum
 from uuid import UUID
 from decimal import Decimal
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
-from app.models import Contract as ContractModel, UnderContract
-from app.schema import UserBase, Property, PropertyUnit
+from app.models import Contract as ContractModel, UnderContract, EntityBillable as EntityBillableModel
+from app.schema import UserBase, Property, PropertyUnit, EntityBillableCreate, EntityBillable, Utilities
 
 class ContractStatus(str, Enum):
     active = "active"
@@ -14,7 +14,7 @@ class ContractStatus(str, Enum):
     terminated = "terminated"
 
 class UnderContractSchema(BaseModel):
-    id: Optional[UUID] = None
+    under_contract_id: Optional[UUID] = None
     property_unit_assoc: Optional[UUID | Property | PropertyUnit]
     contract_id: Optional[UUID] = None
     contract_status: Optional[ContractStatus] = None
@@ -73,23 +73,25 @@ class ContractCreateSchema(BaseModel):
     start_date: Optional[datetime] = Field(default_factory=datetime.now)
     end_date: Optional[datetime] = Field(default_factory=datetime.now)
     contract_info: Optional[List[UnderContractSchema] | UnderContractSchema] = None
+    utilities: Optional[List[EntityBillableCreate] | EntityBillableCreate] = None
 
     class Config:
         from_attributes = True
         use_enum_values = True
 
 class ContractUpdateSchema(BaseModel):
-    contract_type: str
-    payment_type: str
-    contract_status: ContractStatus = Field(...)
-    contract_details: Optional[str]
-    payment_amount: Decimal
-    fee_percentage: Optional[Decimal]
-    fee_amount: Optional[Decimal]
-    date_signed: datetime = Field(default_factory=datetime.now)
+    contract_type: Optional[str] = None
+    payment_type: Optional[str] = None
+    contract_status: Optional[ContractStatus] = None
+    contract_details: Optional[str] = None
+    payment_amount: Optional[Decimal] = None
+    fee_percentage: Optional[Decimal] = 0
+    fee_amount: Optional[Decimal] = 0
+    date_signed: Optional[datetime] = Field(default_factory=datetime.now)
     start_date: Optional[datetime] = Field(default_factory=datetime.now)
     end_date: Optional[datetime] = Field(default_factory=datetime.now)
     contract_info: Optional[List[UnderContractSchema] | UnderContractSchema] = None
+    utilities: Optional[List[EntityBillableCreate] | EntityBillableCreate] = None
 
     class Config:
         from_attributes = True
@@ -102,6 +104,7 @@ class Contract(ContractBase):
 
 class ContractResponse(BaseModel):
     contract_id: Optional[UUID]
+    contract_number: Optional[str] = Field(..., max_length=128)
     contract_type: Optional[str] = Field(..., max_length=128)
     payment_type: Optional[str] = Field(..., max_length=128)
     contract_status: str = Field(..., max_length=128)
@@ -114,6 +117,7 @@ class ContractResponse(BaseModel):
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
     contract_info: Optional[List[UnderContractSchema]] = None
+    utilities: Optional[List[Any]] = None
     
     @classmethod
     def get_property_info(cls, property: Property):
@@ -153,6 +157,7 @@ class ContractResponse(BaseModel):
             property_unit_security_deposit = property_unit.property_unit_security_deposit,
             property_unit_commission = property_unit.property_unit_commission
         )
+    
     @classmethod
     def get_user_info(cls, user: UserBase):
 
@@ -179,7 +184,7 @@ class ContractResponse(BaseModel):
                 property_unit_assoc = cls.get_property_info(contract_detail.properties)
 
             result.append(UnderContractSchema(
-                id = contract_detail.id,
+                under_contract_id = contract_detail.under_contract_id,
                 property_unit_assoc = property_unit_assoc,
                 contract_id = contract_detail.contract_id,
                 contract_status = contract_detail.contract_status,
@@ -190,9 +195,30 @@ class ContractResponse(BaseModel):
         return result
         
     @classmethod
+    def get_utilities_info(cls, utilities: List[EntityBillable]):
+        result = []
+
+        for entity_utility in utilities:
+            entity_utility : EntityBillableModel = entity_utility
+            payment_type: PaymentType = entity_utility.payment_type
+            utility : Utilities = entity_utility.utility
+
+            result.append({
+                "utility": utility.name,
+                "payment_type": payment_type.payment_type_name,
+                "utility_value": entity_utility.billable_amount,
+                "apply_to_units": False,
+                "entity_utilities_id": entity_utility.billable_assoc_id
+            })
+
+        return result
+
+    @classmethod
     def from_orm_model(cls, contract: ContractModel):
+
         result = cls(
             contract_id = contract.contract_id,
+            contract_number = contract.contract_number,
             contract_type = contract.contract_type_value,
             payment_type = contract.payment_type_value,
             contract_status = contract.contract_status,
@@ -204,7 +230,8 @@ class ContractResponse(BaseModel):
             date_signed = contract.date_signed,
             start_date = contract.start_date,
             end_date = contract.end_date,
-            contract_info = cls.get_contract_details(contract.under_contract)
+            contract_info = cls.get_contract_details(contract.under_contract),
+            utilities = cls.get_utilities_info(contract.utilities)
         ).model_dump()
 
         return result

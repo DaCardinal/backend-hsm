@@ -1,7 +1,7 @@
 from uuid import UUID
+from typing import Any, List, Union
 from pydantic import ValidationError
 from typing_extensions import override
-from typing import Any, List, Type, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Transaction
@@ -10,9 +10,11 @@ from app.utils.response import DAOResponse
 from app.schema import TransactionResponse, TransactionCreateSchema
 
 class TransactionDAO(BaseDAO[Transaction]):
-    def __init__(self, model: Type[Transaction], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
-        super().__init__(model, load_parent_relationships, load_child_relationships, excludes=excludes)
+    def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):
+        self.model = Transaction
         self.primary_key = "transaction_id"
+
+        super().__init__(self.model, nesting_degree = nesting_degree, excludes=excludes)
 
     # TODO:
     @override

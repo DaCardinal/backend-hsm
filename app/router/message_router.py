@@ -1,8 +1,8 @@
 from uuid import UUID
 from typing import List
 from fastapi import HTTPException, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import and_, or_, select, desc
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dao.message_dao import MessageDAO
 from app.utils.response import DAOResponse
@@ -12,10 +12,11 @@ from app.schema import MessageSchema, MessageCreate, MessageReply, MessageRespon
 
 class MessageRouter(BaseCRUDRouter):
 
-    def __init__(self, dao: MessageDAO = MessageDAO(Message, load_parent_relationships=False, load_child_relationships=False), prefix: str = "", tags: List[str] = []):
+    def __init__(self, prefix: str = "", tags: List[str] = []):
         MessageSchema["create_schema"] = MessageCreate
-        super().__init__(dao=dao, schemas=MessageSchema, prefix=prefix,tags = tags)
-        self.dao = dao
+        self.dao: MessageDAO = MessageDAO(nesting_degree=BaseCRUDRouter.NO_NESTED_CHILD, excludes=[''])
+        
+        super().__init__(dao=self.dao, schemas=MessageSchema, prefix=prefix,tags = tags) 
         self.register_routes()
 
     def register_routes(self):

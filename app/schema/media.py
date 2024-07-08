@@ -26,6 +26,15 @@ class MediaCreateSchema(BaseModel):
     class Config:
         from_attributes = True
 
+class EntityMediaCreateSchema(BaseModel):
+    entity_media_id: Optional[UUID] = None
+    entity_type: str
+    media_id: UUID
+    media_assoc_id: UUID
+
+    class Config:
+        from_attributes = True
+
 class MediaUpdateSchema(MediaBase):
     media_name: str
     media_type: str

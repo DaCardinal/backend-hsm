@@ -1,6 +1,6 @@
-from sqlalchemy.orm import selectinload
-from sqlalchemy import Column, String, select, UUID
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import relationship, selectinload
+from sqlalchemy import Column, String, select, UUID
 
 from app.models.address import Addresses
 from app.models.entity_address import EntityAddress
@@ -14,6 +14,8 @@ class Accounts(Base):
     bank_account_name = Column(String(80))
     bank_account_number = Column(String(80))
     account_branch_name = Column(String(80))
+
+    users = relationship('User', secondary='user_accounts', back_populates='accounts', lazy='selectin')
 
     async def get_account_addresses(self):
         db_session : AsyncSession = async_session()

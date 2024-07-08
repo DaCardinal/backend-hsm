@@ -1,21 +1,20 @@
 from typing import List
-from uuid import UUID
 from fastapi import HTTPException, Depends
-from fastapi import Depends, HTTPException, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import Depends, HTTPException, Query, Request
 
-from app.models import Invoice
 from app.dao.invoice_dao import InvoiceDAO
-from app.schema import InvoiceSchema, InvoiceCreateSchema, InvoiceUpdateSchema
 from app.router.base_router import BaseCRUDRouter
+from app.schema import InvoiceSchema, InvoiceCreateSchema, InvoiceUpdateSchema
 
 class InvoiceRouter(BaseCRUDRouter):
 
-    def __init__(self, dao: InvoiceDAO = InvoiceDAO(Invoice, load_parent_relationships=True, load_child_relationships=False), prefix: str = "", tags: List[str] = [], show_default_routes=False):
+    def __init__(self, prefix: str = "", tags: List[str] = [], show_default_routes=True):
         InvoiceSchema["create_schema"] = InvoiceCreateSchema
         InvoiceSchema["update_schema"] = InvoiceUpdateSchema
-        super().__init__(dao=dao, schemas=InvoiceSchema, prefix=prefix, tags=tags)
-        self.dao = dao
+        self.dao : InvoiceDAO = InvoiceDAO(nesting_degree=BaseCRUDRouter.IMMEDIATE_CHILD, excludes=[''])
+
+        super().__init__(dao=self.dao, schemas=InvoiceSchema, prefix=prefix,tags = tags, show_default_routes=show_default_routes)
         self.register_routes()
 
     def register_routes(self):
@@ -25,6 +24,7 @@ class InvoiceRouter(BaseCRUDRouter):
 
             if lease is None:
                 raise HTTPException(status_code=404, detail="Error retrieving leases.")
+            
             return lease
         
         @self.router.get("/user_lease_due/")
@@ -33,4 +33,5 @@ class InvoiceRouter(BaseCRUDRouter):
 
             if lease is None:
                 raise HTTPException(status_code=404, detail="Error retrieving leases.")
+            
             return lease

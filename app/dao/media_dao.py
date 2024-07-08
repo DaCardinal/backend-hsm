@@ -1,21 +1,42 @@
+from uuid import UUID
 from pydantic import ValidationError
 from typing_extensions import override
 from sqlalchemy.orm.exc import NoResultFound
+from typing import List, Dict, Optional, Union
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List, Dict, Optional, Type, Union
 
 from app.dao.base_dao import BaseDAO
+from app.models import Media as MediaModel
 from app.utils.response import DAOResponse
-from app.dao.entity_media_dao import EntityMediaDAO
-from app.models import Media as MediaModel, EntityMedia
-from app.schema import MediaBase, Media, MediaCreateSchema, MediaResponse, MediaUpdateSchema
 from app.services import MediaUploaderService
+from app.dao.entity_media_dao import EntityMediaDAO
+from app.schema import MediaBase, Media, MediaCreateSchema, MediaResponse, MediaUpdateSchema
 
 class MediaDAO(BaseDAO[MediaModel]):
-    def __init__(self, model: Type[MediaModel], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
-        super().__init__(model, load_parent_relationships, load_child_relationships, excludes)
+    def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):
+        self.model = MediaModel
         self.primary_key = "media_id"
+        self.entity_media_dao = EntityMediaDAO()
 
+        super().__init__(self.model, nesting_degree = nesting_degree, excludes=excludes)
+
+    async def link_entity_to_media(self, db_session: AsyncSession, media_id: UUID, entity_assoc_id: UUID = None, entity_model=None):
+
+        entity_media_object = {
+            "entity_type":  entity_model if entity_model else self.model.__name__,
+            "media_assoc_id": entity_assoc_id,
+            "media_id": media_id
+        }
+        
+        # check if entity media linkage exists
+        result = await self.entity_media_dao.query(db_session=db_session, filters={**entity_media_object}, single=True)
+
+        # create entity media linkage if it doesn't exist
+        if result is None:
+            result = await self.entity_media_dao.create(db_session = db_session, obj_in = entity_media_object)
+        
+        return []
+    
     @override
     async def create(self, db_session: AsyncSession, obj_in: Union[MediaCreateSchema | Dict], media_store: str = None) -> DAOResponse:
         try:
@@ -38,7 +59,7 @@ class MediaDAO(BaseDAO[MediaModel]):
 
             # determine image_type
             media_type = uploader_service.get_image_type()
-            media_info['media_type'] = media_info.get('media_type') + "_" +  media_type
+            media_info['media_type'] = media_type if media_type else media_info.get('media_type')
 
             # create new media
             new_media: Media = await super().create(db_session=db_session, obj_in=media_info)
@@ -74,7 +95,7 @@ class MediaDAO(BaseDAO[MediaModel]):
 
             # determine image_type
             media_type = uploader_service.get_image_type()
-            media_info['media_type'] = media_info.get('media_type') + "_" +  media_type
+            media_info['media_type'] = media_type if media_type else media_info.get('media_type')
 
             # update media info
             existing_media : Media = await super().update(db_session=db_session, db_obj=db_obj, obj_in=MediaBase(**media_info))
@@ -87,9 +108,10 @@ class MediaDAO(BaseDAO[MediaModel]):
             return DAOResponse[MediaResponse](success=False, error=f"{str(e)}")
 
     async def add_entity_media(self, db_session: AsyncSession, property_unit_assoc_id: str, media_info: Union[List[Media | MediaBase]  | Media | MediaBase], entity_model=None, entity_assoc_id=None) -> Optional[List[Media | MediaBase] | Media | MediaBase]:
+        
         try:
-            entity_media_dao = EntityMediaDAO(EntityMedia)
             results = []
+            entity_model_name = entity_model if entity_model else self.model.__name__
 
             if not isinstance(media_info, list):
                 media_info = [media_info]
@@ -98,42 +120,30 @@ class MediaDAO(BaseDAO[MediaModel]):
                 media_item : Media = media_item
 
                 # Check if the entity already exists
-                existing_media_item = await self.query(db_session=db_session, filters={f"{self.primary_key}": media_item.media_id}, single=True) if self.primary_key in media_item.model_fields else None
-                
+                existing_media_item : Media = await self.query(db_session=db_session, filters={**media_item.model_dump(exclude=["content_url"])}, single=True)
+
                 if existing_media_item:
-                        obj_data = self.extract_model_data(media_item.model_dump(), Media)
-                        media_data = Media(**obj_data)
-
-                        media_upload : DAOResponse = await self.update(db_session=db_session, db_obj=existing_media_item, obj_in=media_data)
-
-                        # check for content url succes
-                        if media_upload.success == False:
-                            raise Exception(str(media_upload.error))
-
-                        await entity_media_dao.create(db_session=db_session, obj_in={
-                            "entity_type":  entity_model if entity_model else self.model.__name__,
-                            "media_assoc_id": entity_assoc_id if entity_assoc_id else property_unit_assoc_id,
-                            "media_id": media_upload.data.media_id
-                        })
-                else :
-                    media_upload : Media = await self.query(db_session=db_session, filters={**media_item.model_dump()}, single=True)
-                    entity_model_name = entity_model if entity_model else self.model.__name__
+                    obj_data = self.extract_model_data(media_item.model_dump(), Media)
+                    obj_data['media_id'] = existing_media_item.media_id
                     
-                    if media_upload is None:
-                        media_upload : MediaResponse = await self.create(db_session=db_session, obj_in=media_item.model_dump(), media_store=entity_model_name.lower())
+                    media_data = Media(**obj_data)
+                    media_upload : DAOResponse = await self.update(db_session=db_session, db_obj=existing_media_item, obj_in=media_data)
+                else:
+                    media_upload : MediaResponse = await self.create(db_session=db_session, obj_in=media_item.model_dump(), media_store=entity_model_name.lower())
 
-                        # check for content url succes
-                        if media_upload.success == False:
-                            raise Exception(str(media_upload.error))
+                # check for content url succes
+                if media_upload.success == False:
+                    raise Exception(str(media_upload.error))
+                    
+                entity_media_item = await self.link_entity_to_media(
+                    db_session=db_session, 
+                    entity_assoc_id=entity_assoc_id if entity_assoc_id else property_unit_assoc_id,
+                    media_id=media_upload.data.media_id,
+                    entity_model=entity_model_name
+                )
 
-                        entity_media_item = await entity_media_dao.create(db_session=db_session, obj_in={
-                            "entity_type":  entity_model_name,
-                            "media_assoc_id": entity_assoc_id if entity_assoc_id else property_unit_assoc_id,
-                            "media_id": media_upload.data.media_id
-                        })
-
-                    # commit object to db session
-                    await self.commit_and_refresh(db_session, entity_media_item)
+                # commit object to db session
+                await self.commit_and_refresh(db_session, entity_media_item)
                 results.append(media_upload)
 
             return results
@@ -141,4 +151,4 @@ class MediaDAO(BaseDAO[MediaModel]):
             pass
         except Exception as e:
             await db_session.rollback()
-            return DAOResponse(success=False, error=f"{str(e)}")
+            return DAOResponse(success=False, error=f"Media DAO Error: {str(e)}")

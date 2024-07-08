@@ -19,9 +19,11 @@ CLIENT_SECRET = settings.GOOGLE_SIGNIN_CLIENT_SECRET
 google_sso = GoogleSSO(CLIENT_ID, CLIENT_SECRET, settings.GOOGLE_CALLBACK)
 
 class AuthDAO(BaseDAO[User]):
-    def __init__(self, model: Type[User]):
-        super().__init__(model)
-        self.user_dao = UserDAO(User)
+    def __init__(self):
+        self.model = User
+        self.user_dao = UserDAO()
+
+        super().__init__(self.model)
 
     # TODO: Implement google auth
     async def google_login(self):

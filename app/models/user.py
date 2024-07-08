@@ -26,8 +26,7 @@ class User(Base):
     identification_number = Column(String(80))
     photo_url = Column(String(128))
     gender = Column(Enum(GenderEnum))
-    date_of_birth = Column(String)
-    # date_of_birth = Column(Date)
+    date_of_birth = Column(String) # TODO: convert to date_of_birth = Column(Date)
 
     # Authentication info
     login_provider = Column(String(128), nullable=True, default="native")
@@ -52,6 +51,7 @@ class User(Base):
     emergency_contact_number = Column(String(128), nullable=True)
     emergency_address_hash = Column(UUID(as_uuid=True)) # TODO: Change to hash function
 
+    accounts = relationship('Accounts', secondary='user_accounts', back_populates='users', lazy='selectin')
     maintenance_requests = relationship('MaintenanceRequest', back_populates='user')
     tours = relationship('Tour', back_populates='user')
     events = relationship('CalendarEvent', back_populates='organizer')
@@ -65,6 +65,7 @@ class User(Base):
         back_populates="users",
         lazy="selectin"
     )
+    
     roles = relationship('Role', secondary='user_roles', back_populates='users', lazy="selectin")
     
     sent_messages = relationship('Message', back_populates='sender', lazy='selectin')
@@ -98,19 +99,14 @@ class User(Base):
 
     property = relationship('PropertyUnitAssoc', secondary='property_assignment', back_populates='assignments', lazy='selectin')
     
-    # owned_properties = relationship("Property", secondary="property_assignment",
-    #                         primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='landlord')",
-    #                         secondaryjoin="PropertyAssignment.property_unit_assoc_id==Property.property_unit_assoc_id",
-    #                         lazy="selectin", viewonly=True)
+    owned_properties = relationship("PropertyUnitAssoc", secondary="property_assignment",
+                            primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='landlord')",
+                            secondaryjoin="PropertyAssignment.property_unit_assoc_id==PropertyUnitAssoc.property_unit_assoc_id",
+                            lazy="selectin", viewonly=True)
     
     # assigned_properties = relationship("Property", secondary="property_assignment",
     #                         primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='handler')",
     #                         secondaryjoin="PropertyAssignment.property_unit_assoc_id==Property.property_unit_assoc_id",
-    #                         lazy="selectin", viewonly=True)
-    
-    # owned_units = relationship("Units", secondary="property_assignment",
-    #                         primaryjoin="and_(PropertyAssignment.user_id == User.user_id, PropertyAssignment.assignment_type=='landlord')",
-    #                         secondaryjoin="and_(PropertyAssignment.property_unit_assoc_id==Units.property_unit_assoc_id)",
     #                         lazy="selectin", viewonly=True)
     
     # assigned_units = relationship("Units", secondary="property_assignment",

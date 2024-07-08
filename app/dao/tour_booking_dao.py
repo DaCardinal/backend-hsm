@@ -10,9 +10,11 @@ from app.utils.response import DAOResponse
 from app.schema import TourResponse, TourCreateSchema
 
 class TourBookingDAO(BaseDAO[Tour]):
-    def __init__(self, model: Type[Tour], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
-        super().__init__(model, load_parent_relationships, load_child_relationships, excludes=excludes)
+    def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):
+        self.model = Tour
         self.primary_key = "tour_booking_id"
+
+        super().__init__(self.model, nesting_degree = nesting_degree, excludes=excludes)
 
     # TODO:
     @override

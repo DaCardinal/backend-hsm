@@ -1,9 +1,9 @@
-from typing import Type
-
 from app.dao.base_dao import BaseDAO
 from app.models import TransactionType
 
 class TransactionTypeDAO(BaseDAO[TransactionType]):
-    def __init__(self, model: Type[TransactionType], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
-        super().__init__(model, load_parent_relationships, load_child_relationships, excludes=excludes)
+    def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):
+        self.model = TransactionType
         self.primary_key = "transaction_type_name"
+
+        super().__init__(self.model, nesting_degree = nesting_degree, excludes=excludes)
