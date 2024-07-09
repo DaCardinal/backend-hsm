@@ -205,7 +205,7 @@ class ContractResponse(BaseModel):
 
             result.append({
                 "utility": utility.name,
-                "payment_type": payment_type.payment_type_name,
+                "frequency": payment_type.payment_type_name,
                 "utility_value": entity_utility.billable_amount,
                 "apply_to_units": False,
                 "entity_utilities_id": entity_utility.billable_assoc_id
