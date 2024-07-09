@@ -310,23 +310,24 @@ class UserResponse(BaseModel):
         for under_contract in contract_info:
             contract: ContractModel = under_contract.contract
 
-            result.append(ContractBase(
-                contract_id = contract.contract_id,
-                num_invoices= Decimal(contract.num_invoices),
-                contract_number = contract.contract_number,
-                contract_type = contract.contract_type_value,
-                payment_type = contract.payment_type_value,
-                contract_status = contract.contract_status,
-                contract_details = contract.contract_details,
-                payment_amount = contract.payment_amount,
-                fee_percentage = contract.fee_percentage,
-                fee_amount = contract.fee_amount,
-                date_signed = contract.date_signed,
-                start_date = contract.start_date,
-                end_date = contract.end_date,
-                property_unit_assoc_id = under_contract.property_unit_assoc_id,
-                next_payment_due = under_contract.next_payment_due
-            ))
+            if contract:
+                result.append(ContractBase(
+                    contract_id = contract.contract_id,
+                    num_invoices= Decimal(contract.num_invoices),
+                    contract_number = contract.contract_number,
+                    contract_type = contract.contract_type_value,
+                    payment_type = contract.payment_type_value,
+                    contract_status = contract.contract_status,
+                    contract_details = contract.contract_details,
+                    payment_amount = contract.payment_amount,
+                    fee_percentage = contract.fee_percentage,
+                    fee_amount = contract.fee_amount,
+                    date_signed = contract.date_signed,
+                    start_date = contract.start_date,
+                    end_date = contract.end_date,
+                    property_unit_assoc_id = under_contract.property_unit_assoc_id,
+                    next_payment_due = under_contract.next_payment_due
+                ))
 
         return result
     
