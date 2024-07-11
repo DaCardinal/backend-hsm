@@ -4,6 +4,7 @@ from sqlalchemy import Numeric, Column, ForeignKey, Boolean, Enum, Integer, Stri
 
 from app.models.property_unit_assoc import PropertyUnitAssoc
 
+# TODO: Review calendar events
 class PropertyStatus(enum.Enum):
     available = "available"
     unavailable = "unavailable"
@@ -20,8 +21,8 @@ class PropertyType(enum.Enum):
 class Property(PropertyUnitAssoc):
     __tablename__ = 'property'
 
-    property_unit_assoc_id = Column(UUID(as_uuid=True), ForeignKey('property_unit_assoc.property_unit_assoc_id'), primary_key=True)
     name = Column(String(255))
+    property_unit_assoc_id = Column(UUID(as_uuid=True), ForeignKey('property_unit_assoc.property_unit_assoc_id'), primary_key=True)
     address_id = Column(UUID(as_uuid=True), ForeignKey('addresses.address_id'), nullable=True)
     property_type = Column(Enum(PropertyType))
     amount = Column(Numeric(10, 2))
@@ -42,17 +43,15 @@ class Property(PropertyUnitAssoc):
         'inherit_condition': property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id
     }
 
-    maintenance_requests = relationship('MaintenanceRequest',
-                                        secondary="property_unit_assoc", 
-                                        primaryjoin="MaintenanceRequest.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
-                                        overlaps="prop_maintenance_requests",
-                                        back_populates='property', viewonly=True)
+    maintenance_requests = relationship("MaintenanceRequest",
+                                    primaryjoin="Property.property_unit_assoc_id == MaintenanceRequest.property_unit_assoc_id",
+                                    foreign_keys="[MaintenanceRequest.property_unit_assoc_id]",
+                                    lazy="selectin", back_populates='property', viewonly=True)
     
-    tour_bookings = relationship('Tour',
-                                secondary="property_unit_assoc", 
-                                primaryjoin="Tour.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
-                                secondaryjoin="PropertyUnitAssoc.property_unit_assoc_id == Property.property_unit_assoc_id",
-                                back_populates='property', viewonly=True)
+    tour_bookings = relationship("Tour",
+                                    primaryjoin="Property.property_unit_assoc_id == Tour.property_unit_assoc_id",
+                                    foreign_keys="[Tour.property_unit_assoc_id]",
+                                    lazy="selectin", back_populates='property', viewonly=True)
     # events = relationship('CalendarEvent',
     #                         secondary="property_unit_assoc", 
     #                         primaryjoin="CalendarEvent.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
@@ -69,8 +68,10 @@ class Property(PropertyUnitAssoc):
                          lazy="selectin", viewonly=True)
     
     # relationship to link amenities
-    entity_amenities = relationship("EntityAmenities", secondary="property_unit_assoc", viewonly=True, lazy="selectin")
-
+    entity_amenities = relationship("EntityAmenities",
+                                    primaryjoin="Property.property_unit_assoc_id == EntityAmenities.entity_assoc_id",
+                                    foreign_keys="[EntityAmenities.entity_assoc_id]",
+                                    lazy="selectin", viewonly=True)
     # relationship to utilities
     utilities = relationship("EntityBillable",
                             primaryjoin="and_(EntityBillable.entity_assoc_id==Property.property_unit_assoc_id, EntityBillable.entity_type=='Property', EntityBillable.billable_type=='Utilities')",

@@ -1,6 +1,6 @@
 from typing import List
 
-from app.schema import TourBookingSchema
+from app.schema.schemas import TourBookingSchema
 from app.router.base_router import BaseCRUDRouter
 from app.dao.tour_booking_dao import TourBookingDAO
 

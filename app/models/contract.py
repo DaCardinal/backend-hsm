@@ -10,8 +10,8 @@ from app.models import ContractType, PaymentTypes
 class ContractStatusEnum(enum.Enum):
     active = "active"
     expired = "expired"
-    terminated = "terminated"
     pending = "pending"
+    terminated = "terminated"
 
 class Contract(Base):
     __tablename__ = 'contract'
@@ -48,6 +48,11 @@ class Contract(Base):
     contract_documents = relationship('Documents', secondary='contract_documents', back_populates='contract')
     invoices = relationship('Invoice', secondary='contract_invoice', back_populates='contracts')
     under_contract = relationship('UnderContract', back_populates='contract', lazy='selectin')
+    properties  = relationship('PropertyUnitAssoc', secondary='under_contract',
+                                primaryjoin="Contract.contract_id == UnderContract.contract_id",
+                                secondaryjoin="UnderContract.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
+                                foreign_keys="[Contract.contract_id, PropertyUnitAssoc.property_unit_assoc_id]",
+                                lazy='selectin')
     
     # relationship to utilities
     utilities = relationship("EntityBillable",

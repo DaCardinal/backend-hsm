@@ -1,9 +1,11 @@
 from typing import List
 
 from app.router.base_router import BaseCRUDRouter
-from app.schema.schemas import UnderContractSchema
 from app.dao.under_contract_dao import UnderContractDAO
-from app.schema import UnderContractCreate, UnderContractUpdate
+
+# schemas
+from app.schema.schemas import UnderContractSchema
+from app.schema.under_contract import UnderContractCreate, UnderContractUpdate
 
 class UnderContractRouter(BaseCRUDRouter):
 

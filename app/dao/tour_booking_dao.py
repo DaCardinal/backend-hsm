@@ -1,13 +1,13 @@
 from uuid import UUID
+from typing import Any, List, Union
 from pydantic import ValidationError
 from typing_extensions import override
-from typing import Any, List, Type, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Tour
 from app.dao.base_dao import BaseDAO
 from app.utils.response import DAOResponse
-from app.schema import TourResponse, TourCreateSchema
+from app.schema.tour import TourResponse, TourCreateSchema
 
 class TourBookingDAO(BaseDAO[Tour]):
     def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):

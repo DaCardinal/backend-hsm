@@ -1,18 +1,24 @@
 from uuid import UUID
 from functools import partial
 import uuid
-from sqlalchemy import and_, select
 from typing import Any, List, Union
 from pydantic import ValidationError
 from sqlalchemy.orm import joinedload
 from typing_extensions import override
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# utils
 from app.utils import DAOResponse
+
+# daos
 from app.dao.base_dao import BaseDAO
 from app.dao.invoice_item_dao import InvoiceItemDAO
-from app.schema import InvoiceCreateSchema, InvoiceItemBase, InvoiceResponse, InvoiceBase
-from app.models import Invoice, InvoiceItem, UnderContract, User, Contract, ContractInvoice, ContractStatusEnum, PaymentStatusEnum, ContractType
+
+# schemas
+from app.schema.invoice import InvoiceCreateSchema, InvoiceItemBase, InvoiceDueResponse, InvoiceResponse
+
+# models
+from app.models import Invoice, InvoiceItem, UnderContract, Contract, ContractInvoice, ContractStatusEnum, PaymentStatusEnum, ContractType
 
 class InvoiceDAO(BaseDAO[Invoice]):
     def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):
@@ -96,7 +102,7 @@ class InvoiceDAO(BaseDAO[Invoice]):
             options=options,
         )
         
-        return DAOResponse[List[InvoiceResponse]](success=True, data=[InvoiceResponse.from_orm_model(r) for r in query_result])
+        return DAOResponse[List[InvoiceDueResponse]](success=True, data=[InvoiceDueResponse.from_orm_model(r) for r in query_result])
 
     async def add_invoice_details(self, db_session: AsyncSession, invoice_number: str,  invoice_info: InvoiceItemBase, invoice : Invoice = None):
 

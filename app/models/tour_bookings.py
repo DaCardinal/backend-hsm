@@ -15,7 +15,7 @@ class TourStatus(str, enum.Enum):
     completed = "completed"
     cancelled = "cancelled"
 
-
+# TODO: Relationship for unit, property and tours
 class Tour(Base):
     __tablename__ = "tour"
 
@@ -40,7 +40,8 @@ class Tour(Base):
     unit = relationship("Units", 
                         secondary="property_unit_assoc", 
                         primaryjoin="Tour.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
-                        secondaryjoin="Units.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id", viewonly=True,
+                        secondaryjoin="Units.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id", 
+                        viewonly=True,
                         back_populates="tour_bookings", lazy="selectin")
     
     property_unit_assoc = relationship(

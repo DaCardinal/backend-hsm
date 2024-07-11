@@ -3,9 +3,15 @@ from typing import List
 from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# daos
 from app.dao.contract_dao import ContractDAO
+
+# routers
 from app.router.base_router import BaseCRUDRouter
-from app.schema import ContractSchema, ContractCreateSchema, ContractUpdateSchema, UnderContractCreate
+
+# schemas
+from app.schema.schemas import ContractSchema
+from app.schema.contract import ContractCreateSchema, ContractUpdateSchema
 
 class ContractRouter(BaseCRUDRouter):
 

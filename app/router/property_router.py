@@ -3,12 +3,22 @@ from typing import List
 from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# utils
 from app.utils import DAOResponse
+
+# daos
 from app.dao.media_dao import MediaDAO
-from app.models import EntityMedia, Media
 from app.dao.property_dao import PropertyDAO
+
+# models
+from app.models import EntityMedia, Media
+
+# routers
 from app.router.base_router import BaseCRUDRouter
-from app.schema import PropertySchema, PropertyCreateSchema, PropertyUpdateSchema
+
+# schemas
+from app.schema.schemas import PropertySchema
+from app.schema.property import PropertyCreateSchema, PropertyUpdateSchema
 
 class PropertyRouter(BaseCRUDRouter):
 

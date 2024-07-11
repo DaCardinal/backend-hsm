@@ -58,35 +58,3 @@ def update_invoice_amount(mapper, connection, target):
         .where(target.__table__.c.id == target.id)
         .values(invoice_amount=total_amount)
     )
-    
-# @event.listens_for(Invoice, 'before_insert')
-# def receive_before_insert(mapper, connection, target: Invoice):
-#     invoice : dict = target.to_dict()
-
-#     if 'invoice_number' not in invoice or not invoice['invoice_number']:
-#         current_time_str = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-#         setattr(target, 'invoice_number', f"INV{current_time_str}")
-
-# @event.listens_for(Invoice, 'after_insert')
-# def receive_after_insert(mapper, connection, target: Invoice):
-#     invoice : dict = target.to_dict()
-
-#     if 'invoice_number' not in invoice or not invoice['invoice_number'] or not target.invoice_number:
-#         current_time_str = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-#         target.invoice_number = f"INV{current_time_str}"
-#         connection.execute(
-#             target.__table__.update()
-#             .where(target.__table__.c.id == target.id)
-#             .values(invoice_number=target.invoice_number)
-#         )
-
-# @event.listens_for(Invoice, 'after_insert')
-# @event.listens_for(Invoice, 'after_update')
-# def update_invoice_amount(mapper, connection, target: Invoice):
-#     # Calculate the sum of the total_price for all related invoice items
-#     total_amount = sum(item.total_price for item in target.invoice_items)
-#     connection.execute(
-#         target.__table__.update()
-#         .where(target.__table__.c.id == target.id)
-#         .values(invoice_amount=total_amount)
-#     )

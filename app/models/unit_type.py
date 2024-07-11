@@ -9,5 +9,3 @@ class UnitType(Base):
     
     unit_type_id = Column(UUID(as_uuid=True), primary_key=True, unique=True, index=True, default=uuid.uuid4)
     unit_type_name = Column(String(128))
-
-    # units = relationship('Units', back_populates='unit_type')

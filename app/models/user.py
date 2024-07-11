@@ -14,6 +14,7 @@ class GenderEnum(enum.Enum):
     female = 'female'
     other = 'other'
     
+# TODO: Review assigned properties
 class User(Base):
     __tablename__ = "users"
 

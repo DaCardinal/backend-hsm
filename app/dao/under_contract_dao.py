@@ -4,14 +4,23 @@ from pydantic import ValidationError
 from typing_extensions import override
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# utils
 from app.utils import DAOResponse
+
+# models
 from app.models import UnderContract
+from app.models import Contract, UnderContract
+
+# daos
 from app.dao.base_dao import BaseDAO
 from app.dao.user_dao import UserDAO
 from app.dao.contract_dao import ContractDAO
-from app.models import Contract, UnderContract
-from app.schema import UnderContractCreate, ContractResponse
 from app.dao.property_unit_assoc_dao import PropertyUnitAssocDAO
+
+# schemas
+from app.schema.contract import ContractResponse
+from app.schema.under_contract import UnderContractCreate
+
 
 class UnderContractDAO(BaseDAO[UnderContract]):
     def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):

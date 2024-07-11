@@ -13,8 +13,6 @@ class Amenities(Base):
     amenity_value_type = Column(String(50))
     description = Column(Text)
 
-    # units = relationship("PropertyUnitAssoc", secondary="entity_amenities", back_populates="amenities", overlaps="ammenities")
-
     media = relationship("Media",
                          secondary="entity_media",
                          primaryjoin="and_(EntityMedia.media_id==Media.media_id, EntityMedia.entity_type=='Amenities')",

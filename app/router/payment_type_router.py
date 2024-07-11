@@ -1,6 +1,6 @@
 from typing import List
 
-from app.schema import PaymentTypeSchema
+from app.schema.schemas import PaymentTypeSchema
 from app.router.base_router import BaseCRUDRouter
 from app.dao.payment_type_dao import PaymentTypeDAO
 

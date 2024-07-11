@@ -1,14 +1,21 @@
 from uuid import UUID
-from typing import Any, List, Type, Union
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm.exc import NoResultFound
+from typing import Any, List, Union
 from typing_extensions import override
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.ext.asyncio import AsyncSession
 
+# daos
 from app.dao.base_dao import BaseDAO
+
+# utils
 from app.utils.settings import settings
 from app.utils.response import DAOResponse
+
+# models
 from app.models import Message, MessageRecipient
-from app.schema import MessageCreate, MessageResponseModel
+
+# schemas
+from app.schema.message import MessageCreate, MessageResponseModel
 
 EMAIL = settings.EMAIL
 EMAIL_PASSWORD = settings.EMAIL_PASSWORD

@@ -4,7 +4,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dao.role_dao import RoleDAO
 from app.router.base_router import BaseCRUDRouter
-from app.schema import RoleSchema, RoleUpdateSchema, RoleCreateSchema
+
+# schemas
+from app.schema.schemas import RoleSchema
+from app.schema.role import RoleUpdateSchema, RoleCreateSchema
 
 class RoleRouter(BaseCRUDRouter):
 

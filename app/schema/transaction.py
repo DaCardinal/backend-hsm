@@ -1,26 +1,38 @@
-from enum import Enum
 from uuid import UUID
 from datetime import datetime
-from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, constr
+from typing import Optional, Union, Annotated
 
-from app.models import Transaction as TransactionModel, User
-from app.schema import UserBase
+# schemas
+from app.schema.user import UserBase
+from app.schema.enums import PaymentStatus
 
-class PaymentStatusEnum(str, Enum):
-    pending = "pending"
-    completed = "completed"
-    cancelled = "cancelled"
+# models
+from app.models import Transaction as TransactionModel, User as UserModel
+
 
 class TransactionBase(BaseModel):
-    transaction_type_id: str
-    client_offered: Optional[UUID | UserBase]  # payer_id
-    client_requested: Optional[UUID | UserBase]  # payee_id
+    """
+    Base model for transaction information.
+
+    Attributes:
+        transaction_type_id (str): The type ID of the transaction.
+        client_offered (Optional[Union[UUID, UserBase]]): The user who offered the transaction (payer).
+        client_requested (Optional[Union[UUID, UserBase]]): The user who requested the transaction (payee).
+        transaction_date (datetime): The date of the transaction.
+        transaction_details (Optional[str]): Additional details about the transaction.
+        payment_method (str): The method of payment used in the transaction.
+        transaction_status (PaymentStatusEnum): The status of the transaction.
+        invoice_number (str): The invoice number associated with the transaction.
+    """
+    transaction_type_id: Annotated[str, constr(max_length=50)]
+    client_offered: Optional[Union[UUID, UserBase]] = None
+    client_requested: Optional[Union[UUID, UserBase]] = None
     transaction_date: datetime
-    transaction_details: Optional[str]
-    payment_method: str
-    transaction_status: PaymentStatusEnum
-    invoice_number: str
+    transaction_details: Optional[Annotated[str, constr(max_length=255)]] = None
+    payment_method: Annotated[str, constr(max_length=50)]
+    transaction_status: PaymentStatus
+    invoice_number: Annotated[str, constr(max_length=50)]
 
     class Config:
         from_attributes = True
@@ -28,6 +40,12 @@ class TransactionBase(BaseModel):
         populate_by_name = True
 
 class Transaction(TransactionBase):
+    """
+    Model for representing a transaction with additional details.
+
+    Attributes:
+        transaction_id (UUID): The unique identifier for the transaction.
+    """
     transaction_id: UUID
 
     class Config:
@@ -36,26 +54,50 @@ class Transaction(TransactionBase):
         populate_by_name = True
 
 class TransactionCreateSchema(TransactionBase):
+    """
+    Schema for creating a transaction.
+
+    Inherits from TransactionBase.
+    """
     class Config:
         from_attributes = True
 
 class TransactionUpdateSchema(TransactionBase):
+    """
+    Schema for updating a transaction.
+
+    Inherits from TransactionBase.
+    """
     class Config:
         from_attributes = True
 
 class TransactionResponse(TransactionBase):
+    """
+    Model for representing a transaction response.
+
+    Attributes:
+        transaction_id (UUID): The unique identifier for the transaction.
+    """
     transaction_id: UUID
 
     class Config:
         from_attributes = True
         use_enum_values = True
         populate_by_name = True
-        arbitrary_types_allowed=True
+        arbitrary_types_allowed = True  # Allows arbitrary types
 
     @classmethod
-    def get_user_info(cls, user: User):
+    def get_user_info(cls, user: UserModel) -> UserBase:
+        """
+        Get basic user information.
 
-        return User(
+        Args:
+            user (User): The user object.
+
+        Returns:
+            UserBase: Basic user information.
+        """
+        return UserBase(
             first_name=user.first_name,
             last_name=user.last_name,
             photo_url=user.photo_url,
@@ -63,18 +105,24 @@ class TransactionResponse(TransactionBase):
         )
         
     @classmethod
-    def from_orm_model(cls, transaction: TransactionModel):
-        
-        result = cls(
-            transaction_id = transaction.transaction_id,
-            transaction_type_id = transaction.transaction_type_id,
-            client_offered = transaction.client_offered_transaction,
-            client_requested = transaction.client_requested_transaction,
-            transaction_date = transaction.transaction_date,
-            transaction_details = transaction.transaction_details,
-            payment_method = transaction.payment_method,
-            transaction_status = transaction.transaction_status.name,
-            invoice_number = transaction.invoice_number
-        ).model_dump()
+    def from_orm_model(cls, transaction: TransactionModel) -> 'TransactionResponse':
+        """
+        Create a TransactionResponse instance from an ORM model.
 
-        return result
+        Args:
+            transaction (TransactionModel): Transaction ORM model.
+
+        Returns:
+            TransactionResponse: Transaction response object.
+        """
+        return cls(
+            transaction_id=transaction.transaction_id,
+            transaction_type_id=transaction.transaction_type_id,
+            client_offered=transaction.client_offered_transaction,
+            client_requested=transaction.client_requested_transaction,
+            transaction_date=transaction.transaction_date,
+            transaction_details=transaction.transaction_details,
+            payment_method=transaction.payment_method,
+            transaction_status=transaction.transaction_status,
+            invoice_number=transaction.invoice_number
+        ).model_dump()

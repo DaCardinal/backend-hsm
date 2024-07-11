@@ -4,11 +4,21 @@ from fastapi import HTTPException, Depends
 from sqlalchemy import and_, or_, select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# daos
 from app.dao.message_dao import MessageDAO
+
+# utils
 from app.utils.response import DAOResponse
+
+# routers
 from app.router.base_router import BaseCRUDRouter
+
+# models
 from app.models import Message, MessageRecipient, PropertyUnitAssoc, UnderContract
-from app.schema import MessageSchema, MessageCreate, MessageReply, MessageResponseModel
+
+# schemas
+from app.schema.schemas import MessageSchema
+from app.schema.message import MessageCreate, MessageReply, MessageResponseModel
 
 class MessageRouter(BaseCRUDRouter):
 

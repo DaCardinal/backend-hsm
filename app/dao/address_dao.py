@@ -4,14 +4,22 @@ from sqlalchemy.orm import selectinload
 from typing import Any, Dict, Optional, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# utils
+from app.utils.response import DAOResponse
+
+# daos
 from app.dao.base_dao import BaseDAO
 from app.dao.addr_city_dao import CityDAO
-from app.utils.response import DAOResponse
 from app.dao.addr_region_dao import RegionDAO
 from app.dao.addr_country_dao import CountryDAO
 from app.dao.entity_address_dao import EntityAddressDAO
-from app.schema import Address, AddressBase, AddressCreateSchema
-from app.models import Addresses as AddressModel, EntityAddress, City, Country, Region
+
+# models
+from app.models import Addresses as AddressModel, City, Country, Region
+
+# schemas
+from app.schema.address import Address, AddressBase, AddressCreateSchema
+
 
 class AddressDAO(BaseDAO[AddressModel]):
     def __init__(self):

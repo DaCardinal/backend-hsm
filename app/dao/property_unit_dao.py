@@ -6,15 +6,25 @@ from sqlalchemy.orm import selectinload
 from typing import Any, Dict, List, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# models
 from app.models import Units
+
+# daos
 from app.dao.base_dao import BaseDAO
 from app.dao.media_dao import MediaDAO
-from app.utils.response import DAOResponse
 from app.dao.address_dao import AddressDAO
 from app.dao.utilities_dao import UtilitiesDAO
 from app.dao.amenities_dao import AmenitiesDAO
 from app.dao.property_unit_assoc_dao import PropertyUnitAssocDAO
-from app.schema import PropertyUnitCreateSchema, PropertyUnitUpdateSchema, PropertyUnitResponse, PropertyUnitBase, MediaBase, Media, Amenities, AmenitiesBase, AmenitiesCreateSchema, MediaCreateSchema, EntityBillableCreate
+
+# utils
+from app.utils.response import DAOResponse
+
+# schemas
+from app.schema.billable import EntityBillableCreate
+from app.schema.media import MediaBase, Media, MediaCreateSchema
+from app.schema.amenity import Amenities, AmenitiesBase, AmenitiesCreateSchema
+from app.schema.property import PropertyUnitBase, PropertyUnitCreateSchema, PropertyUnitUpdateSchema, PropertyUnitResponse
 
 
 class PropertyUnitDAO(BaseDAO[Units]):

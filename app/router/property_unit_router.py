@@ -1,8 +1,13 @@
 from typing import List
 
 from app.router.base_router import BaseCRUDRouter
+
+# daos
 from app.dao.property_unit_dao import PropertyUnitDAO
-from app.schema import PropertyUnitSchema, PropertyUnitUpdateSchema, PropertyUnitCreateSchema
+
+# schemas
+from app.schema.schemas import PropertyUnitSchema
+from app.schema.property import PropertyUnitCreateSchema, PropertyUnitUpdateSchema
 
 class PropertyUnitRouter(BaseCRUDRouter):
 

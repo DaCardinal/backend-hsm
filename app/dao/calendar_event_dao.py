@@ -1,13 +1,20 @@
 from uuid import UUID
+from typing import Any, List, Union
 from pydantic import ValidationError
 from typing_extensions import override
-from typing import Any, List, Type, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# utils
 from app.utils import DAOResponse
+
+# models
 from app.models import CalendarEvent
+
+# daos
 from app.dao.base_dao import BaseDAO
-from app.schema import CalendarEventCreateSchema, CalendarEventResponse, CalendarEventBase, CalendarEventUpdateSchema
+
+# schemas
+from app.schema.calendar_event import CalendarEventCreateSchema, CalendarEventResponse, CalendarEventBase, CalendarEventUpdateSchema
 
 class CalendarEventDAO(BaseDAO[CalendarEvent]):
     def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):

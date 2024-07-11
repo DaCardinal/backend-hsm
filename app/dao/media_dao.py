@@ -5,12 +5,21 @@ from sqlalchemy.orm.exc import NoResultFound
 from typing import List, Dict, Optional, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dao.base_dao import BaseDAO
+# models
 from app.models import Media as MediaModel
+
+# utils
 from app.utils.response import DAOResponse
+
+# services
 from app.services import MediaUploaderService
+
+# daos
+from app.dao.base_dao import BaseDAO
 from app.dao.entity_media_dao import EntityMediaDAO
-from app.schema import MediaBase, Media, MediaCreateSchema, MediaResponse, MediaUpdateSchema
+
+# schemas
+from app.schema.media import MediaBase, Media, MediaCreateSchema, MediaResponse, MediaUpdateSchema
 
 class MediaDAO(BaseDAO[MediaModel]):
     def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):
@@ -37,6 +46,16 @@ class MediaDAO(BaseDAO[MediaModel]):
         
         return []
     
+    @override
+    async def get_all(self, db_session: AsyncSession, offset=0, limit=100) -> DAOResponse[List[MediaResponse]]:
+        result = await super().get_all(db_session=db_session, offset=offset, limit=limit)
+        
+        # check if no result
+        if not result:
+            return DAOResponse(success=True, data=[])
+
+        return DAOResponse[List[MediaResponse]](success=True, data=[MediaResponse.from_orm_model(r) for r in result])
+
     @override
     async def create(self, db_session: AsyncSession, obj_in: Union[MediaCreateSchema | Dict], media_store: str = None) -> DAOResponse:
         try:

@@ -23,20 +23,8 @@ class CalendarEvent(Base):
     event_type = Column(Enum(EventTypeEnum), default=EventTypeEnum.other, nullable=True)
     event_start_date = Column(DateTime(timezone=True), nullable=True)
     event_end_date = Column(DateTime(timezone=True), nullable=True)
-    # property_unit_assoc_id = Column(UUID(as_uuid=True), ForeignKey('property_unit_assoc.property_unit_assoc_id'), nullable=True)
     organizer_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'), nullable=False)
 
-    # property = relationship("Property", 
-    #                     secondary="property_unit_assoc", 
-    #                     primaryjoin="CalendarEvent.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
-    #                     secondaryjoin="Property.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id", 
-    #                     back_populates="events", lazy="selectin", overlaps="property")
-    # unit = relationship("Units", 
-    #                     secondary="property_unit_assoc", 
-    #                     primaryjoin="CalendarEvent.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
-    #                     secondaryjoin="Units.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id", 
-    #                     back_populates="events", lazy="selectin", overlaps="unit")
-    # prop_assoc  = relationship('PropertyUnitAssoc', lazy='selectin', overlaps="events,property,unit")
     organizer = relationship('User', back_populates='events', lazy='selectin')
 
 @event.listens_for(CalendarEvent, 'before_insert')

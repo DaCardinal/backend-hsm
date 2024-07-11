@@ -12,4 +12,3 @@ class FavoriteProperties(Base):
     property_unit_assoc_id = Column(String, ForeignKey("property_unit_assoc.property_unit_assoc_id", ondelete="CASCADE"), primary_key=True)
 
     user = relationship("User", backref="favorites")
-    # properties = relationship("Property", backref="favorites")

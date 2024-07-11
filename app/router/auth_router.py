@@ -4,11 +4,21 @@ from typing import List
 from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# models
 from app.models import User
+
+# daos
 from app.dao.auth_dao import AuthDAO
+
+# services
 from app.services import EmailService
+
+# routers
 from app.router.base_router import BaseCRUDRouter
-from app.schema import MediaSchema, Login, ResetPassword
+
+# schemas
+from app.schema.schemas import UserSchema
+from app.schema.auth import Login, ResetPassword
 
 RESET_LINK = "https://housekee.netlify.app/account-recovery?token={}"
 UNSUBSCRIBE_LINK = "https://backend-hsm.onrender.com/auth/mail-unsubscribe?email={}&token={}"
@@ -17,7 +27,7 @@ class AuthRouter(BaseCRUDRouter):
 
     def __init__(self, prefix: str = "", tags: List[str] = []):
         self.dao: AuthDAO = AuthDAO()
-        super().__init__(dao=self.dao, schemas=MediaSchema, prefix=prefix,tags = tags, show_default_routes=False)
+        super().__init__(dao=self.dao, schemas=UserSchema, prefix=prefix,tags = tags, show_default_routes=False)
 
         self.register_routes()
 

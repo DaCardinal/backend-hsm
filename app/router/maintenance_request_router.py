@@ -1,8 +1,13 @@
 from typing import List
 
 from app.router.base_router import BaseCRUDRouter
+
+# daos
 from app.dao.maintenance_request_dao import MaintenanceRequestDAO
-from app.schema import MaintenanceRequestSchema, MaintenanceRequestCreateSchema, MaintenanceRequestUpdateSchema
+
+# schemas
+from app.schema.schemas import MaintenanceRequestSchema
+from app.schema.maintenance_request import MaintenanceRequestCreateSchema, MaintenanceRequestUpdateSchema
 
 class MaintenanceRequestRouter(BaseCRUDRouter):
 

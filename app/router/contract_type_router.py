@@ -1,6 +1,6 @@
 from typing import List
 
-from app.schema import ContractTypeSchema
+from app.schema.schemas import ContractTypeSchema
 from app.router.base_router import BaseCRUDRouter
 from app.dao.contract_type_dao import ContractTypeDAO
 

@@ -5,13 +5,22 @@ from typing_extensions import override
 from typing import Any, Dict, List, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# utils
 from app.utils import DAOResponse
+
+# daos
 from app.dao.base_dao import BaseDAO
 from app.dao.utilities_dao import UtilitiesDAO
 from app.dao.payment_type_dao import PaymentTypeDAO
 from app.dao.contract_type_dao import ContractTypeDAO
+
+# models
 from app.models import Contract, ContractType, PaymentTypes, UnderContract, Utilities
-from app.schema import ContractCreateSchema, ContractUpdateSchema, ContractResponse, ContractBase, UnderContractSchema, EntityBillableCreate
+
+# schemas
+from app.schema.billable import EntityBillableCreate
+from app.schema.under_contract import UnderContractSchema
+from app.schema.contract import ContractCreateSchema, ContractUpdateSchema, ContractResponse, ContractBase
 
 class ContractDAO(BaseDAO[Contract]):
     def __init__(self, excludes = [], nesting_degree : str = BaseDAO.IMMEDIATE_CHILD):

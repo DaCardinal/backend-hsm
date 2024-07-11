@@ -1,8 +1,10 @@
 from typing import List
 
 from app.dao.permission_dao import PermissionDAO
-from app.schema import PermissionSchema
 from app.router.base_router import BaseCRUDRouter
+
+# schemas
+from app.schema.schemas import PermissionSchema
 
 class PermissionRouter(BaseCRUDRouter):
 

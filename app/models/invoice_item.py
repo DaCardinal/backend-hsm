@@ -23,14 +23,14 @@ class InvoiceItem(Base):
 @event.listens_for(InvoiceItem, 'before_insert')
 @event.listens_for(InvoiceItem, 'before_update')
 def calculate_total_price(mapper, connection, target: InvoiceItem):
-    # Calculate the total price as unit_price * quantity
+    # calculate the total price as unit_price * quantity
     target.total_price = target.unit_price * target.quantity
 
 @event.listens_for(InvoiceItem, 'after_insert')
 @event.listens_for(InvoiceItem, 'after_update')
 @event.listens_for(InvoiceItem, 'after_delete')
 def update_invoice_after_item_change(mapper, connection, target: InvoiceItem):
-    # Update the invoice amount when an invoice item is added, updated, or deleted
+    # update the invoice amount when an invoice item is added, updated, or deleted
     models_module = import_module("app.models")
     invoice_model = getattr(models_module, "Invoice")
     

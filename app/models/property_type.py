@@ -9,5 +9,3 @@ class PropertyType(Base):
     property_type_id = Column(UUID(as_uuid=True), primary_key=True)
     name = Column(String(128))
     description = Column(Text)
-
-    # properties = relationship('Property', back_populates='property_type')

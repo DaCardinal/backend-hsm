@@ -9,13 +9,23 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Any, Dict, List, Optional, Union
 
+# models
 from app.models import User, Role
+
+# services
+from app.services import EmailService
+
+# utils
+from app.utils import DAOResponse, Hash
+
+# daos
 from app.dao.base_dao import BaseDAO
 from app.dao.role_dao import RoleDAO
-from app.services import EmailService
-from app.utils import DAOResponse, Hash
 from app.dao.address_dao import AddressDAO
-from app.schema import UserResponse, Address, AddressBase, UserAuthInfo, UserUpdateSchema, UserCreateSchema, UserEmergencyInfo, UserBase, UserAuthCreateInfo, UserEmployerInfo
+
+# schemas
+from app.schema.address import Address, AddressBase
+from app.schema.user import UserResponse, UserAuthInfo, UserUpdateSchema, UserCreateSchema, UserEmergencyInfo, UserBase, UserAuthCreateInfo, UserEmployerInfo
 
 VERIFICATION_LINK = "https://backend-hsm.onrender.com/auth/verify-email?email={}&token={}"
 UNSUBSCRIBE_LINK = "https://backend-hsm.onrender.com/auth/mail-unsubscribe?email={}&token={}"

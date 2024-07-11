@@ -3,14 +3,21 @@ from typing import List, Optional, Union
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# utils
 from app.utils import DAOResponse
+
+# daos
 from app.dao.base_dao import BaseDAO
 from app.dao.media_dao import MediaDAO
 from app.dao.payment_type_dao import PaymentTypeDAO
 from app.dao.entity_media_dao import EntityMediaDAO
 from app.dao.entity_billable_dao import EntityBillableDAO
+
+# models
 from app.models import EntityBillable, PaymentTypes, Utilities as UtilitiesModel
-from app.schema import UtilitiesBase, Utilities, EntityBillableCreate, EntityBillable as EntityBillableSchema
+
+# schemas
+from app.schema.billable import UtilitiesBase, Utilities, EntityBillableCreate, EntityBillable as EntityBillableSchema
 
 class UtilitiesDAO(BaseDAO[UtilitiesModel]):
     def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):

@@ -1,7 +1,7 @@
 from typing import List
 
-from app.schema import TransactionTypeSchema
 from app.router.base_router import BaseCRUDRouter
+from app.schema.schemas import TransactionTypeSchema
 from app.dao.transaction_type_dao import TransactionTypeDAO
 
 class TransactionTypeRouter(BaseCRUDRouter):

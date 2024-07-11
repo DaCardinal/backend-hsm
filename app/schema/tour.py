@@ -1,54 +1,83 @@
-from pydantic import BaseModel, EmailStr
-from typing import Any, Optional
 from uuid import UUID
-from datetime import datetime
 from enum import Enum
+from datetime import datetime
+from typing import Any, Optional, Union, Annotated
+from pydantic import BaseModel, EmailStr, constr
 
+# schemas
+from app.schema.user import UserBase
+from app.schema.enums import TourStatus, TourType
+from app.schema.property import Property, PropertyUnit, PropertyUnitAssoc
 
-from app.models import Tour as TourModel, User
-from app.schema import UserBase, Property, PropertyUnit, PropertyUnitAssoc
+# models
+from app.models import Tour as TourModel, User as UserModel
 
-
-class TourType(str, Enum):
-    in_person = "in_person"
-    virtual = "virtual"
-
-class TourStatus(str, Enum):
-    incoming = "incoming"
-    completed = "completed"
-    cancelled = "cancelled"
 
 class TourBookingBase(BaseModel):
-    name: str
+    """
+    Base model for tour booking information.
+
+    Attributes:
+        name (str): The name of the person booking the tour.
+        email (EmailStr): The email address of the person booking the tour.
+        phone_number (str): The phone number of the person booking the tour.
+        tour_type (Optional[TourType]): The type of the tour.
+        status (Optional[TourStatus]): The status of the tour.
+        tour_date (datetime): The date of the tour.
+        property_unit_assoc_id (Optional[Union[UUID, Property, PropertyUnit, Any]]): The associated property unit.
+        user_id (Optional[Union[UUID, UserBase]]): The unique identifier of the user.
+    """
+    name: Annotated[str, constr(max_length=255)]
     email: EmailStr
-    phone_number: str
+    phone_number: Annotated[str, constr(max_length=20)]
     tour_type: Optional[TourType] = TourType.in_person
     status: Optional[TourStatus] = TourStatus.incoming
     tour_date: datetime
-    property_unit_assoc_id: Optional[UUID | Property | PropertyUnit | Any] = None
-    user_id: Optional[UUID | UserBase] = None
+    property_unit_assoc_id: Optional[Union[UUID, Property, PropertyUnit, Any]] = None
+    user_id: Optional[Union[UUID, UserBase]] = None
 
     class Config:
         from_attributes = True
 
 
 class TourBooking(BaseModel):
+    """
+    Model for representing a tour booking with additional details.
+
+    Attributes:
+        tour_booking_id (Optional[UUID]): The unique identifier for the tour booking.
+        name (str): The name of the person booking the tour.
+        email (EmailStr): The email address of the person booking the tour.
+        phone_number (str): The phone number of the person booking the tour.
+        tour_type (Optional[TourType]): The type of the tour.
+        status (Optional[TourStatus]): The status of the tour.
+        tour_date (datetime): The date of the tour.
+        property_unit_assoc_id (Optional[Union[UUID, Property, PropertyUnit, Any]]): The associated property unit.
+        user (Optional[Union[UUID, UserBase]]): The unique identifier of the user.
+    """
     tour_booking_id: Optional[UUID]
-    name: str
+    name: Annotated[str, constr(max_length=255)]
     email: EmailStr
-    phone_number: str
+    phone_number: Annotated[str, constr(max_length=20)]
     tour_type: Optional[TourType] = TourType.in_person
     status: Optional[TourStatus] = TourStatus.incoming
     tour_date: datetime
-    property_unit_assoc_id: Optional[UUID | Property | PropertyUnit | Any] = None
-    user: Optional[UUID | UserBase] = None
+    property_unit_assoc_id: Optional[Union[UUID, Property, PropertyUnit, Any]] = None
+    user: Optional[Union[UUID, UserBase]] = None
 
     class Config:
         from_attributes = True
         use_enum_values = True
         populate_by_name = True
 
+
 class Tour(TourBookingBase):
+    """
+    Model for representing a tour with additional details.
+
+    Attributes:
+        tour_booking_id (Optional[UUID]): The unique identifier for the tour booking.
+    """
     tour_booking_id: Optional[UUID]
 
     class Config:
@@ -56,107 +85,167 @@ class Tour(TourBookingBase):
         use_enum_values = True
         populate_by_name = True
 
+
 class TourCreateSchema(TourBookingBase):
+    """
+    Schema for creating a tour.
+
+    Inherits from TourBookingBase.
+    """
     class Config:
         from_attributes = True
+
 
 class TourUpdateSchema(TourBookingBase):
+    """
+    Schema for updating a tour.
+
+    Inherits from TourBookingBase.
+    """
     class Config:
         from_attributes = True
 
+
 class TourResponse(BaseModel):
+    """
+    Model for representing a tour response.
+
+    Attributes:
+        tour_booking_id (Optional[UUID]): The unique identifier for the tour booking.
+        email (str): The email address of the person booking the tour.
+        name (str): The name of the person booking the tour.
+        phone_number (str): The phone number of the person booking the tour.
+        tour_type (Optional[TourType]): The type of the tour.
+        status (Optional[TourStatus]): The status of the tour.
+        tour_date (datetime): The date of the tour.
+        property_unit_assoc (Optional[Union[UUID, Property, PropertyUnit, Any]]): The associated property unit.
+        user (Optional[Union[UUID, UserBase]]): The unique identifier of the user.
+    """
     tour_booking_id: Optional[UUID] = None
-    email: str = None
-    name: str = None
-    phone_number: str = None
+    email: EmailStr
+    name: Annotated[str, constr(max_length=255)]
+    phone_number: Annotated[str, constr(max_length=20)]
     tour_type: Optional[TourType] = TourType.in_person
     status: Optional[TourStatus] = TourStatus.incoming
-    tour_date: datetime = None
-    property_unit_assoc: Optional[UUID | Property | PropertyUnit | Any] = None
-    user: Optional[UUID | UserBase] = None
+    tour_date: datetime
+    property_unit_assoc: Optional[Union[UUID, Property, PropertyUnit, Any]] = None
+    user: Optional[Union[UUID, UserBase]] = None
 
     class Config:
         from_attributes = True
         use_enum_values = True
         populate_by_name = True
-        arbitrary_types_allowed=True
+        arbitrary_types_allowed = True
 
     @classmethod
-    def get_property_info(cls, property: Property):
-        property : Property = property
+    def get_property_info(cls, property: Property) -> Property:
+        """
+        Get detailed property information.
 
+        Args:
+            property (Property): Property object.
+
+        Returns:
+            Property: Detailed property object.
+        """
         return Property(
-            property_unit_assoc_id = property.property_unit_assoc_id,
-            name = property.name,
-            property_type = property.property_type.name,
-            amount = property.amount,
-            security_deposit = property.security_deposit,
-            commission = property.commission,
-            floor_space = property.floor_space,
-            num_units = property.num_units,
-            num_bathrooms = property.num_bathrooms,
-            num_garages = property.num_garages,
-            has_balconies = property.has_balconies,
-            has_parking_space = property.has_parking_space,
-            pets_allowed = property.pets_allowed,
-            description = property.description,
-            property_status = property.property_status,
+            property_unit_assoc_id=property.property_unit_assoc_id,
+            name=property.name,
+            property_type=property.property_type.name,
+            amount=property.amount,
+            security_deposit=property.security_deposit,
+            commission=property.commission,
+            floor_space=property.floor_space,
+            num_units=property.num_units,
+            num_bathrooms=property.num_bathrooms,
+            num_garages=property.num_garages,
+            has_balconies=property.has_balconies,
+            has_parking_space=property.has_parking_space,
+            pets_allowed=property.pets_allowed,
+            description=property.description,
+            property_status=property.property_status,
         )
-    
-    @classmethod
-    def get_property_unit_info(cls, property_unit: PropertyUnit):
-        property_unit : PropertyUnit = property_unit
 
+    @classmethod
+    def get_property_unit_info(cls, property_unit: PropertyUnit) -> PropertyUnit:
+        """
+        Get detailed property unit information.
+
+        Args:
+            property_unit (PropertyUnit): Property unit object.
+
+        Returns:
+            PropertyUnit: Detailed property unit object.
+        """
         return PropertyUnit(
-            property_unit_assoc_id = property_unit.property_unit_assoc_id,
-            property_unit_code = property_unit.property_unit_code,
-            property_unit_floor_space = property_unit.property_unit_floor_space,
-            property_unit_amount = property_unit.property_unit_amount,
-            property_floor_id = property_unit.property_floor_id,
-            property_unit_notes = property_unit.property_unit_notes,
-            has_amenities = property_unit.has_amenities,
-            property_id = property_unit.property_id,
-            property_unit_security_deposit = property_unit.property_unit_security_deposit,
-            property_unit_commission = property_unit.property_unit_commission
+            property_unit_assoc_id=property_unit.property_unit_assoc_id,
+            property_unit_code=property_unit.property_unit_code,
+            property_unit_floor_space=property_unit.property_unit_floor_space,
+            property_unit_amount=property_unit.property_unit_amount,
+            property_floor_id=property_unit.property_floor_id,
+            property_unit_notes=property_unit.property_unit_notes,
+            has_amenities=property_unit.has_amenities,
+            property_id=property_unit.property_id,
+            property_unit_security_deposit=property_unit.property_unit_security_deposit,
+            property_unit_commission=property_unit.property_unit_commission
         )
-    
-    @classmethod
-    def get_property_unit_assoc(cls, property_unit_assoc: PropertyUnitAssoc):
 
+    @classmethod
+    def get_property_unit_assoc(cls, property_unit_assoc: PropertyUnitAssoc) -> Union[Property, PropertyUnit, dict]:
+        """
+        Get detailed property unit association information.
+
+        Args:
+            property_unit_assoc (PropertyUnitAssoc): Property unit association object.
+
+        Returns:
+            Union[Property, PropertyUnit, dict]: Detailed property unit association object.
+        """
         if property_unit_assoc is None:
             return {}
         
         if property_unit_assoc.property_unit_type == "Units":
-            property_unit_assoc = cls.get_property_unit_info(property_unit_assoc)
+            return cls.get_property_unit_info(property_unit_assoc)
         else:
-            property_unit_assoc = cls.get_property_info(property_unit_assoc)
-            
-        return property_unit_assoc
-    
-    @classmethod
-    def get_user_info(cls, user: User):
-        print(user)
+            return cls.get_property_info(property_unit_assoc)
 
-        return User(
+    @classmethod
+    def get_user_info(cls, user: UserModel) -> UserBase:
+        """
+        Get basic user information.
+
+        Args:
+            user (UserModel): User ORM model.
+
+        Returns:
+            UserBase: Basic user information.
+        """
+        return UserBase(
             first_name=user.first_name,
             last_name=user.last_name,
             photo_url=user.photo_url,
             email=user.email
         )
-        
+
     @classmethod
-    def from_orm_model(cls, tour_booking: TourModel):
+    def from_orm_model(cls, tour_booking: TourModel) -> 'TourResponse':
+        """
+        Create a TourResponse instance from an ORM model.
 
-        result = cls(
-            tour_booking_id = tour_booking.tour_booking_id,
-            name = tour_booking.name,
-            email = tour_booking.email,
-            tour_type = tour_booking.tour_type.name,
-            phone_number = tour_booking.phone_number,
-            tour_date = tour_booking.tour_date,
-            status = tour_booking.status.name,
-            property_unit_assoc = cls.get_property_unit_assoc(tour_booking.property_unit_assoc),
-            user = tour_booking.user
+        Args:
+            tour_booking (TourModel): Tour booking ORM model.
+
+        Returns:
+            TourResponse: Tour response object.
+        """
+        return cls(
+            tour_booking_id=tour_booking.tour_booking_id,
+            name=tour_booking.name,
+            email=tour_booking.email,
+            tour_type=tour_booking.tour_type,
+            phone_number=tour_booking.phone_number,
+            tour_date=tour_booking.tour_date,
+            status=tour_booking.status,
+            property_unit_assoc=cls.get_property_unit_assoc(tour_booking.property_unit_assoc),
+            user=tour_booking.user
         ).model_dump()
-
-        return result

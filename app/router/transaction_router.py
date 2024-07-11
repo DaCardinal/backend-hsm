@@ -1,6 +1,6 @@
 from typing import List
 
-from app.schema import TransactionSchema
+from app.schema.schemas import TransactionSchema
 from app.router.base_router import BaseCRUDRouter
 from app.dao.transaction_dao import TransactionDAO
 

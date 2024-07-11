@@ -2,11 +2,18 @@ from typing import Dict, Union
 from typing_extensions import override
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import EntityMedia
+# daos
 from app.dao.base_dao import BaseDAO
+
+# utils
 from app.utils.response import DAOResponse
-from app.schema import EntityMediaCreateSchema
+
+# models
+from app.models import EntityMedia
 from app.models.entity_media import EntityMedia
+
+# schemas
+from app.schema.media import EntityMediaCreateSchema
 
 class EntityMediaDAO(BaseDAO[EntityMedia]):
     def __init__(self):

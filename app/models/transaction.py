@@ -28,5 +28,4 @@ class Transaction(Base):
     client_offered_transaction = relationship('User', foreign_keys=[client_offered], back_populates='transaction_as_client_offered', lazy='selectin')
     client_requested_transaction = relationship('User', foreign_keys=[client_requested], back_populates='transaction_as_client_requested', lazy='selectin')
 
-    # invoice_number = relationship('Invoice', back_populates='transaction', lazy="selectin")
     transaction_invoice = relationship('Invoice', primaryjoin="and_(Invoice.invoice_number==Transaction.invoice_number)", back_populates='transaction')

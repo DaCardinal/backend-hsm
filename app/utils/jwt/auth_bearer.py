@@ -1,6 +1,8 @@
+from typing import Optional, Dict, Any
 from fastapi import Request, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from typing import Optional, Dict, Any
+
+# utils
 from app.utils.jwt.auth_handler import decodeJWT
 
 class JWTBearer(HTTPBearer):

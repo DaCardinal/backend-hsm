@@ -1,17 +1,21 @@
-from uuid import UUID
-from typing import Type, Union, Any
 from fastapi import Request
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.exc import NoResultFound
 from fastapi_sso.sso.google import GoogleSSO
+from sqlalchemy.ext.asyncio import AsyncSession
 
+# models
+from app.models import User
+
+# daos
 from app.dao.base_dao import BaseDAO
 from app.dao.user_dao import UserDAO
+
+# utils
 from app.utils.response import DAOResponse
-from app.models import User
-from app.schema import Login, UserUpdateSchema, TokenExposed, UserBase, User as UserSchema
 from app.utils import Hash, settings, signJWT
 
+# schemas
+from app.schema.auth import Login, TokenExposed
 
 CLIENT_ID = settings.GOOGLE_SIGNIN_CLIENT_ID
 CLIENT_SECRET = settings.GOOGLE_SIGNIN_CLIENT_SECRET

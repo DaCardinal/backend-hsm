@@ -1,18 +1,18 @@
 import uuid
 import warnings
 from sqlalchemy.exc import SAWarning
-from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Column, String, UUID
+from sqlalchemy.orm import relationship, backref
 
 from app.models.model_base import BaseModel
 
+# TODO: Decide if to remove relationship to utilities and warnings
 # Suppress specific SQLAlchemy warnings
-warnings.filterwarnings(
-    "ignore", 
-    category=SAWarning, 
-    message=r"^Expression.*is marked as 'remote', but these column\(s\) are local to the local side.*"
-)
-
+# warnings.filterwarnings(
+#     "ignore", 
+#     category=SAWarning, 
+#     message=r"^Expression.*is marked as 'remote', but these column\(s\) are local to the local side.*"
+# )
 class PropertyUnitAssoc(BaseModel):
     __tablename__ = 'property_unit_assoc'
 

@@ -1,7 +1,5 @@
-from typing import Type
-
-from app.dao.base_dao import BaseDAO
 from app.models import Region
+from app.dao.base_dao import BaseDAO
 
 class RegionDAO(BaseDAO[Region]):
     def __init__(self):

@@ -4,12 +4,18 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
-# local imports
+# utils
+from app.utils.response import DAOResponse
+
+# models
+from app.models import Role, Permissions
+
+# daos
 from app.dao.base_dao import BaseDAO
 from app.dao.permission_dao import PermissionDAO
-from app.utils.response import DAOResponse
-from app.models import Role, Permissions
-from app.schema import Role as RoleSchema
+
+# schemas
+from app.schema.role import Role as RoleSchema
 
 class RoleDAO(BaseDAO[Role]):
     def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):

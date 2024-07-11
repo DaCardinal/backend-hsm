@@ -1,15 +1,21 @@
 from uuid import UUID
 from functools import partial
+from typing import List, Optional, Union
 from sqlalchemy.orm.exc import NoResultFound
-from typing import List, Optional, Type, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# daos
 from app.dao.base_dao import BaseDAO
 from app.dao.media_dao import MediaDAO
 from app.dao.entity_media_dao import EntityMediaDAO
 from app.dao.entity_amenities_dao import EntityAmenitiesDAO
-from app.schema import AmenitiesBase, Amenities, MediaCreateSchema, AmenitiesUpdateSchema
-from app.models import Amenities as AmenitiesModel, EntityAmenities as EntityAmenities, EntityMedia, Media
+
+# schemas
+from app.schema.media import MediaCreateSchema
+from app.schema.amenity import AmenitiesBase, Amenities, AmenitiesUpdateSchema
+
+# models
+from app.models import Amenities as AmenitiesModel, EntityAmenities as EntityAmenities
 
 class AmenitiesDAO(BaseDAO[Amenities]):
     def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):

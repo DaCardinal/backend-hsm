@@ -1,20 +1,31 @@
 from uuid import UUID
 from functools import partial
 from pydantic import ValidationError
-from sqlalchemy.orm import selectinload
 from typing_extensions import override
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 from typing import Any, Dict, List, Union
+from sqlalchemy.ext.asyncio import AsyncSession
 
+# models
 from app.models import Property
+
+# utils
+from app.utils.response import DAOResponse
+
+# daos
 from app.dao.base_dao import BaseDAO
 from app.dao.media_dao import MediaDAO
-from app.utils.response import DAOResponse
 from app.dao.address_dao import AddressDAO
 from app.dao.utilities_dao import UtilitiesDAO
 from app.dao.amenities_dao import AmenitiesDAO
 from app.dao.property_unit_assoc_dao import PropertyUnitAssocDAO
-from app.schema import PropertyResponse, PropertyBase, PropertyCreateSchema, PropertyUpdateSchema, Address, AddressBase, MediaBase, Media, Amenities, AmenitiesBase, AmenitiesCreateSchema, MediaCreateSchema, EntityBillableCreate
+
+# schemas
+from app.schema.address import Address, AddressBase
+from app.schema.billable import EntityBillableCreate
+from app.schema.media import MediaBase, Media, MediaCreateSchema
+from app.schema.amenity import Amenities, AmenitiesBase, AmenitiesCreateSchema
+from app.schema.property import PropertyResponse, PropertyBase, PropertyCreateSchema, PropertyUpdateSchema
 
 class PropertyDAO(BaseDAO[Property]):
     def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):

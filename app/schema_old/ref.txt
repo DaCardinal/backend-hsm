@@ -1,0 +1,34 @@
+## UNIT
+    # maintenance_requests = relationship('MaintenanceRequest',
+    #                                     secondary="property_unit_assoc", 
+    #                                     primaryjoin="MaintenanceRequest.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
+    #                                     overlaps="prop_maintenance_requests",
+    #                                     back_populates='unit', viewonly=True)
+    
+    # tour_bookings = relationship("Tour", 
+    #                     secondary="property_unit_assoc", 
+    #                     primaryjoin="Units.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
+    #                     secondaryjoin="Tour.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
+    #                     # foreign_keys="[PropertyUnitAssoc.property_unit_assoc_id, Tour.property_unit_assoc_id]", 
+    #                     viewonly=True, back_populates="unit", lazy="selectin")
+    
+    # tour_bookings = relationship("Tour", 
+    #                     foreign_keys="[Tour.property_unit_assoc_id, Units.property_unit_assoc_id]", remote_side="[Tour.property_unit_assoc_id, Units.property_unit_assoc_id]", 
+    #                     viewonly=True, lazy="selectin")
+
+
+## PROPERTY
+
+
+
+    # maintenance_requests = relationship('MaintenanceRequest',
+    #                                     secondary="property_unit_assoc", 
+    #                                     primaryjoin="MaintenanceRequest.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
+    #                                     overlaps="prop_maintenance_requests",
+    #                                     back_populates='property', viewonly=True)
+    
+    # tour_bookings = relationship('Tour',
+    #                             secondary="property_unit_assoc", 
+    #                             primaryjoin="Tour.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
+    #                             secondaryjoin="PropertyUnitAssoc.property_unit_assoc_id == Property.property_unit_assoc_id",
+    #                             back_populates='property', viewonly=True)

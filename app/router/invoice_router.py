@@ -5,7 +5,10 @@ from fastapi import Depends, HTTPException, Query, Request
 
 from app.dao.invoice_dao import InvoiceDAO
 from app.router.base_router import BaseCRUDRouter
-from app.schema import InvoiceSchema, InvoiceCreateSchema, InvoiceUpdateSchema
+
+# schemas
+from app.schema.schemas import InvoiceSchema
+from app.schema.invoice import InvoiceCreateSchema, InvoiceUpdateSchema
 
 class InvoiceRouter(BaseCRUDRouter):
 

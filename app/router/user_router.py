@@ -6,7 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.dao.user_dao import UserDAO
 from app.utils.lifespan import AppLogger
 from app.router.base_router import BaseCRUDRouter
-from app.schema import UserSchema, UserCreateSchema, UserUpdateSchema
+
+# schemas
+from app.schema.schemas import UserSchema
+from app.schema.user import UserCreateSchema, UserUpdateSchema
 
 class UserRouter(BaseCRUDRouter):
 

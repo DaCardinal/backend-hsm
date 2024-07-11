@@ -4,10 +4,17 @@ from pydantic import ValidationError
 from typing_extensions import override
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# utils
 from app.utils import DAOResponse
+
+# daos
 from app.dao.base_dao import BaseDAO
+
+# models
 from app.models import MaintenanceRequest
-from app.schema import MaintenanceRequestCreateSchema, MaintenanceRequestResponse, MaintenanceRequestBase, MaintenanceRequestUpdateSchema
+
+# schemas
+from app.schema.maintenance_request import MaintenanceRequestCreateSchema, MaintenanceRequestResponse, MaintenanceRequestBase, MaintenanceRequestUpdateSchema
 
 class MaintenanceRequestDAO(BaseDAO[MaintenanceRequest]):
     def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):

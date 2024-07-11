@@ -1,10 +1,16 @@
-import time
 import jwt
+import time
 from typing import Dict
 
+# models
 from app.models import User
+
+# utils
 from app.utils import settings
-from app.schema import TokenExposed, UserBase
+
+# schemas
+from app.schema.user import UserBase
+from app.schema.auth import TokenExposed
 
 JWT_SECRET = settings.JWT_SECRET
 JWT_ALGORITHM = settings.JWT_ALGORITHM

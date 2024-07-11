@@ -57,9 +57,9 @@ def create_pydantic_model_from_sqlalchemy(sqlalchemy_model, load_parent_relation
 
 class BaseCRUDRouter(Generic[DBModelType]):
     # nesting type
-    IMMEDIATE_CHILD = "immediate_child"
     NESTED_CHILD = "nested_child"
     NO_NESTED_CHILD = "parents_only"
+    IMMEDIATE_CHILD = "immediate_child"
     
     def __init__(
         self,

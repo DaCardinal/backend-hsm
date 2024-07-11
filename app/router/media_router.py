@@ -1,9 +1,14 @@
 from typing import List
 
-from app.models import Media
+# daos
 from app.dao.media_dao import MediaDAO
-from app.schema import MediaSchema, MediaCreateSchema, MediaUpdateSchema
+
+# routers
 from app.router.base_router import BaseCRUDRouter
+
+# schemas
+from app.schema.schemas import MediaSchema
+from app.schema.media import MediaCreateSchema, MediaUpdateSchema
 
 class MediaRouter(BaseCRUDRouter):
 

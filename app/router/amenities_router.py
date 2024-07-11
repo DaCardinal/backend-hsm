@@ -1,14 +1,24 @@
-from typing import List
 from uuid import UUID
+from typing import List
 from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Amenities, EntityMedia, EntityAmenities
-from app.dao.amenities_dao import AmenitiesDAO
-from app.schema import AmenitiesSchema
+# utils
 from app.utils import DAOResponse
+
+# models
+from app.models import EntityAmenities
+
+# daos
+from app.dao.amenities_dao import AmenitiesDAO
+
+# schemas
+from app.schema.schemas import AmenitiesSchema
+
+# routers
 from app.router.base_router import BaseCRUDRouter
 
+# TODO: FIX link_property_to_ammenity | link_entity_to_ammenity
 class AmenitiesRouter(BaseCRUDRouter):
 
     def __init__(self, prefix: str = "", tags: List[str] = []):
@@ -20,7 +30,7 @@ class AmenitiesRouter(BaseCRUDRouter):
     def register_routes(self):
         @self.router.post("/link_property_to_ammenity")
         async def add_property_ammenity(property_unit_assoc_id: UUID, ammenity_id: UUID, db: AsyncSession = Depends(self.get_db)):
-            property_ammenity : EntityAmenities = await self.dao.link_property_to_ammenity(db_session=db, property_unit_assoc_id=property_unit_assoc_id, ammenity_id=ammenity_id)
+            property_ammenity : EntityAmenities = await self.dao.link_entity_to_ammenity(db_session=db, property_unit_assoc_id=property_unit_assoc_id, ammenity_id=ammenity_id)
             
             if property_ammenity is None:
                 raise HTTPException(status_code=404, detail="Error adding ammenity to property")

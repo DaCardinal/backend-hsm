@@ -4,6 +4,7 @@ from sqlalchemy import Column, Boolean, Integer, String, UUID
 
 from app.models.model_base import BaseModel as Base
 
+# TODO: Add to next update on message model
 class ReminderFrequency(Base):
     __tablename__ = 'reminder_frequency'
     
@@ -12,5 +13,4 @@ class ReminderFrequency(Base):
     frequency = Column(Integer)
     is_active = Column(Boolean, default=False)
 
-    # TODO: Add to next update on message model
     messages = relationship('Message', back_populates='reminder_frequency')

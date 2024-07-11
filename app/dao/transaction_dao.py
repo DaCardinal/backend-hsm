@@ -4,10 +4,17 @@ from pydantic import ValidationError
 from typing_extensions import override
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Transaction
-from app.dao.base_dao import BaseDAO
+# utils
 from app.utils.response import DAOResponse
-from app.schema import TransactionResponse, TransactionCreateSchema
+
+# models
+from app.models import Transaction
+
+# daos
+from app.dao.base_dao import BaseDAO
+
+# schemas
+from app.schema.transaction import TransactionResponse, TransactionCreateSchema
 
 class TransactionDAO(BaseDAO[Transaction]):
     def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):

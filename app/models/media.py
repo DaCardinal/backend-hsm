@@ -11,14 +11,3 @@ class Media(Base):
     media_name = Column(String(128))
     media_type = Column(String(50))
     content_url = Column(String(128))
-
-    # properties_units = relationship(
-    #     'PropertyUnitAssoc',
-    #     secondary='entity_media',
-    #     primaryjoin="EntityMedia.media_id==Media.media_id",
-    #     secondaryjoin="and_(EntityMedia.entity_id==PropertyUnitAssoc.property_unit_assoc_id, EntityMedia.entity_type=='Amenities')",
-    #     back_populates="media_ammenities",
-    #     overlaps="entity_media,media",
-    #     lazy="selectin"
-    # )
-    # entity_media = relationship('EntityMedia', overlaps="entity_amenities,property_unit_assoc_id", back_populates='media')

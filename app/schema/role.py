@@ -1,49 +1,24 @@
 from uuid import UUID
-from typing import List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, constr
+from typing import List, Optional, Annotated
 
-class Permission(BaseModel):
-    permission_id: Optional[UUID] = Field(...)
-    name: Optional[str] = Field(None, max_length=80)
-    alias: Optional[str] = Field(None, max_length=80, unique=True)
-    description: Optional[str] = None
-
-    class Config:
-        from_attributes = True
+from app.schema.permission import Permission
 
 class RoleBase(BaseModel):
-    name: str = Field(None, max_length=80)
-    alias: Optional[str] = Field(None, max_length=80, unique=True)
+    name: Optional[Annotated[str, constr(max_length=80)]] = None
+    alias: Optional[Annotated[str, constr(max_length=80)]] = None
     description: Optional[str] = None
     
     class Config:
         from_attributes = True
-
-class RoleCreateSchema(RoleBase):
-    
-    class Config:
-        from_attributes = True
-
-class RoleUpdateSchema(RoleBase):
-    
-    class Config:
-        from_attributes = True
-
-class UserRoleInfo(BaseModel):
-    alias: Optional[str]
-
-    class Config: 
-        __allow_unmapped__ = True
-        from_attributes = True
-        use_enum_values = True
 
 class Role(BaseModel):
-    role_id: UUID = Field(...)
-    name: str = Field(None, max_length=80)
-    alias: Optional[str] = Field(None, max_length=80, unique=True)
+    role_id: UUID
+    name: Optional[Annotated[str, constr(max_length=80)]] = None
+    alias: Optional[Annotated[str, constr(max_length=80)]] = None
     description: Optional[str] = None
-    permissions: Optional[List[Permission]]
-
+    permissions: Optional[List[Permission]] = None
+    
     class Config:
         from_attributes = True
         json_schema_extra = {
@@ -54,3 +29,21 @@ class Role(BaseModel):
                 "description": "Has full access to all settings."
             }
         }
+
+class RoleCreateSchema(RoleBase):
+    
+    class Config:
+        from_attributes = True
+
+class RoleUpdateSchema(RoleBase):
+    
+    class Config:
+        from_attributes = True
+       
+class UserRoleInfo(BaseModel):
+    alias: Optional[str]
+
+    class Config: 
+        __allow_unmapped__ = True
+        from_attributes = True
+        use_enum_values = True

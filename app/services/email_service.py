@@ -1,18 +1,14 @@
 from fastapi import status
-from fastapi.exceptions import HTTPException
-
 from email.mime.text import MIMEText
+from fastapi.exceptions import HTTPException
 from email.mime.multipart import MIMEMultipart
 from jinja2 import Environment, FileSystemLoader
 from smtplib import SMTP_SSL, SMTPAuthenticationError
 
-from app.schema import EmailBody
 from app.config import template_path
 from app.utils.settings import settings
+from app.schema.message import EmailBody
 
-EMAIL = settings.EMAIL
-EMAIL_PASSWORD = settings.EMAIL_PASSWORD
-SERVER = settings.EMAIL_SERVER
 
 class EmailSendException(HTTPException):
     def __init__(self, detail: str):
@@ -20,9 +16,9 @@ class EmailSendException(HTTPException):
 
 class EmailService:
     def __init__(self):
-        self.EMAIL = EMAIL
-        self.EMAIL_PASSWORD = EMAIL_PASSWORD
-        self.SERVER = SERVER
+        self.EMAIL = settings.EMAIL
+        self.EMAIL_PASSWORD = settings.EMAIL_PASSWORD
+        self.SERVER = settings.EMAIL_SERVER
         self.template_path = template_path
         self.env = Environment(loader=FileSystemLoader(template_path))
 

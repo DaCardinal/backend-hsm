@@ -1,7 +1,7 @@
 from typing import List
 
-from app.schema import PropertyAssignmentSchema
 from app.router.base_router import BaseCRUDRouter
+from app.schema.schemas import PropertyAssignmentSchema
 from app.dao.property_assignment_dao import PropertyAssignmentDAO
 
 class PropertyAssignmentRouter(BaseCRUDRouter):

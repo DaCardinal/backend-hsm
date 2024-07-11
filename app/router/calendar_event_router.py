@@ -1,9 +1,13 @@
 from typing import List
 
-from app.models import CalendarEvent
 from app.router.base_router import BaseCRUDRouter
+
+# daos
 from app.dao.calendar_event_dao import CalendarEventDAO
-from app.schema import CalendarEventSchema, CalendarEventCreateSchema, CalendarEventUpdateSchema
+
+# schemas
+from app.schema.schemas import CalendarEventSchema
+from app.schema.calendar_event import CalendarEventCreateSchema, CalendarEventUpdateSchema
 
 class CalendarEventRouter(BaseCRUDRouter):
 
