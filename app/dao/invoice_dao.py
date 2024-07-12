@@ -1,6 +1,5 @@
 from uuid import UUID
 from functools import partial
-import uuid
 from typing import Any, List, Union
 from pydantic import ValidationError
 from sqlalchemy.orm import joinedload
@@ -19,6 +18,8 @@ from app.schema.invoice import InvoiceCreateSchema, InvoiceItemBase, InvoiceDueR
 
 # models
 from app.models import Invoice, InvoiceItem, UnderContract, Contract, ContractInvoice, ContractStatusEnum, PaymentStatusEnum, ContractType
+
+CONTRACT_LEASE = "lease"
 
 class InvoiceDAO(BaseDAO[Invoice]):
     def __init__(self, excludes = [], nesting_degree : str = BaseDAO.NO_NESTED_CHILD):
@@ -71,7 +72,7 @@ class InvoiceDAO(BaseDAO[Invoice]):
 
         return DAOResponse[InvoiceResponse](success=True, data=InvoiceResponse.from_orm_model(result))
     
-    async def get_leases_due(self, db_session: AsyncSession, contract_type_name: str = "lease", user_id : str = None, offset=0, limit=100):
+    async def get_leases_due(self, db_session: AsyncSession, contract_type_name: str = CONTRACT_LEASE, user_id : str = None, offset=0, limit=100):
 
         filters = {
             "status": PaymentStatusEnum.pending.name,
@@ -88,7 +89,7 @@ class InvoiceDAO(BaseDAO[Invoice]):
         ]
 
         if user_id:
-            filters["UnderContract.client_id"] = uuid.UUID(user_id)
+            filters["UnderContract.client_id"] = UUID(user_id)
         
         options = [
             joinedload(Invoice.contracts),
