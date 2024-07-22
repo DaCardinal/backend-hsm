@@ -166,7 +166,6 @@ class CalendarEventResponse(BaseModel):
         Returns:
             CalendarEventResponse: Calendar event response object.
         """
-        print(calendar_event.to_dict())
         return cls(
             id=calendar_event.id,
             event_id=calendar_event.event_id,
