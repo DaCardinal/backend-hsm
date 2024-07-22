@@ -4,7 +4,7 @@ from sqlalchemy import and_, func
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import inspect
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, class_mapper
 
 from app.utils.response import DAOResponse
 
@@ -230,6 +230,32 @@ class DeleteMixin(UtilsMixin):
     async def delete(
         self, db_session: AsyncSession, db_obj: DBModelType
     ) -> DBModelType:
+        mapper = inspect(self.model)
+        relationships = [relationship.key for relationship in mapper.relationships]
+        print(relationships)
+
+        # Get the mapper for the Contract class
+        contract_mapper = class_mapper(self.model)
+
+        # Print out columns mapped by the mapper
+        print("Columns mapped by the Contract mapper:")
+        for column in contract_mapper.columns:
+            print(f"- {column}")
+
+        # Print out relationships mapped by the mapper
+        print("\nRelationships mapped by the Contract mapper:")
+        for relationship in contract_mapper.relationships:
+            print(f"- {relationship}")
+
+        # Use the inspector to get detailed information
+        inspector = inspect(self.model)
+        print("\nColumns inspected by SQLAlchemy inspector:")
+        for column in inspector.columns:
+            print(f"- {column}")
+
+        print("\nRelationships inspected by SQLAlchemy inspector:")
+        for relationship in inspector.relationships:
+            print(f"- {relationship}")
         await db_session.delete(db_obj)
         await db_session.commit()
 

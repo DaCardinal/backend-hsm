@@ -2,7 +2,8 @@ import pytest
 from typing import Any, Dict
 from httpx import AsyncClient
 
-# TODO: 
+
+# TODO:
 # - Make GET, PUT and DELETE use same unique ID
 # - Test for when maintenance request is linked to a property
 # - Add test for updating property_unit_assoc_id of maintenance request
@@ -22,7 +23,7 @@ class TestMaintenanceRequest:
                 "requested_by": "0d5340d2-046b-42d9-9ef5-0233b79b6642",
                 "scheduled_date": "2024-07-21T21:28:24.590Z",
                 "completed_date": "2024-07-21T21:28:24.590Z",
-                "is_emergency": False
+                "is_emergency": False,
             },
         )
         assert response.status_code == 200
@@ -31,12 +32,16 @@ class TestMaintenanceRequest:
 
     @pytest.mark.asyncio(scope="session")
     async def test_get_all_maintenance_requests(self, client: AsyncClient):
-        response = await client.get("/maintenance_request/", params={"limit": 10, "offset": 0})
+        response = await client.get(
+            "/maintenance_request/", params={"limit": 10, "offset": 0}
+        )
         assert response.status_code == 200
         assert isinstance(response.json(), dict)
 
     @pytest.mark.asyncio(scope="session")
-    @pytest.mark.dependency(depends=["create_maintenance_request"], name="get_maintenance_request_by_id")
+    @pytest.mark.dependency(
+        depends=["create_maintenance_request"], name="get_maintenance_request_by_id"
+    )
     async def test_get_maintenance_request_by_id(self, client: AsyncClient):
         maintenance_request_id = self.default_maintenance_request["task_number"]
 
@@ -46,7 +51,10 @@ class TestMaintenanceRequest:
         assert response.json()["data"]["task_number"] == maintenance_request_id
 
     @pytest.mark.asyncio(scope="session")
-    @pytest.mark.dependency(depends=["get_maintenance_request_by_id"], name="update_maintenance_request_by_id")
+    @pytest.mark.dependency(
+        depends=["get_maintenance_request_by_id"],
+        name="update_maintenance_request_by_id",
+    )
     async def test_update_maintenance_request(self, client: AsyncClient):
         maintenance_request_id = self.default_maintenance_request["id"]
 
@@ -60,22 +68,29 @@ class TestMaintenanceRequest:
                 "requested_by": "0d5340d2-046b-42d9-9ef5-0233b79b6642",
                 "scheduled_date": "2024-07-21T21:28:24.590Z",
                 "completed_date": "2024-07-21T21:28:24.590Z",
-                "is_emergency": True
+                "is_emergency": True,
             },
         )
         assert response.status_code == 200
         assert response.json()["data"]["title"] == "Fix AC and Heater"
 
     @pytest.mark.asyncio(scope="session")
-    @pytest.mark.dependency(depends=["update_maintenance_request_by_id"], name="delete_maintenance_request_by_id")
+    @pytest.mark.dependency(
+        depends=["update_maintenance_request_by_id"],
+        name="delete_maintenance_request_by_id",
+    )
     async def test_delete_maintenance_request(self, client: AsyncClient):
         maintenance_request_id = self.default_maintenance_request["id"]
-        maintenance_request_task_number = self.default_maintenance_request["task_number"]
+        maintenance_request_task_number = self.default_maintenance_request[
+            "task_number"
+        ]
 
         response = await client.delete(f"/maintenance_request/{maintenance_request_id}")
         assert response.status_code == 204
 
         # Verify the maintenance request is deleted
-        response = await client.get(f"/maintenance_request/{maintenance_request_task_number}")
+        response = await client.get(
+            f"/maintenance_request/{maintenance_request_task_number}"
+        )
         assert response.status_code == 200
         assert response.json()["data"] == {}

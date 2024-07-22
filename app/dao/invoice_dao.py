@@ -22,13 +22,13 @@ from app.schema.invoice import (
 )
 
 # models
-from app.models.invoice import Invoice, PaymentStatusEnum
-from app.models.invoice_item import InvoiceItem
-from app.models.under_contract import UnderContract
 from app.models.contract import Contract
-from app.models.contract_invoice import ContractInvoice
-from app.models.contract import ContractStatusEnum
+from app.models.invoice_item import InvoiceItem
 from app.models.contract_type import ContractType
+from app.models.contract import ContractStatusEnum
+from app.models.under_contract import UnderContract
+from app.models.contract_invoice import ContractInvoice
+from app.models.invoice import Invoice, PaymentStatusEnum
 
 
 CONTRACT_LEASE = "lease"

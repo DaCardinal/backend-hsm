@@ -14,8 +14,8 @@ from app.dao.entity_media_dao import EntityMediaDAO
 from app.dao.entity_billable_dao import EntityBillableDAO
 
 # models
-from app.models.entity_billable import EntityBillable
 from app.models.payment_type import PaymentTypes
+from app.models.entity_billable import EntityBillable
 from app.models.utility import Utilities as UtilitiesModel
 
 # schemas

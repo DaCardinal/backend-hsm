@@ -4,9 +4,16 @@ from pydantic import ValidationError
 from typing_extensions import override
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.tour_bookings import Tour
+# daos
 from app.dao.base_dao import BaseDAO
+
+# models
+from app.models.tour_bookings import Tour
+
+# utils
 from app.utils.response import DAOResponse
+
+# schema
 from app.schema.tour import TourResponse, TourCreateSchema
 
 

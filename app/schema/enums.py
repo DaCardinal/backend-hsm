@@ -66,6 +66,7 @@ class ContractStatus(str, Enum):
         expired (str): Represents an expired contract.
         terminated (str): Represents a terminated contract.
     """
+
     active = "active"
     inactive = "inactive"
     expired = "expired"

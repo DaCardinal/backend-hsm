@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
 )
-from sqlalchemy.orm import declarative_base
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import create_engine, text
@@ -15,6 +14,7 @@ from urllib.parse import quote
 import app.db.dbExceptions as DBExceptions
 from app.utils.settings import settings
 from app.db.dbDeclarative import Base
+
 
 class DBModule:
     _base: Any = Base

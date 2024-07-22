@@ -11,9 +11,9 @@ from app.dao.base_dao import BaseDAO
 from app.dao.user_dao import UserDAO
 
 # utils
-from app.utils.response import DAOResponse
 from app.utils.hashing import Hash
 from app.utils.settings import settings
+from app.utils.response import DAOResponse
 from app.utils.jwt.auth_handler import signJWT
 
 # schemas

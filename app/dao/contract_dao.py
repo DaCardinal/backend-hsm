@@ -18,11 +18,11 @@ from app.dao.payment_type_dao import PaymentTypeDAO
 from app.dao.contract_type_dao import ContractTypeDAO
 
 # models
-from app.models.contract import Contract
-from app.models.contract_type import ContractType
-from app.models.payment_type import PaymentTypes
-from app.models.under_contract import UnderContract
 from app.models.utility import Utilities
+from app.models.contract import Contract
+from app.models.payment_type import PaymentTypes
+from app.models.contract_type import ContractType
+from app.models.under_contract import UnderContract
 
 # schemas
 from app.schema.billable import EntityBillableCreate

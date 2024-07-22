@@ -3,8 +3,8 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional, Type, TypeVar, Generic, Union
 
-from app.utils.response import DAOResponse
 from app.db.dbCrud import DBOperations
+from app.utils.response import DAOResponse
 
 DBModelType = TypeVar("DBModelType")
 

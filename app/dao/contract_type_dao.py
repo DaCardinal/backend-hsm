@@ -1,5 +1,5 @@
-from app.models.contract_type import ContractType
 from app.dao.base_dao import BaseDAO
+from app.models.contract_type import ContractType
 
 
 class ContractTypeDAO(BaseDAO[ContractType]):

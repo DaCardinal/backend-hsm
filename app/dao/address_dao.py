@@ -15,10 +15,10 @@ from app.dao.addr_country_dao import CountryDAO
 from app.dao.entity_address_dao import EntityAddressDAO
 
 # models
-from app.models.address import Addresses as AddressModel
 from app.models.city import City
-from app.models.country import Country
 from app.models.region import Region
+from app.models.country import Country
+from app.models.address import Addresses as AddressModel
 
 # enums
 from app.schema.enums import AddressTypeEnum

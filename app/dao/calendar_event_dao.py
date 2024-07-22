@@ -13,13 +13,12 @@ from app.models.calendar_event import CalendarEvent
 # daos
 from app.dao.base_dao import BaseDAO
 
-from app.schema.enums import EventType
-
 # schemas
+from app.schema.enums import EventType
 from app.schema.calendar_event import (
-    CalendarEventCreateSchema,
-    CalendarEventResponse,
     CalendarEventBase,
+    CalendarEventResponse,
+    CalendarEventCreateSchema,
     CalendarEventUpdateSchema,
 )
 
@@ -38,7 +37,9 @@ class CalendarEventDAO(BaseDAO[CalendarEvent]):
         try:
             # extract base information
             calendar_event_info = self.extract_model_data(obj_in, CalendarEventBase)
-            calendar_event_info["event_type"] = EventType(calendar_event_info["event_type"])
+            calendar_event_info["event_type"] = EventType(
+                calendar_event_info["event_type"]
+            )
             new_calendar_event: CalendarEvent = await super().create(
                 db_session=db_session, obj_in={**calendar_event_info}
             )

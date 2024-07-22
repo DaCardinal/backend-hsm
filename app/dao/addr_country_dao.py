@@ -1,5 +1,5 @@
-from app.models.country import Country
 from app.dao.base_dao import BaseDAO
+from app.models.country import Country
 
 
 class CountryDAO(BaseDAO[Country]):

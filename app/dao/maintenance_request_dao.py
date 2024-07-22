@@ -102,7 +102,7 @@ class MaintenanceRequestDAO(BaseDAO[MaintenanceRequest]):
         result: MaintenanceRequest = await super().update(
             db_session=db_session, db_obj=db_obj, obj_in=entity_data
         )
-        
+
         # check if no result
         if not result:
             return DAOResponse(success=True, data={})

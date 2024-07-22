@@ -16,9 +16,6 @@ from app.models.role import Role
 # services
 from app.services.email_service import EmailService
 
-# enums
-from app.schema.enums import GenderEnum
-
 # utils
 from app.utils.response import DAOResponse
 from app.utils.hashing import Hash
@@ -29,6 +26,7 @@ from app.dao.role_dao import RoleDAO
 from app.dao.address_dao import AddressDAO
 
 # schemas
+from app.schema.enums import GenderEnum
 from app.schema.mixins.address_mixin import Address, AddressBase
 from app.schema.user import (
     UserResponse,

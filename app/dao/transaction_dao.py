@@ -4,19 +4,17 @@ from pydantic import ValidationError
 from typing_extensions import override
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# daos
+from app.dao.base_dao import BaseDAO
+
 # utils
 from app.utils.response import DAOResponse
 
 # models
 from app.models.transaction import Transaction
 
-# daos
-from app.dao.base_dao import BaseDAO
-
-# mixins
-from app.schema.enums import PaymentStatus
-
 # schemas
+from app.schema.enums import PaymentStatus
 from app.schema.transaction import TransactionResponse, TransactionCreateSchema
 
 

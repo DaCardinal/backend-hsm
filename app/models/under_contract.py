@@ -27,7 +27,9 @@ class UnderContract(Base):
         UUID(as_uuid=True), ForeignKey("property_unit_assoc.property_unit_assoc_id")
     )
     contract_status = Column(Enum(ContractStatusEnum))
-    contract_id = Column(UUID(as_uuid=True), ForeignKey('contract.contract_id', ondelete='CASCADE'))
+    contract_id = Column(
+        UUID(as_uuid=True), ForeignKey("contract.contract_id", ondelete="CASCADE")
+    )
     client_id = Column(UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=True)
     employee_id = Column(UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=True)
     start_date = Column(
@@ -44,15 +46,12 @@ class UnderContract(Base):
         "PropertyUnitAssoc", back_populates="under_contract", lazy="selectin"
     )
     contract = relationship(
-        "Contract", back_populates="under_contract", lazy="selectin", viewonly=True
+        "Contract",
+        back_populates="under_contract",
+        lazy="selectin",
+        foreign_keys=[contract_id],
+        viewonly=True,
     )
-    # contract = relationship(
-    #     "Contract",
-    #     back_populates="under_contract",
-    #     lazy="selectin",
-    #     foreign_keys=[contract_id],
-    #     viewonly=True
-    # )
 
     client_representative = relationship(
         "User",

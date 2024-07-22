@@ -34,15 +34,23 @@ class Invoice(Base):
         default=uuid.uuid4,
     )
     invoice_number = Column(String(128), unique=True, nullable=False)
-    issued_by = Column(UUID(as_uuid=True), ForeignKey("users.user_id"))
-    issued_to = Column(UUID(as_uuid=True), ForeignKey("users.user_id"))
+    issued_by = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.user_id", use_alter=True, name="fk_invoice_issued_by"),
+    )
+    issued_to = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.user_id", use_alter=True, name="fk_invoice_issued_to"),
+    )
     invoice_details = Column(Text)
     invoice_amount = Column(Numeric(10, 2))
     due_date = Column(DateTime)
     date_paid = Column(DateTime)
     status = Column(Enum(PaymentStatusEnum), default=PaymentStatusEnum.pending)
     transaction_id = Column(
-        UUID(as_uuid=True), ForeignKey("transaction.transaction_id"), nullable=True
+        UUID(as_uuid=True),
+        ForeignKey("transaction.transaction_id", ondelete="CASCADE"),
+        nullable=True,
     )
 
     contracts = relationship(
@@ -50,8 +58,9 @@ class Invoice(Base):
     )
     transaction = relationship(
         "Transaction",
-        primaryjoin="and_(Invoice.invoice_number==Transaction.invoice_number)",
+        primaryjoin="Invoice.invoice_number==Transaction.invoice_number",
         back_populates="transaction_invoice",
+        lazy="selectin",
     )
     invoice_items = relationship(
         "InvoiceItem", back_populates="invoice", lazy="selectin"

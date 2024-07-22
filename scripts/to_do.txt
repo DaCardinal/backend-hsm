@@ -1,0 +1,26 @@
+Done
+====
+Roles [ /roles ]
+Utilities [ /utilities ]
+Ammenities [ /ammenities ]
+PaymentType [ /payment_type ]
+Users [ /users ]
+TransactionType [ /transaction_type ]
+CalendarEvent [ /calendar_event ]
+Permissions [ /permissions ]
+Media [ /media ]
+ContractType [ /contract_type ]
+Property [ /property ]
+Units [ /units ]
+Contract [ /contract ]
+MaintenanceRequest [ /maintenance_request ]
+
+Not Done
+=========
+Auth [ /auth ]
+Invoice [ /invoice ]
+Message [ /messages ]
+Transaction [ /transaction ]
+PropertyTours [ /tour_booking ]
+ContractAssignments [ /assign_contracts ]
+PropertyAssignment [ /property_assignment ]

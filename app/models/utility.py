@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, String, UUID
+from sqlalchemy import Column, ForeignKey, String, UUID, TEXT
 
 from app.models.billable import BillableAssoc
 
@@ -12,7 +12,7 @@ class Utilities(BillableAssoc):
         primary_key=True,
     )
     name = Column(String(128))
-    description = Column(String(50))
+    description = Column(TEXT)
 
     __mapper_args__ = {
         "polymorphic_identity": "Utilities",

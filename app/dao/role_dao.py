@@ -18,8 +18,8 @@ from app.dao.base_dao import BaseDAO
 from app.dao.permission_dao import PermissionDAO
 
 # schemas
-from app.schema.role import Role as RoleSchema, RoleResponse
 from app.models.user_role import UserRoles
+from app.schema.role import Role as RoleSchema, RoleResponse
 
 
 class RoleDAO(BaseDAO[Role]):

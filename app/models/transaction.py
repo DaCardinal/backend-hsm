@@ -36,7 +36,14 @@ class Transaction(Base):
         String, ForeignKey("transaction_type.transaction_type_name")
     )
     transaction_status = Column(Enum(PaymentStatusEnum))
-    invoice_number = Column(String(128), ForeignKey("invoice.invoice_number"))
+    invoice_number = Column(
+        String(128),
+        ForeignKey(
+            "invoice.invoice_number",
+            use_alter=True,
+            name="fk_transaction_invoice_number",
+        ),
+    )
 
     transaction_type = relationship("TransactionType", back_populates="transactions")
 
@@ -55,6 +62,7 @@ class Transaction(Base):
 
     transaction_invoice = relationship(
         "Invoice",
-        primaryjoin="and_(Invoice.invoice_number==Transaction.invoice_number)",
+        primaryjoin="Invoice.invoice_number==Transaction.invoice_number",
         back_populates="transaction",
+        lazy="selectin",
     )
