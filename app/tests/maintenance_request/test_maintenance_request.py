@@ -1,6 +1,6 @@
 # import pytest
 # from typing import Any, Dict
-# from httpx: AsyncClient
+# from httpx import AsyncClient
 
 
 # class TestMaintenanceRequest:
@@ -16,8 +16,7 @@
 #                 "description": "Air conditioning needs repair",
 #                 "status": "pending",
 #                 "priority": 1,
-#                 "requested_by": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-#                 "property_unit_assoc_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+#                 "requested_by": "0d5340d2-046b-42d9-9ef5-0233b79b6642",
 #                 "scheduled_date": "2024-07-21T21:28:24.590Z",
 #                 "completed_date": "2024-07-21T21:28:24.590Z",
 #                 "is_emergency": False

@@ -1,13 +1,10 @@
-import sys
 import asyncio
-import pathlib
 from sqlalchemy import pool
 from alembic import context
 from logging.config import fileConfig
 from sqlalchemy.engine import Connection
-from sqlalchemy.ext.asyncio import async_engine_from_config, AsyncEngine
+from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from app.db.dbModule import Base
 # Core Models
 from app.models.accounts import Accounts  # noqa: F401
 from app.models.company import Company  # noqa: F401

@@ -80,7 +80,14 @@ class Contract(Base):
     # under_contract = relationship(
     #     "UnderContract", back_populates="contract", lazy="selectin"
     # )
-    under_contract = relationship('UnderContract', back_populates='contract', lazy='selectin', foreign_keys="[UnderContract.contract_id]",  viewonly=True)
+    under_contract = relationship(
+        "UnderContract",
+        back_populates="contract",
+        lazy="selectin",
+        foreign_keys='UnderContract.contract_id',
+        cascade="all, delete-orphan",
+        viewonly=True
+    )
 
     properties = relationship(
         "PropertyUnitAssoc",

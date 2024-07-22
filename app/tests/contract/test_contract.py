@@ -2,6 +2,7 @@ import pytest
 from typing import Any, Dict
 from httpx import AsyncClient
 
+
 # TODO:
 # - PUT, DELETE, GET[id] should be the same
 class TestContract:
@@ -86,7 +87,6 @@ class TestContract:
     @pytest.mark.asyncio(scope="session")
     @pytest.mark.dependency(depends=["create_property"], name="create_contract")
     async def test_create_contract(self, client: AsyncClient):
-
         response = await client.post(
             "/contract/",
             json={
@@ -102,10 +102,12 @@ class TestContract:
                 "end_date": "2024-06-23T19:11:07.570Z",
                 "contract_info": [
                     {
-                        "property_unit_assoc": TestContract.default_property.get("property_unit_assoc_id"),
+                        "property_unit_assoc": TestContract.default_property.get(
+                            "property_unit_assoc_id"
+                        ),
                         "contract_status": "active",
                         "client_id": "0d5340d2-046b-42d9-9ef5-0233b79b6642",
-                        "employee_id": "4dbc3019-1884-4a0d-a2e6-feb12d83186e"
+                        "employee_id": "4dbc3019-1884-4a0d-a2e6-feb12d83186e",
                     }
                 ],
                 "utilities": [
@@ -115,7 +117,7 @@ class TestContract:
                         "apply_to_units": False,
                         "billable_id": TestContract.default_utility.get("utility_id"),
                     }
-                ]
+                ],
             },
         )
         assert response.status_code == 200
@@ -139,7 +141,9 @@ class TestContract:
         assert response.json()["data"]["contract_number"] == contract_id
 
     @pytest.mark.asyncio(scope="session")
-    @pytest.mark.dependency(depends=["get_contract_by_id"], name="update_contract_by_id")
+    @pytest.mark.dependency(
+        depends=["get_contract_by_id"], name="update_contract_by_id"
+    )
     async def test_update_contract(self, client: AsyncClient):
         contract_id = TestContract.default_contract["contract_id"]
 
@@ -159,13 +163,15 @@ class TestContract:
                 "contract_info": [
                     {
                         "contract_id": contract_id,
-                        "property_unit_assoc": TestContract.default_property.get("property_unit_assoc_id"),
+                        "property_unit_assoc": TestContract.default_property.get(
+                            "property_unit_assoc_id"
+                        ),
                         "contract_status": "active",
                         "client_id": "0d5340d2-046b-42d9-9ef5-0233b79b6642",
-                        "employee_id": "4dbc3019-1884-4a0d-a2e6-feb12d83186e"
+                        "employee_id": "4dbc3019-1884-4a0d-a2e6-feb12d83186e",
                     }
                 ],
-                "utilities": []
+                "utilities": [],
             },
         )
         assert response.status_code == 200
