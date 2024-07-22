@@ -77,9 +77,11 @@ class Contract(Base):
     invoices = relationship(
         "Invoice", secondary="contract_invoice", back_populates="contracts"
     )
-    under_contract = relationship(
-        "UnderContract", back_populates="contract", lazy="selectin"
-    )
+    # under_contract = relationship(
+    #     "UnderContract", back_populates="contract", lazy="selectin"
+    # )
+    under_contract = relationship('UnderContract', back_populates='contract', lazy='selectin', foreign_keys="[UnderContract.contract_id]",  viewonly=True)
+
     properties = relationship(
         "PropertyUnitAssoc",
         secondary="under_contract",

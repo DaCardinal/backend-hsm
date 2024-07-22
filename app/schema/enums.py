@@ -120,6 +120,9 @@ class EventType(str, Enum):
     inspection = "inspection"
     meeting = "meeting"
     other = "other"
+    birthday = "birthday"
+    holiday = "holiday"
+    maintenance_request = "maintenance_request"
 
 
 class CalendarStatus(str, Enum):

@@ -28,6 +28,7 @@ class EventTypeEnum(enum.Enum):
     other = "other"
     birthday = "birthday"
     holiday = "holiday"
+    maintenance_request = "maintenance_request"
 
 
 class CalendarEvent(Base):

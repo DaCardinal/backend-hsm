@@ -43,9 +43,10 @@ class UnderContract(Base):
     properties = relationship(
         "PropertyUnitAssoc", back_populates="under_contract", lazy="selectin"
     )
-    contract = relationship(
-        "Contract", back_populates="under_contract", lazy="selectin"
-    )
+    # contract = relationship(
+    #     "Contract", back_populates="under_contract", lazy="selectin"
+    # )
+    contract  = relationship('Contract', back_populates='under_contract', lazy='selectin', foreign_keys=[contract_id], viewonly=True)
 
     client_representative = relationship(
         "User",

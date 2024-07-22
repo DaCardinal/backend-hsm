@@ -128,50 +128,48 @@ class TestContract:
         assert response.status_code == 200
         assert isinstance(response.json(), dict)
 
-    # @pytest.mark.asyncio(scope="session")
-    # @pytest.mark.dependency(depends=["create_contract"], name="get_contract_by_id")
-    # async def test_get_contract_by_id(self, client: AsyncClient):
-    #     contract_id = self.default_contract["contract_number"]
+    @pytest.mark.asyncio(scope="session")
+    @pytest.mark.dependency(depends=["create_contract"], name="get_contract_by_id")
+    async def test_get_contract_by_id(self, client: AsyncClient):
+        contract_id = self.default_contract["contract_number"]
 
-    #     response = await client.get(f"/contract/{contract_id}")
+        response = await client.get(f"/contract/{contract_id}")
 
-    #     assert response.status_code == 200
-    #     assert response.json()["data"]["contract_number"] == contract_id
+        assert response.status_code == 200
+        assert response.json()["data"]["contract_number"] == contract_id
 
-    # @pytest.mark.asyncio(scope="session")
-    # @pytest.mark.dependency(depends=["get_contract_by_id"], name="update_contract_by_id")
-    # async def test_update_contract(self, client: AsyncClient):
-    #     contract_id = TestContract.default_contract["contract_id"]
+    @pytest.mark.asyncio(scope="session")
+    @pytest.mark.dependency(depends=["get_contract_by_id"], name="update_contract_by_id")
+    async def test_update_contract(self, client: AsyncClient):
+        contract_id = TestContract.default_contract["contract_id"]
 
-    #     response = await client.put(
-    #         f"/contract/{contract_id}",
-    #         json={
-    #             "contract_type": "sale",
-    #             "payment_type": "monthly",
-    #             "contract_status": "active",
-    #             "contract_details": "updated details",
-    #             "payment_amount": 5000,
-    #             "fee_percentage": 10,
-    #             "fee_amount": 500,
-    #             "date_signed": "2024-06-23T19:11:07.570Z",
-    #             "start_date": "2024-06-23T19:11:07.570Z",
-    #             "end_date": "2024-06-23T19:11:07.570Z",
-    #             "contract_info": [
-    #                 {
-    #                     "contract_id": contract_id,
-    #                     "property_unit_assoc": TestContract.default_property.get("property_unit_assoc_id"),
-    #                     "contract_status": "active",
-    #                     "client_id": "0d5340d2-046b-42d9-9ef5-0233b79b6642",
-    #                     "employee_id": "4dbc3019-1884-4a0d-a2e6-feb12d83186e"
-    #                 }
-    #             ],
-    #             "utilities": []
-    #         },
-    #     )
-    #     assert response.status_code == 200
-    #     t = response.json()["data"]
-    #     # assert t == ""
-    #     # assert response.json()["data"]["contract_type"] == "sale"
+        response = await client.put(
+            f"/contract/{contract_id}",
+            json={
+                "contract_type": "sale",
+                "payment_type": "monthly",
+                "contract_status": "active",
+                "contract_details": "updated details",
+                "payment_amount": 5000,
+                "fee_percentage": 10,
+                "fee_amount": 500,
+                "date_signed": "2024-06-23T19:11:07.570Z",
+                "start_date": "2024-06-23T19:11:07.570Z",
+                "end_date": "2024-06-23T19:11:07.570Z",
+                "contract_info": [
+                    {
+                        "contract_id": contract_id,
+                        "property_unit_assoc": TestContract.default_property.get("property_unit_assoc_id"),
+                        "contract_status": "active",
+                        "client_id": "0d5340d2-046b-42d9-9ef5-0233b79b6642",
+                        "employee_id": "4dbc3019-1884-4a0d-a2e6-feb12d83186e"
+                    }
+                ],
+                "utilities": []
+            },
+        )
+        assert response.status_code == 200
+        assert response.json()["data"]["contract_type"] == "sale"
 
     # @pytest.mark.asyncio(scope="session")
     # @pytest.mark.dependency(depends=["update_contract_by_id"], name="delete_contract_by_id")
