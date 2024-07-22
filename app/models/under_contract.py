@@ -27,7 +27,7 @@ class UnderContract(Base):
         UUID(as_uuid=True), ForeignKey("property_unit_assoc.property_unit_assoc_id")
     )
     contract_status = Column(Enum(ContractStatusEnum))
-    contract_id = Column(UUID(as_uuid=True), ForeignKey("contract.contract_id"))
+    contract_id = Column(UUID(as_uuid=True), ForeignKey('contract.contract_id', ondelete='CASCADE'))
     client_id = Column(UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=True)
     employee_id = Column(UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=True)
     start_date = Column(
