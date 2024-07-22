@@ -39,6 +39,7 @@ class CalendarEventDAO(BaseDAO[CalendarEvent]):
             new_calendar_event: CalendarEvent = await super().create(
                 db_session=db_session, obj_in={**calendar_event_info}
             )
+            print(new_calendar_event)
 
             # commit object to db session
             await self.commit_and_refresh(db_session, new_calendar_event)
