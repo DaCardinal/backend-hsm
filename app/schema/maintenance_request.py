@@ -1,16 +1,22 @@
-from enum import Enum
 from uuid import UUID
 from datetime import datetime
+from pydantic import BaseModel, ConfigDict, constr
 from typing import Any, Optional, Union, Annotated
-from pydantic import BaseModel, constr
 
 # schemas
 from app.schema.user import UserBase
 from app.schema.enums import MaintenanceStatus
-from app.schema.property import Property, PropertyUnit, PropertyUnitAssoc
+
+# mixins
+from app.schema.mixins.property_mixin import (
+    Property,
+    PropertyUnit,
+    PropertyDetailsMixin,
+)
 
 # models
-from app.models import MaintenanceRequest as MaintenanceRequestModel
+from app.models.maintenance_request import MaintenanceRequest as MaintenanceRequestModel
+
 
 class MaintenanceRequestBase(BaseModel):
     """
@@ -27,6 +33,7 @@ class MaintenanceRequestBase(BaseModel):
         completed_date (Optional[datetime]): The completed date for the maintenance.
         is_emergency (bool): Indicates if the maintenance request is an emergency.
     """
+
     title: Optional[Annotated[str, constr(max_length=255)]] = None
     description: Optional[Annotated[str, constr(max_length=255)]] = None
     status: MaintenanceStatus
@@ -37,8 +44,7 @@ class MaintenanceRequestBase(BaseModel):
     completed_date: Optional[datetime] = None
     is_emergency: bool = False
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class MaintenanceRequest(BaseModel):
@@ -57,6 +63,7 @@ class MaintenanceRequest(BaseModel):
         completed_date (Optional[datetime]): The completed date for the maintenance.
         is_emergency (bool): Indicates if the maintenance request is an emergency.
     """
+
     id: Optional[UUID] = None
     title: Optional[Annotated[str, constr(max_length=255)]] = None
     description: Optional[Annotated[str, constr(max_length=255)]] = None
@@ -68,8 +75,7 @@ class MaintenanceRequest(BaseModel):
     completed_date: Optional[datetime] = None
     is_emergency: bool = False
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class MaintenanceRequestCreateSchema(BaseModel):
@@ -87,6 +93,7 @@ class MaintenanceRequestCreateSchema(BaseModel):
         completed_date (Optional[datetime]): The completed date for the maintenance.
         is_emergency (bool): Indicates if the maintenance request is an emergency.
     """
+
     title: Annotated[str, constr(max_length=255)]
     description: Optional[Annotated[str, constr(max_length=255)]] = None
     status: MaintenanceStatus = MaintenanceStatus.pending
@@ -97,10 +104,11 @@ class MaintenanceRequestCreateSchema(BaseModel):
     completed_date: Optional[datetime] = None
     is_emergency: bool = False
 
-    class Config:
-        from_attributes = True
-        use_enum_values = True
-        populate_by_name = True
+    model_config = ConfigDict(
+        from_attributes=True,
+        populate_by_name=True,
+        use_enum_values=True,
+    )
 
 
 class MaintenanceRequestUpdateSchema(BaseModel):
@@ -120,6 +128,7 @@ class MaintenanceRequestUpdateSchema(BaseModel):
         completed_date (Optional[datetime]): The completed date for the maintenance.
         is_emergency (Optional[bool]): Indicates if the maintenance request is an emergency.
     """
+
     task_number: Optional[Annotated[str, constr(max_length=50)]] = None
     id: Optional[UUID] = None
     title: Optional[Annotated[str, constr(max_length=255)]] = None
@@ -132,13 +141,14 @@ class MaintenanceRequestUpdateSchema(BaseModel):
     completed_date: Optional[datetime] = None
     is_emergency: Optional[bool] = False
 
-    class Config:
-        from_attributes = True
-        use_enum_values = True
-        populate_by_name = True
+    model_config = ConfigDict(
+        from_attributes=True,
+        populate_by_name=True,
+        use_enum_values=True,
+    )
 
 
-class MaintenanceRequestResponse(BaseModel):
+class MaintenanceRequestResponse(BaseModel, PropertyDetailsMixin):
     """
     Model for representing a maintenance request response.
 
@@ -156,6 +166,7 @@ class MaintenanceRequestResponse(BaseModel):
         is_emergency (bool): Indicates if the maintenance request is an emergency.
         created_at (Optional[datetime]): The creation date of the maintenance request.
     """
+
     id: Optional[UUID] = None
     task_number: Optional[Annotated[str, constr(max_length=50)]] = None
     title: Optional[Annotated[str, constr(max_length=255)]] = None
@@ -170,79 +181,9 @@ class MaintenanceRequestResponse(BaseModel):
     created_at: Optional[datetime] = None
 
     @classmethod
-    def get_property_info(cls, property: Property) -> Property:
-        """
-        Get detailed property information.
-
-        Args:
-            property (Property): Property object.
-
-        Returns:
-            Property: Detailed property object.
-        """
-        return Property(
-            property_unit_assoc_id=property.property_unit_assoc_id,
-            name=property.name,
-            property_type=property.property_type.name,
-            amount=property.amount,
-            security_deposit=property.security_deposit,
-            commission=property.commission,
-            floor_space=property.floor_space,
-            num_units=property.num_units,
-            num_bathrooms=property.num_bathrooms,
-            num_garages=property.num_garages,
-            has_balconies=property.has_balconies,
-            has_parking_space=property.has_parking_space,
-            pets_allowed=property.pets_allowed,
-            description=property.description,
-            property_status=property.property_status,
-        )
-    
-    @classmethod
-    def get_property_unit_info(cls, property_unit: PropertyUnit) -> PropertyUnit:
-        """
-        Get detailed property unit information.
-
-        Args:
-            property_unit (PropertyUnit): Property unit object.
-
-        Returns:
-            PropertyUnit: Detailed property unit object.
-        """
-        return PropertyUnit(
-            property_unit_assoc_id=property_unit.property_unit_assoc_id,
-            property_unit_code=property_unit.property_unit_code,
-            property_unit_floor_space=property_unit.property_unit_floor_space,
-            property_unit_amount=property_unit.property_unit_amount,
-            property_floor_id=property_unit.property_floor_id,
-            property_unit_notes=property_unit.property_unit_notes,
-            has_amenities=property_unit.has_amenities,
-            property_id=property_unit.property_id,
-            property_unit_security_deposit=property_unit.property_unit_security_deposit,
-            property_unit_commission=property_unit.property_unit_commission
-        )
-    
-    @classmethod
-    def get_property_unit_assoc(cls, property_unit_assoc: PropertyUnitAssoc) -> Union[Property, PropertyUnit, dict]:
-        """
-        Get detailed property unit association information.
-
-        Args:
-            property_unit_assoc (PropertyUnitAssoc): Property unit association object.
-
-        Returns:
-            Union[Property, PropertyUnit, dict]: Detailed property unit association object.
-        """
-        if property_unit_assoc is None:
-            return {}
-        
-        if property_unit_assoc.property_unit_type == "Units":
-            return cls.get_property_unit_info(property_unit_assoc)
-        else:
-            return cls.get_property_info(property_unit_assoc)
-
-    @classmethod
-    def from_orm_model(cls, maintenance_request: MaintenanceRequestModel) -> 'MaintenanceRequestResponse':
+    def from_orm_model(
+        cls, maintenance_request: MaintenanceRequestModel
+    ) -> "MaintenanceRequestResponse":
         """
         Create a MaintenanceRequestResponse instance from an ORM model.
 
@@ -260,9 +201,11 @@ class MaintenanceRequestResponse(BaseModel):
             status=maintenance_request.status,
             priority=maintenance_request.priority,
             requested_by=maintenance_request.user,
-            property_unit_assoc=cls.get_property_unit_assoc(maintenance_request.property_unit_assoc),
+            property_unit_assoc=cls.get_property_details(
+                maintenance_request.property_unit_assoc
+            ),
             scheduled_date=maintenance_request.scheduled_date,
             completed_date=maintenance_request.completed_date,
             is_emergency=maintenance_request.is_emergency,
-            created_at=maintenance_request.created_at
+            created_at=maintenance_request.created_at,
         ).model_dump()

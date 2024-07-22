@@ -2,6 +2,7 @@ from app.db.dbModule import DBModule
 from app.utils.settings import settings
 import threading
 
+
 class DBManager:
     _instance = None
     _lock = threading.Lock()

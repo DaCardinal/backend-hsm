@@ -1,6 +1,7 @@
 from uuid import UUID
-from pydantic import BaseModel, constr
+from pydantic import BaseModel, ConfigDict, constr
 from typing import Optional, Annotated
+
 
 class EntityBillableBase(BaseModel):
     """
@@ -12,6 +13,7 @@ class EntityBillableBase(BaseModel):
         billable_amount (str): The amount for the billable entity.
         apply_to_units (bool): Indicates whether the billable entity applies to units.
     """
+
     billable_id: UUID
     payment_type_id: UUID
     billable_amount: Annotated[str, constr(max_length=100)]
@@ -32,6 +34,7 @@ class EntityBillable(BaseModel):
         billable_amount (Optional[int]): The amount for the billable entity.
         apply_to_units (Optional[bool]): Indicates whether the billable entity applies to units.
     """
+
     entity_billable_id: UUID
     payment_type_id: UUID
     entity_assoc_id: UUID
@@ -41,8 +44,7 @@ class EntityBillable(BaseModel):
     billable_amount: Optional[int] = None
     apply_to_units: Optional[bool] = False
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class EntityBillableCreate(BaseModel):
@@ -55,6 +57,7 @@ class EntityBillableCreate(BaseModel):
         billable_amount (Optional[int]): The amount for the billable entity.
         apply_to_units (Optional[bool]): Indicates whether the billable entity applies to units.
     """
+
     billable_id: Optional[UUID] = None
     payment_type: Optional[Annotated[str, constr(max_length=50)]] = None
     billable_amount: Optional[int] = None
@@ -67,6 +70,7 @@ class EntityBillableUpdate(EntityBillableBase):
 
     Inherits from EntityBillableBase.
     """
+
     pass
 
 
@@ -78,11 +82,11 @@ class UtilitiesBase(BaseModel):
         name (str): The name of the utility.
         description (Optional[str]): The description of the utility.
     """
+
     name: Annotated[str, constr(max_length=100)]
     description: Optional[Annotated[str, constr(max_length=255)]] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Utilities(UtilitiesBase):
@@ -94,12 +98,12 @@ class Utilities(UtilitiesBase):
         billable_amount (Optional[str]): The amount for the utility.
         apply_to_units (Optional[bool]): Indicates whether the utility applies to units.
     """
+
     utility_id: UUID
     billable_amount: Optional[Annotated[str, constr(max_length=100)]] = None
     apply_to_units: Optional[bool] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UtilitiesCreateSchema(UtilitiesBase):
@@ -108,6 +112,7 @@ class UtilitiesCreateSchema(UtilitiesBase):
 
     Inherits from UtilitiesBase.
     """
+
     pass
 
 
@@ -117,4 +122,5 @@ class UtilitiesUpdateSchema(UtilitiesBase):
 
     Inherits from UtilitiesBase.
     """
+
     pass

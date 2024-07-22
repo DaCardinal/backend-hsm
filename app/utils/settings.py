@@ -1,11 +1,13 @@
 from pydantic_settings import BaseSettings
+from pydantic import ConfigDict
 import cloudinary
+
 
 class Settings(BaseSettings):
     APP_NAME: str
     APP_URL: str
     LOG_LEVEL: str
-    
+
     DB_USER: str
     DB_PASSWORD: str
     DB_HOST: str
@@ -27,18 +29,19 @@ class Settings(BaseSettings):
 
     PYTHON_VERSION: str
 
-    EMAIL : str
-    EMAIL_PASSWORD : str
-    EMAIL_SERVER : str
+    EMAIL: str
+    EMAIL_PASSWORD: str
+    EMAIL_SERVER: str
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = 'utf-8'
+    model_config = ConfigDict(
+        from_attributes=True, env_file=".env", env_file_encoding="utf-8"
+    )
+
 
 settings = Settings()
 
 cloudinary.config(
     cloud_name=settings.CLOUDINARY_CLOUD_NAME,
     api_key=settings.CLOUDINARY_API_KEY,
-    api_secret=settings.CLOUDINARY_API_SECRET
+    api_secret=settings.CLOUDINARY_API_SECRET,
 )

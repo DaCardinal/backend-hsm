@@ -35,8 +35,8 @@ else
     cat << EOF > $OUTPUT_FILE
 from typing import Type
 
-from app.dao.base_dao import BaseDAO
-from app.models import $MODEL_NAME
+from dao.base_dao import BaseDAO
+from models import $MODEL_NAME
 
 class ${MODEL_NAME}DAO(BaseDAO[$MODEL_NAME]):
     def __init__(self, model: Type[$MODEL_NAME], load_parent_relationships: bool = False, load_child_relationships: bool = False, excludes = []):
@@ -68,10 +68,10 @@ else
     cat << EOF > $ROUTER_OUTPUT_FILE
 from typing import List
 
-from app.models import $MODEL_NAME
-from app.dao.${MODEL_NAME_LOWER}_dao import ${MODEL_NAME}DAO
-from app.schema import ${MODEL_NAME}Schema
-from app.router.base_router import BaseCRUDRouter
+from models import $MODEL_NAME
+from dao.${MODEL_NAME_LOWER}_dao import ${MODEL_NAME}DAO
+from schema import ${MODEL_NAME}Schema
+from router.base_router import BaseCRUDRouter
 
 class ${MODEL_NAME}Router(BaseCRUDRouter):
 
@@ -106,7 +106,7 @@ else
 fi
 
 # Update the import line in the schema file
-IMPORT_LINE=$(grep -E '^from app.models import ' $SCHEMA_FILE)
+IMPORT_LINE=$(grep -E '^from models import ' $SCHEMA_FILE)
 
 if [[ $IMPORT_LINE == *"$MODEL_NAME"* ]]; then
   echo "$MODEL_NAME is already imported in $SCHEMA_FILE"
@@ -119,7 +119,7 @@ fi
 
 SCHEMA_FILE="app/schema/__init__.py"
 # Update the import line in the schema file
-IMPORT_LINE=$(grep -E '^from app.schema.schemas import ' $SCHEMA_FILE)
+IMPORT_LINE=$(grep -E '^from schema.schemas import ' $SCHEMA_FILE)
 
 if [[ $IMPORT_LINE == *"$MODEL_NAME"* ]]; then
   echo "$MODEL_NAME is already imported in $SCHEMA_FILE"
@@ -136,7 +136,7 @@ fi
 
 ROUTER_IMPORTS="app/utils/__init__.py"
 # Update the import line in the schema file
-IMPORT_LINE=$(grep -E '^from app.schema.schemas import ' $SCHEMA_FILE)
+IMPORT_LINE=$(grep -E '^from schema.schemas import ' $SCHEMA_FILE)
 
 if [[ $IMPORT_LINE == *"$MODEL_NAME"* ]]; then
   echo "$MODEL_NAME is already imported in $SCHEMA_FILE"
@@ -183,7 +183,7 @@ fi
 IMPORT_FILE="app/router/__init__.py"
 
 # Define the line to be added
-NEW_LINE="from app.router.${MODEL_NAME_LOWER}_router import ${MODEL_NAME}Router"
+NEW_LINE="from router.${MODEL_NAME_LOWER}_router import ${MODEL_NAME}Router"
 
 # Check if the file exists
 if [ ! -f "$IMPORT_FILE" ]; then

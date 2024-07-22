@@ -1,58 +1,57 @@
 # Core Models
-from app.models.accounts import Accounts
-from app.models.company import Company
+from app.models.accounts import Accounts  # noqa: F401
+from app.models.company import Company  # noqa: F401
 
-from app.models.country import Country
-from app.models.city import City
-from app.models.region import Region
-from app.models.address import Addresses
-from app.models.entity_address import EntityAddress
+from app.models.country import Country  # noqa: F401
+from app.models.city import City  # noqa: F401
+from app.models.region import Region  # noqa: F401
+from app.models.address import Addresses  # noqa: F401
+from app.models.entity_address import EntityAddress  # noqa: F401
 
-from app.models.media import Media
-from app.models.entity_media import EntityMedia
+from app.models.media import Media  # noqa: F401
+from app.models.entity_media import EntityMedia  # noqa: F401
 
-from app.models.message import Message
-from app.models.reminder_frequency import ReminderFrequency
-from app.models.message_recipient import MessageRecipient
+from app.models.message import Message  # noqa: F401
+from app.models.reminder_frequency import ReminderFrequency  # noqa: F401
+from app.models.message_recipient import MessageRecipient  # noqa: F401
 
-from app.models.user import User
-from app.models.role import Role
-from app.models.permissions import Permissions
-from app.models.user_company import UsersCompany
-from app.models.user_interactions import UserInteractions
-from app.models.role_permissions import RolePermissions
-from app.models.user_role import UserRoles
-from app.models.user_account import UserAccounts
+from app.models.user import User  # noqa: F401
+from app.models.role import Role  # noqa: F401
+from app.models.permissions import Permissions  # noqa: F401
+from app.models.user_company import UsersCompany  # noqa: F401
+from app.models.user_interactions import UserInteractions  # noqa: F401
+from app.models.role_permissions import RolePermissions  # noqa: F401
+from app.models.user_role import UserRoles  # noqa: F401
+from app.models.user_account import UserAccounts  # noqa: F401
 
-from app.models.transaction_type import TransactionType
-from app.models.payment_type import PaymentTypes
-from app.models.contract_type import ContractType
-from app.models.contract import Contract, ContractStatusEnum
-from app.models.document import Documents
-from app.models.under_contract import UnderContract
-from app.models.invoice import Invoice, PaymentStatusEnum
-from app.models.invoice_item import InvoiceItem
-from app.models.contract_invoice import ContractInvoice
-from app.models.contract_documents import ContractDocuments
+from app.models.transaction_type import TransactionType  # noqa: F401
+from app.models.payment_type import PaymentTypes  # noqa: F401
+from app.models.contract_type import ContractType  # noqa: F401
+from app.models.contract import Contract, ContractStatusEnum  # noqa: F401
+from app.models.document import Documents  # noqa: F401
+from app.models.under_contract import UnderContract  # noqa: F401
+from app.models.invoice import Invoice, PaymentStatusEnum  # noqa: F401
+from app.models.invoice_item import InvoiceItem  # noqa: F401
+from app.models.contract_invoice import ContractInvoice  # noqa: F401
+from app.models.contract_documents import ContractDocuments  # noqa: F401
 
-from app.models.transaction import Transaction
+from app.models.transaction import Transaction  # noqa: F401
 
+from app.models.billable import BillableAssoc  # noqa: F401
+from app.models.utility import Utilities  # noqa: F401
+from app.models.entity_amenities import EntityAmenities  # noqa: F401
+from app.models.ammenity import Amenities  # noqa: F401
+from app.models.entity_billable import EntityBillable  # noqa: F401
 
-from app.models.billable import BillableAssoc
-from app.models.utility import Utilities
-from app.models.entity_amenities import EntityAmenities
-from app.models.ammenity import Amenities
-from app.models.entity_billable import EntityBillable
+from app.models.property_unit_assoc import PropertyUnitAssoc  # noqa: F401
+from app.models.unit import Units  # noqa: F401
+from app.models.property import Property  # noqa: F401
+from app.models.property_type import PropertyType  # noqa: F401
+from app.models.unit_type import UnitType  # noqa: F401
+from app.models.property_assignment import PropertyAssignment  # noqa: F401
 
-from app.models.property_unit_assoc import PropertyUnitAssoc
-from app.models.unit import Units
-from app.models.property import Property
-from app.models.property_type import PropertyType
-from app.models.unit_type import UnitType
-from app.models.property_assignment import PropertyAssignment
+from app.models.calendar_event import CalendarEvent  # noqa: F401
+from app.models.maintenance_request import MaintenanceRequest, MaintenanceStatusEnum  # noqa: F401
 
-from app.models.calendar_event import CalendarEvent
-from app.models.maintenance_request import MaintenanceRequest, MaintenanceStatusEnum
-
-from app.models.tour_bookings import Tour
-from app.models.user_favorites import FavoriteProperties
+from app.models.tour_bookings import Tour  # noqa: F401
+from app.models.user_favorites import FavoriteProperties  # noqa: F401

@@ -11,6 +11,7 @@ from app.utils.lifespan import logger
 from app.utils.lifespan import get_db
 from app.utils.response import DAOResponse
 
+
 class SessionMiddleware(BaseHTTPMiddleware):
     async def db_session_middleware(request: Request, call_next):
         response = Response("Internal server error", status_code=500)
@@ -20,7 +21,8 @@ class SessionMiddleware(BaseHTTPMiddleware):
         finally:
             request.state.db.close()
         return response
-        
+
+
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         start_time = time.time()
@@ -46,7 +48,13 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         response_log = f'"{request.method} {request.url.path} HTTP/{request.scope["http_version"]}" {response.status_code} {response_body.decode("utf-8")}'
         logger.info(f"Response: {response_log} (took {process_time:.2f} secs)")
 
-        return Response(content=response_body, status_code=response.status_code, headers=dict(response.headers), media_type=response.media_type)
+        return Response(
+            content=response_body,
+            status_code=response.status_code,
+            headers=dict(response.headers),
+            media_type=response.media_type,
+        )
+
 
 def configure_middleware(app: FastAPI):
     app.add_middleware(LoggingMiddleware)
@@ -64,8 +72,8 @@ def configure_middleware(app: FastAPI):
     async def http_exception_handler(request: Request, exc: StarletteHTTPException):
         return JSONResponse(
             status_code=exc.status_code,
-            content=DAOResponse[dict](success=False, error=exc.detail).model_dump()
+            content=DAOResponse[dict](success=False, error=exc.detail).model_dump(),
         )
-    
+
     app.add_middleware(GZipMiddleware, minimum_size=1000)
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])

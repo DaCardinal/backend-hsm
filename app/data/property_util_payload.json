@@ -50,13 +50,13 @@
         "payment_type": "one_time",
         "utility_value": "100",
         "apply_to_units": false,
-        "utility_id": "b4f5b22f-998d-44a7-aaa1-393158787f25"
+        "utility_id": "e043232b-98e8-43ad-b87d-1d1a9f1ed014"
       },
       {
         "payment_type": "one_time",
         "utility_value": "200",
         "apply_to_units": false,
-        "utility_id": "f9e41c2a-5bcd-4bd9-85dd-e3f942667d22"
+        "utility_id": "e043232b-98e8-43ad-b87d-1d1a9f1ed014"
       }
     ]
   }

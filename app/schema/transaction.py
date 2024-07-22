@@ -1,6 +1,6 @@
 from uuid import UUID
 from datetime import datetime
-from pydantic import BaseModel, constr
+from pydantic import BaseModel, ConfigDict, constr
 from typing import Optional, Union, Annotated
 
 # schemas
@@ -8,7 +8,8 @@ from app.schema.user import UserBase
 from app.schema.enums import PaymentStatus
 
 # models
-from app.models import Transaction as TransactionModel, User as UserModel
+from app.models.transaction import Transaction as TransactionModel
+from app.models.user import User as UserModel
 
 
 class TransactionBase(BaseModel):
@@ -25,6 +26,7 @@ class TransactionBase(BaseModel):
         transaction_status (PaymentStatusEnum): The status of the transaction.
         invoice_number (str): The invoice number associated with the transaction.
     """
+
     transaction_type_id: Annotated[str, constr(max_length=50)]
     client_offered: Optional[Union[UUID, UserBase]] = None
     client_requested: Optional[Union[UUID, UserBase]] = None
@@ -34,10 +36,12 @@ class TransactionBase(BaseModel):
     transaction_status: PaymentStatus
     invoice_number: Annotated[str, constr(max_length=50)]
 
-    class Config:
-        from_attributes = True
-        use_enum_values = True
-        populate_by_name = True
+    model_config = ConfigDict(
+        from_attributes=True,
+        populate_by_name=True,
+        use_enum_values=True,
+    )
+
 
 class Transaction(TransactionBase):
     """
@@ -46,12 +50,15 @@ class Transaction(TransactionBase):
     Attributes:
         transaction_id (UUID): The unique identifier for the transaction.
     """
+
     transaction_id: UUID
 
-    class Config:
-        from_attributes = True
-        use_enum_values = True
-        populate_by_name = True
+    model_config = ConfigDict(
+        from_attributes=True,
+        populate_by_name=True,
+        use_enum_values=True,
+    )
+
 
 class TransactionCreateSchema(TransactionBase):
     """
@@ -59,8 +66,9 @@ class TransactionCreateSchema(TransactionBase):
 
     Inherits from TransactionBase.
     """
-    class Config:
-        from_attributes = True
+
+    model_config = ConfigDict(from_attributes=True)
+
 
 class TransactionUpdateSchema(TransactionBase):
     """
@@ -68,8 +76,9 @@ class TransactionUpdateSchema(TransactionBase):
 
     Inherits from TransactionBase.
     """
-    class Config:
-        from_attributes = True
+
+    model_config = ConfigDict(from_attributes=True)
+
 
 class TransactionResponse(TransactionBase):
     """
@@ -78,13 +87,15 @@ class TransactionResponse(TransactionBase):
     Attributes:
         transaction_id (UUID): The unique identifier for the transaction.
     """
+
     transaction_id: UUID
 
-    class Config:
-        from_attributes = True
-        use_enum_values = True
-        populate_by_name = True
-        arbitrary_types_allowed = True  # Allows arbitrary types
+    model_config = ConfigDict(
+        from_attributes=True,
+        arbitrary_types_allowed=True,
+        use_enum_values=True,
+        populate_by_name=True,
+    )
 
     @classmethod
     def get_user_info(cls, user: UserModel) -> UserBase:
@@ -101,11 +112,11 @@ class TransactionResponse(TransactionBase):
             first_name=user.first_name,
             last_name=user.last_name,
             photo_url=user.photo_url,
-            email=user.email
+            email=user.email,
         )
-        
+
     @classmethod
-    def from_orm_model(cls, transaction: TransactionModel) -> 'TransactionResponse':
+    def from_orm_model(cls, transaction: TransactionModel) -> "TransactionResponse":
         """
         Create a TransactionResponse instance from an ORM model.
 
@@ -124,5 +135,5 @@ class TransactionResponse(TransactionBase):
             transaction_details=transaction.transaction_details,
             payment_method=transaction.payment_method,
             transaction_status=transaction.transaction_status,
-            invoice_number=transaction.invoice_number
+            invoice_number=transaction.invoice_number,
         ).model_dump()

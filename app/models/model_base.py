@@ -4,17 +4,20 @@ from sqlalchemy import Column, DateTime, func, UUID
 from sqlalchemy.ext.declarative import declared_attr
 
 from app.db.dbModule import Base
-    
+
+
 class BaseModel(AsyncAttrs, Base):
     __abstract__ = True
 
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower()
-    
+
     created_at = Column(DateTime(timezone=True), default=func.now())
-    updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
-    
+    updated_at = Column(
+        DateTime(timezone=True), default=func.now(), onupdate=func.now()
+    )
+
     def to_dict(self, exclude=None):
         if exclude is None:
             exclude = set()

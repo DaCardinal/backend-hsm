@@ -3,18 +3,24 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional, Type, TypeVar, Generic, Union
 
-from app.utils import DAOResponse
+from app.utils.response import DAOResponse
 from app.db.dbCrud import DBOperations
 
 DBModelType = TypeVar("DBModelType")
 
+
 class BaseDAO(DBOperations, Generic[DBModelType]):
     # nesting type
-    IMMEDIATE_CHILD = "immediate_child"
     NESTED_CHILD = "nested_child"
     NO_NESTED_CHILD = "parents_only"
+    IMMEDIATE_CHILD = "immediate_child"
 
-    def __init__(self, model: Type[DBModelType], excludes = [], nesting_degree: str = NO_NESTED_CHILD):
+    def __init__(
+        self,
+        model: Type[DBModelType],
+        excludes=[],
+        nesting_degree: str = NO_NESTED_CHILD,
+    ):
         self.model = model
         self.nesting_degree = nesting_degree
 
@@ -30,7 +36,7 @@ class BaseDAO(DBOperations, Generic[DBModelType]):
 
         self.excludes = excludes
 
-    def determine_schema(entity_data, key, full_schema, base_schema, id_key='id'):
+    def determine_schema(self, entity_data, key, full_schema, base_schema, id_key="id"):
         """
         Determines the appropriate schema class based on the provided entity data.
 
@@ -43,13 +49,15 @@ class BaseDAO(DBOperations, Generic[DBModelType]):
         """
         if key in entity_data and entity_data[key]:
             # Check if id_key exists directly or in the first item of the list if the value is a list
-            if id_key in entity_data[key] or (isinstance(entity_data[key], list) and id_key in entity_data[key][0]):
+            if id_key in entity_data[key] or (
+                isinstance(entity_data[key], list) and id_key in entity_data[key][0]
+            ):
                 return full_schema
         return base_schema
 
     def decompose_dict(self, d):
         def is_class_instance_with_to_dict(val):
-            return hasattr(val, 'to_dict') and callable(getattr(val, 'to_dict'))
+            return hasattr(val, "to_dict") and callable(getattr(val, "to_dict"))
 
         if isinstance(d, dict):
             decomposed = {}
@@ -59,7 +67,9 @@ class BaseDAO(DBOperations, Generic[DBModelType]):
                 elif isinstance(value, dict):
                     decomposed[key] = self.decompose_dict(value)
                 elif isinstance(value, list):
-                    decomposed[key] = [self.decompose_dict(item.to_dict()) for item in value]
+                    decomposed[key] = [
+                        self.decompose_dict(item.to_dict()) for item in value
+                    ]
                 else:
                     decomposed[key] = value
             return decomposed
@@ -67,38 +77,55 @@ class BaseDAO(DBOperations, Generic[DBModelType]):
             return [self.decompose_dict(item) for item in d]
         else:
             return d
-        
+
     def validate_errors(self, results):
         for result in results:
             result_value = results[result]
-            
-            if isinstance(result_value, DAOResponse) and result_value.success == False:
+
+            if isinstance(result_value, DAOResponse) and not result_value.success:
                 raise Exception(str(result_value.error))
-            
-    async def process_entity_details(self, db_session: AsyncSession, entity_id: UUID, entity_data: BaseModel, details_methods: dict):
+
+    async def process_entity_details(
+        self,
+        db_session: AsyncSession,
+        entity_id: UUID,
+        entity_data: BaseModel,
+        details_methods: dict,
+    ):
         results = {}
 
         for detail_key, (method, schema) in details_methods.items():
-            detail_data = self.extract_model_data(entity_data, schema, nested_key=detail_key)
+            detail_data = self.extract_model_data(
+                entity_data, schema, nested_key=detail_key
+            )
             if detail_data:
                 if isinstance(detail_data, list):
                     for entity_item in detail_data:
-                        results[detail_key] = await method(db_session, entity_id, schema(**entity_item))
+                        results[detail_key] = await method(
+                            db_session, entity_id, schema(**entity_item)
+                        )
                 else:
-                    results[detail_key] = await method(db_session, entity_id, schema(**detail_data))
-        
+                    results[detail_key] = await method(
+                        db_session, entity_id, schema(**detail_data)
+                    )
+
         # TODO: Add exception handler here for failed exceptions
         self.validate_errors(results)
-        
+
         return results
-    
-    def extract_model_data(self, data: dict, schema: Type[BaseModel], nested_key: Optional[str] = None) -> Union[List[dict] | dict]:
+
+    def extract_model_data(
+        self, data: dict, schema: Type[BaseModel], nested_key: Optional[str] = None
+    ) -> Union[List[dict] | dict]:
         data = data.get(nested_key, {}) if nested_key else data
 
         if data is None:
             return None
-        
+
         if isinstance(data, list):
-            return [{key: data_item[key] for key in data_item if key in schema.model_fields} for data_item in data]
-        
+            return [
+                {key: data_item[key] for key in data_item if key in schema.model_fields}
+                for data_item in data
+            ]
+
         return {key: data[key] for key in data if key in schema.model_fields}

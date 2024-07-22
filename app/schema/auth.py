@@ -1,9 +1,10 @@
 from uuid import UUID
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 
-# local imports
+# schemas
 from app.schema.role import Role
+
 
 class Token(BaseModel):
     """
@@ -13,11 +14,12 @@ class Token(BaseModel):
         access_token (str): The access token string.
         token_type (str): The type of the token, typically 'Bearer'.
     """
+
     access_token: str
     token_type: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
 
 class TokenExposed(BaseModel):
     """
@@ -33,6 +35,7 @@ class TokenExposed(BaseModel):
         expires (str): Expiration time of the token.
         roles (List[Role]): List of roles assigned to the user, defaults to an empty list.
     """
+
     user_id: Optional[UUID] = None
     access_token: str
     token_type: str
@@ -42,8 +45,8 @@ class TokenExposed(BaseModel):
     expires: str
     roles: List[Role] = []
 
-    class Config():
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
 
 class TokenData(BaseModel):
     """
@@ -52,7 +55,9 @@ class TokenData(BaseModel):
     Attributes:
         email (Optional[str]): Optional email extracted from the token.
     """
+
     email: Optional[str] = None
+
 
 class Login(BaseModel):
     """
@@ -62,8 +67,10 @@ class Login(BaseModel):
         username (str): Username for login.
         password (str): Password for login.
     """
+
     username: str
     password: str
+
 
 class ResetPassword(BaseModel):
     """
@@ -72,4 +79,5 @@ class ResetPassword(BaseModel):
     Attributes:
         email (str): Email address to send the reset password link to.
     """
+
     email: str

@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class GenderEnum(str, Enum):
     """
     Enumeration for gender types.
@@ -9,9 +10,11 @@ class GenderEnum(str, Enum):
         female (str): Represents female gender.
         other (str): Represents other genders.
     """
+
     male = "male"
     female = "female"
     other = "other"
+
 
 class AddressTypeEnum(str, Enum):
     """
@@ -21,8 +24,10 @@ class AddressTypeEnum(str, Enum):
         billing (str): Represents a billing address.
         mailing (str): Represents a mailing address.
     """
-    billing = 'billing'
-    mailing = 'mailing'
+
+    billing = "billing"
+    mailing = "mailing"
+
 
 class PropertyStatus(str, Enum):
     """
@@ -32,8 +37,10 @@ class PropertyStatus(str, Enum):
         available (str): Represents an available property status.
         unavailable (str): Represents an unavailable property status.
     """
+
     available = "available"
     unavailable = "unavailable"
+
 
 class PropertyType(str, Enum):
     """
@@ -44,9 +51,11 @@ class PropertyType(str, Enum):
         commercial (str): Represents a commercial property.
         industrial (str): Represents an industrial property.
     """
-    residential = 'residential'
-    commercial = 'commercial'
-    industrial = 'industrial'
+
+    residential = "residential"
+    commercial = "commercial"
+    industrial = "industrial"
+
 
 class ContractStatus(str, Enum):
     """
@@ -58,8 +67,11 @@ class ContractStatus(str, Enum):
         terminated (str): Represents a terminated contract.
     """
     active = "active"
+    inactive = "inactive"
     expired = "expired"
+    pending = "pending"
     terminated = "terminated"
+
 
 class PaymentStatus(str, Enum):
     """
@@ -69,10 +81,14 @@ class PaymentStatus(str, Enum):
         pending (str): Represents a pending payment status.
         completed (str): Represents a completed payment status.
         cancelled (str): Represents a cancelled payment status.
+        reversal (str): Represents a reversal payment status.
     """
+
     pending = "pending"
     completed = "completed"
     cancelled = "cancelled"
+    reversal = "reversal"
+
 
 class MaintenanceStatus(str, Enum):
     """
@@ -84,10 +100,12 @@ class MaintenanceStatus(str, Enum):
         completed (str): Represents a completed maintenance status.
         cancelled (str): Represents a cancelled maintenance status.
     """
+
     pending = "pending"
     in_progress = "in_progress"
     completed = "completed"
     cancelled = "cancelled"
+
 
 class EventType(str, Enum):
     """
@@ -98,9 +116,17 @@ class EventType(str, Enum):
         meeting (str): Represents a meeting event.
         other (str): Represents other types of events.
     """
+
     inspection = "inspection"
     meeting = "meeting"
     other = "other"
+
+
+class CalendarStatus(str, Enum):
+    pending = "pending"
+    completed = "completed"
+    cancelled = "cancelled"
+
 
 class TourType(str, Enum):
     """
@@ -110,8 +136,10 @@ class TourType(str, Enum):
         in_person (str): Represents an in-person tour.
         virtual (str): Represents a virtual tour.
     """
+
     in_person = "in_person"
     virtual = "virtual"
+
 
 class TourStatus(str, Enum):
     """
@@ -122,6 +150,7 @@ class TourStatus(str, Enum):
         completed (str): Represents a completed tour.
         cancelled (str): Represents a cancelled tour.
     """
+
     incoming = "incoming"
     completed = "completed"
     cancelled = "cancelled"

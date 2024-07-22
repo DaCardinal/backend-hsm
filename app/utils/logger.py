@@ -6,15 +6,19 @@ from fastapi import Request
 from pydantic import BaseModel
 from app.utils.settings import settings
 
+
 class SingletonMeta(type):
     _instances = {}
+
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
             instance = super().__call__(*args, **kwargs)
             cls._instances[cls] = instance
         return cls._instances[cls]
 
+
 class AppLogger(metaclass=SingletonMeta):
+    LOG_DIRECTORY = "logs"
     _logger_initialized = False
 
     def __init__(self):
@@ -23,25 +27,25 @@ class AppLogger(metaclass=SingletonMeta):
             AppLogger._logger_initialized = True
 
     def setup_logger(self):
-        log_directory = "logs"
+        log_directory = AppLogger.LOG_DIRECTORY
         log_filename = datetime.now().strftime("%Y-%m-%d") + ".log"
         log_filepath = os.path.join(log_directory, log_filename)
         os.makedirs(log_directory, exist_ok=True)
-        
+
         logging.basicConfig(
             filename=log_filepath,
-            filemode='a',
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            level=settings.LOG_LEVEL
+            filemode="a",
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            level=settings.LOG_LEVEL,
         )
 
     @classmethod
     def get_logger(cls):
         return logging.getLogger(__name__)
-    
+
     @staticmethod
     async def get_body(request: Request):
-        if not hasattr(request.state, 'body'):
+        if not hasattr(request.state, "body"):
             try:
                 request.state.body = await request.json()
             except Exception as e:
@@ -49,29 +53,27 @@ class AppLogger(metaclass=SingletonMeta):
                 logger.warning(f"Unable to read request body: {e}")
                 request.state.body = None
         return request.state.body
-    
+
     @staticmethod
     def log_with_method_name(method_name=None):
         def log_decorator(func):
             @functools.wraps(func)
             async def wrapper(*args, **kwargs):
-                self = func
-
                 if not args:
                     args_list = list(args) + list(kwargs.values())
                     args_list.extend(args)
-                
+
                 body = None
                 request_method = None
                 logger = AppLogger.get_logger()
                 name_to_log = method_name if method_name else func.__name__
-                
+
                 for arg in args_list:
                     if isinstance(arg, Request):
                         request_method = arg.method
                         body = arg.state.json_body
                         break
-                    if isinstance(arg,  BaseModel):
+                    if isinstance(arg, BaseModel):
                         body = arg.model_dump()
                         break
 
@@ -85,15 +87,19 @@ class AppLogger(metaclass=SingletonMeta):
                         for r in response:
                             result.append(r.to_dict())
                     else:
-                       result = response.to_dict() 
-                    logger.info(f"{request_method} {name_to_log}, Return JSON: {result}")
+                        result = response.to_dict()
+                    logger.info(
+                        f"{request_method} {name_to_log}, Return JSON: {result}"
+                    )
                     return result
                 except Exception as e:
                     logger.exception(f"Error in {request_method} {name_to_log}: {e}")
                     raise
+
             return wrapper
+
         return log_decorator
-    
+
     @staticmethod
     def log_decorator(func):
         @functools.wraps(func)
@@ -105,14 +111,13 @@ class AppLogger(metaclass=SingletonMeta):
             body = None
             request_method = None
             logger = AppLogger.get_logger()
-            name_to_log = func.__name__
-            
+
             for arg in args_list:
                 if isinstance(arg, Request):
                     request_method = arg.method
                     # body = arg.state.json_body
                     break
-                if isinstance(arg,  BaseModel):
+                if isinstance(arg, BaseModel):
                     body = arg.model_dump()
                     break
 
@@ -125,4 +130,5 @@ class AppLogger(metaclass=SingletonMeta):
             except Exception as e:
                 logger.exception(f"Error in {request_method} {func.__name__}: {e}")
                 raise
+
         return wrapper

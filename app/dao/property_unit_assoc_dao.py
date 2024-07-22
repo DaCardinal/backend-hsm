@@ -1,10 +1,12 @@
-from typing import Type
-
+# daos
 from app.dao.base_dao import BaseDAO
-from app.models import PropertyUnitAssoc
+
+# models
+from app.models.property_unit_assoc import PropertyUnitAssoc
+
 
 class PropertyUnitAssocDAO(BaseDAO[PropertyUnitAssoc]):
     def __init__(self):
         self.model = PropertyUnitAssoc
-        
+
         super().__init__(self.model)

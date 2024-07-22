@@ -1,16 +1,18 @@
 from uuid import UUID
-from enum import Enum
 from datetime import datetime
 from typing import Any, Optional, Union, Annotated
-from pydantic import BaseModel, EmailStr, constr
+from pydantic import BaseModel, ConfigDict, EmailStr, constr
+
+# models
+from app.models.tour_bookings import Tour as TourModel
+from app.models.user import User as UserModel
 
 # schemas
 from app.schema.user import UserBase
 from app.schema.enums import TourStatus, TourType
-from app.schema.property import Property, PropertyUnit, PropertyUnitAssoc
 
-# models
-from app.models import Tour as TourModel, User as UserModel
+# mixins
+from app.schema.mixins.property_mixin import Property, PropertyUnit, PropertyUnitAssoc
 
 
 class TourBookingBase(BaseModel):
@@ -27,6 +29,7 @@ class TourBookingBase(BaseModel):
         property_unit_assoc_id (Optional[Union[UUID, Property, PropertyUnit, Any]]): The associated property unit.
         user_id (Optional[Union[UUID, UserBase]]): The unique identifier of the user.
     """
+
     name: Annotated[str, constr(max_length=255)]
     email: EmailStr
     phone_number: Annotated[str, constr(max_length=20)]
@@ -36,8 +39,7 @@ class TourBookingBase(BaseModel):
     property_unit_assoc_id: Optional[Union[UUID, Property, PropertyUnit, Any]] = None
     user_id: Optional[Union[UUID, UserBase]] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TourBooking(BaseModel):
@@ -55,6 +57,7 @@ class TourBooking(BaseModel):
         property_unit_assoc_id (Optional[Union[UUID, Property, PropertyUnit, Any]]): The associated property unit.
         user (Optional[Union[UUID, UserBase]]): The unique identifier of the user.
     """
+
     tour_booking_id: Optional[UUID]
     name: Annotated[str, constr(max_length=255)]
     email: EmailStr
@@ -65,10 +68,11 @@ class TourBooking(BaseModel):
     property_unit_assoc_id: Optional[Union[UUID, Property, PropertyUnit, Any]] = None
     user: Optional[Union[UUID, UserBase]] = None
 
-    class Config:
-        from_attributes = True
-        use_enum_values = True
-        populate_by_name = True
+    model_config = ConfigDict(
+        from_attributes=True,
+        populate_by_name=True,
+        use_enum_values=True,
+    )
 
 
 class Tour(TourBookingBase):
@@ -78,12 +82,14 @@ class Tour(TourBookingBase):
     Attributes:
         tour_booking_id (Optional[UUID]): The unique identifier for the tour booking.
     """
+
     tour_booking_id: Optional[UUID]
 
-    class Config:
-        from_attributes = True
-        use_enum_values = True
-        populate_by_name = True
+    model_config = ConfigDict(
+        from_attributes=True,
+        populate_by_name=True,
+        use_enum_values=True,
+    )
 
 
 class TourCreateSchema(TourBookingBase):
@@ -92,8 +98,8 @@ class TourCreateSchema(TourBookingBase):
 
     Inherits from TourBookingBase.
     """
-    class Config:
-        from_attributes = True
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TourUpdateSchema(TourBookingBase):
@@ -102,8 +108,8 @@ class TourUpdateSchema(TourBookingBase):
 
     Inherits from TourBookingBase.
     """
-    class Config:
-        from_attributes = True
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TourResponse(BaseModel):
@@ -121,6 +127,7 @@ class TourResponse(BaseModel):
         property_unit_assoc (Optional[Union[UUID, Property, PropertyUnit, Any]]): The associated property unit.
         user (Optional[Union[UUID, UserBase]]): The unique identifier of the user.
     """
+
     tour_booking_id: Optional[UUID] = None
     email: EmailStr
     name: Annotated[str, constr(max_length=255)]
@@ -131,11 +138,12 @@ class TourResponse(BaseModel):
     property_unit_assoc: Optional[Union[UUID, Property, PropertyUnit, Any]] = None
     user: Optional[Union[UUID, UserBase]] = None
 
-    class Config:
-        from_attributes = True
-        use_enum_values = True
-        populate_by_name = True
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(
+        from_attributes=True,
+        arbitrary_types_allowed=True,
+        use_enum_values=True,
+        populate_by_name=True,
+    )
 
     @classmethod
     def get_property_info(cls, property: Property) -> Property:
@@ -187,11 +195,13 @@ class TourResponse(BaseModel):
             has_amenities=property_unit.has_amenities,
             property_id=property_unit.property_id,
             property_unit_security_deposit=property_unit.property_unit_security_deposit,
-            property_unit_commission=property_unit.property_unit_commission
+            property_unit_commission=property_unit.property_unit_commission,
         )
 
     @classmethod
-    def get_property_unit_assoc(cls, property_unit_assoc: PropertyUnitAssoc) -> Union[Property, PropertyUnit, dict]:
+    def get_property_unit_assoc(
+        cls, property_unit_assoc: PropertyUnitAssoc
+    ) -> Union[Property, PropertyUnit, dict]:
         """
         Get detailed property unit association information.
 
@@ -203,7 +213,7 @@ class TourResponse(BaseModel):
         """
         if property_unit_assoc is None:
             return {}
-        
+
         if property_unit_assoc.property_unit_type == "Units":
             return cls.get_property_unit_info(property_unit_assoc)
         else:
@@ -224,11 +234,11 @@ class TourResponse(BaseModel):
             first_name=user.first_name,
             last_name=user.last_name,
             photo_url=user.photo_url,
-            email=user.email
+            email=user.email,
         )
 
     @classmethod
-    def from_orm_model(cls, tour_booking: TourModel) -> 'TourResponse':
+    def from_orm_model(cls, tour_booking: TourModel) -> "TourResponse":
         """
         Create a TourResponse instance from an ORM model.
 
@@ -246,6 +256,8 @@ class TourResponse(BaseModel):
             phone_number=tour_booking.phone_number,
             tour_date=tour_booking.tour_date,
             status=tour_booking.status,
-            property_unit_assoc=cls.get_property_unit_assoc(tour_booking.property_unit_assoc),
-            user=tour_booking.user
+            property_unit_assoc=cls.get_property_unit_assoc(
+                tour_booking.property_unit_assoc
+            ),
+            user=tour_booking.user,
         ).model_dump()
