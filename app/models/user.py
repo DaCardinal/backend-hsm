@@ -8,7 +8,7 @@ from sqlalchemy import UUID, Boolean, Column, DateTime, Enum, String, func, sele
 from app.models.entity_address import EntityAddress
 from app.models.address import Addresses
 from app.models.model_base import BaseModel as Base
-from app.utils.lifespan import get_db as async_session
+# from app.utils.lifespan import get_db as async_session
 
 
 class GenderEnum(enum.Enum):
@@ -167,24 +167,24 @@ class User(Base):
         # Update the current_login_time field to the current date
         self.current_login_time = datetime.now()
 
-    async def get_user_addresses(self):
-        db_session: AsyncSession = async_session()
+    # async def get_user_addresses(self):
+    #     db_session: AsyncSession = async_session()
 
-        async with db_session as session:
-            async with session.begin():
-                result = await session.execute(
-                    select(Addresses)
-                    .options(selectinload(Addresses.entity_addresses))
-                    .join(
-                        EntityAddress, EntityAddress.address_id == Addresses.address_id
-                    )
-                    .filter(
-                        EntityAddress.entity_id == self.user_id,
-                        EntityAddress.entity_type == "User",
-                    )
-                )
-                account_addresses = result.scalars().all()
-                return account_addresses
+    #     async with db_session as session:
+    #         async with session.begin():
+    #             result = await session.execute(
+    #                 select(Addresses)
+    #                 .options(selectinload(Addresses.entity_addresses))
+    #                 .join(
+    #                     EntityAddress, EntityAddress.address_id == Addresses.address_id
+    #                 )
+    #                 .filter(
+    #                     EntityAddress.entity_id == self.user_id,
+    #                     EntityAddress.entity_type == "User",
+    #                 )
+    #             )
+    #             account_addresses = result.scalars().all()
+    #             return account_addresses
 
     def to_dict(self, exclude=["password"]):
         if exclude is None:

@@ -5,7 +5,7 @@ from sqlalchemy import Column, String, select, UUID
 from app.models.address import Addresses
 from app.models.entity_address import EntityAddress
 from app.models.model_base import BaseModel as Base
-from app.utils.lifespan import get_db as async_session
+# from app.utils.lifespan import get_db as async_session
 
 
 class Accounts(Base):
@@ -20,21 +20,21 @@ class Accounts(Base):
         "User", secondary="user_accounts", back_populates="accounts", lazy="selectin"
     )
 
-    async def get_account_addresses(self):
-        db_session: AsyncSession = async_session()
+    # async def get_account_addresses(self):
+    #     db_session: AsyncSession = async_session()
 
-        async with db_session as session:
-            async with session.begin():
-                result = await session.execute(
-                    select(Addresses)
-                    .options(selectinload(Addresses.entity_addresses))
-                    .join(
-                        EntityAddress, EntityAddress.address_id == Addresses.address_id
-                    )
-                    .filter(
-                        EntityAddress.entity_id == self.account_id,
-                        EntityAddress.entity_type == "account",
-                    )
-                )
-                account_addresses = result.scalars().all()
-                return account_addresses
+    #     async with db_session as session:
+    #         async with session.begin():
+    #             result = await session.execute(
+    #                 select(Addresses)
+    #                 .options(selectinload(Addresses.entity_addresses))
+    #                 .join(
+    #                     EntityAddress, EntityAddress.address_id == Addresses.address_id
+    #                 )
+    #                 .filter(
+    #                     EntityAddress.entity_id == self.account_id,
+    #                     EntityAddress.entity_type == "account",
+    #                 )
+    #             )
+    #             account_addresses = result.scalars().all()
+    #             return account_addresses

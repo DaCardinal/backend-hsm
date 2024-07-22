@@ -187,5 +187,5 @@ class TestContract:
 
     #     # Verify the contract is deleted
     #     response = await client.get(f"/contract/{contract_id}")
-    #     assert response.status_code == 404
-    #     assert response.json()["data"] == {}
+        # assert response.status_code == 404
+        # assert response.json()["data"] == {}

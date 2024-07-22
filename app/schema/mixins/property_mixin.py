@@ -203,6 +203,9 @@ class PropertyDetailsMixin(PropertyInfoMixin, PropertyUnitInfoMixin):
         )
 
         for property_unit_assoc in property_unit_assoc_details:
+            # TODO: prevent when property hasn't been linked to maintenance request
+            if not property_unit_assoc:
+                continue
             if (
                 property_unit_assoc.property_unit_type
                 == PropertyDetailsMixin.PROPERTY_TYPE_DEFAULT

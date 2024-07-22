@@ -14,9 +14,7 @@ from urllib.parse import quote
 
 import app.db.dbExceptions as DBExceptions
 from app.utils.settings import settings
-
-Base = declarative_base()
-
+from app.db.dbDeclarative import Base
 
 class DBModule:
     _base: Any = Base
