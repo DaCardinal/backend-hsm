@@ -177,18 +177,18 @@ class TestContract:
         assert response.status_code == 200
         assert response.json()["data"]["contract_type"] == "sale"
 
-    # @pytest.mark.asyncio(scope="session")
-    # @pytest.mark.dependency(
-    #     depends=["update_contract_by_id"], name="delete_contract_by_id"
-    # )
-    # async def test_delete_contract(self, client: AsyncClient):
-    #     contract_id = self.default_contract["contract_id"]
-    #     contract_number = self.default_contract["contract_number"]
+    @pytest.mark.asyncio(scope="session")
+    @pytest.mark.dependency(
+        depends=["update_contract_by_id"], name="delete_contract_by_id"
+    )
+    async def test_delete_contract(self, client: AsyncClient):
+        contract_id = self.default_contract["contract_id"]
+        contract_number = self.default_contract["contract_number"]
 
-    #     response = await client.delete(f"/contract/{contract_id}")
-    #     assert response.status_code == 204
+        response = await client.delete(f"/contract/{contract_id}")
+        assert response.status_code == 204
 
-    #     # Verify the contract is deleted
-    #     response = await client.get(f"/contract/{contract_number}")
-    #     assert response.status_code == 200
-    #     assert response.json()["data"] == {}
+        # Verify the contract is deleted
+        response = await client.get(f"/contract/{contract_number}")
+        assert response.status_code == 200
+        assert response.json()["data"] == {}

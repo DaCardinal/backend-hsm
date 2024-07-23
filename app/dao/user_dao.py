@@ -170,11 +170,13 @@ class UserDAO(BaseDAO[User]):
 
             # update user info
             existing_user: User = await super().update(
-                db_session=db_session, db_obj=db_obj, obj_in=obj_in
+                db_session=db_session,
+                db_obj=db_obj,
+                obj_in=obj_in.model_dump(exclude=["user_id"]).items(),
             )
             user_id = existing_user.user_id
 
-            # add additional info if exists | Determine the correct schema for the address
+            # # add additional info if exists | Determine the correct schema for the address
             address_schema = (
                 Address
                 if "address" in obj_in.model_fields

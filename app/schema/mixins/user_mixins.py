@@ -213,6 +213,7 @@ class UserBaseMixin:
         Returns:
             UserBase: User object.
         """
+
         return UserBase(
             user_id=user.user_id,
             first_name=user.first_name,
