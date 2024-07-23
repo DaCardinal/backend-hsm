@@ -22,6 +22,11 @@ class PaymentStatusEnum(enum.Enum):
     completed = "completed"
     cancelled = "cancelled"
 
+class InvoiceTypeEnum(enum.Enum):
+    lease = "lease"
+    maintenance = "maintenance"
+    other = "other"
+    general = "general"
 
 class Invoice(Base):
     __tablename__ = "invoice"
@@ -46,6 +51,7 @@ class Invoice(Base):
     invoice_amount = Column(Numeric(10, 2))
     due_date = Column(DateTime)
     date_paid = Column(DateTime)
+    invoice_type = Column(Enum(InvoiceTypeEnum), default=InvoiceTypeEnum.general)
     status = Column(Enum(PaymentStatusEnum), default=PaymentStatusEnum.pending)
     transaction_id = Column(
         UUID(as_uuid=True),
