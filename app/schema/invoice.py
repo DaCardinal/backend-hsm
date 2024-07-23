@@ -6,7 +6,7 @@ from typing import List, Optional, Union, Annotated
 
 # schemas
 from app.schema.user import UserBase
-from app.schema.enums import PaymentStatus
+from app.schema.enums import PaymentStatus, InvoiceType
 from app.schema.mixins.property_mixin import (
     Property,
     PropertyUnit,
@@ -168,6 +168,7 @@ class InvoiceDueResponse(BaseModel, InvoiceItemMixin, PropertyDetailsMixin):
     invoice_amount: Decimal
     due_date: Optional[datetime] = None
     date_paid: Optional[datetime] = None
+    invoice_type: InvoiceType
     status: PaymentStatus
     transaction_id: Optional[UUID] = None
     invoice_items: List[InvoiceItemBase] = []
@@ -193,6 +194,7 @@ class InvoiceDueResponse(BaseModel, InvoiceItemMixin, PropertyDetailsMixin):
             invoice_amount=invoice.invoice_amount,
             due_date=invoice.due_date,
             date_paid=invoice.date_paid,
+            invoice_type =invoice.invoice_type,
             status=invoice.status,
             transaction_id=invoice.transaction_id,
             invoice_items=cls.get_invoice_items(invoice.invoice_items),

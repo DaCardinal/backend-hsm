@@ -73,6 +73,11 @@ class ContractStatus(str, Enum):
     pending = "pending"
     terminated = "terminated"
 
+class InvoiceType(str, Enum):
+    lease = "lease"
+    maintenance = "maintenance"
+    other = "other"
+    general = "general"
 
 class PaymentStatus(str, Enum):
     """
