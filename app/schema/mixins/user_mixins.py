@@ -156,6 +156,7 @@ class UserBase(BaseModel):
         gender (GenderEnum): The gender of the user.
     """
 
+    user_id: Optional[UUID] = None
     date_of_birth: Optional[str] = Field(
         None,
         alias="date_of_birth",
