@@ -145,6 +145,7 @@ class PropertyUnitResponse(
             property_unit_security_deposit=property_unit.property_unit_security_deposit,
             property_unit_commission=property_unit.property_unit_commission,
             property=property_unit.property,
+            property_status=property_unit.property_status,
             media=property_unit.media,
             amenities=cls.get_amenities(property_unit.entity_amenities),
             utilities=cls.get_utilities_info(property_unit.utilities),

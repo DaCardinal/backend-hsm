@@ -194,7 +194,7 @@ class InvoiceDueResponse(BaseModel, InvoiceItemMixin, PropertyDetailsMixin):
             invoice_amount=invoice.invoice_amount,
             due_date=invoice.due_date,
             date_paid=invoice.date_paid,
-            invoice_type =invoice.invoice_type,
+            invoice_type=invoice.invoice_type,
             status=invoice.status,
             transaction_id=invoice.transaction_id,
             invoice_items=cls.get_invoice_items(invoice.invoice_items),

@@ -55,6 +55,7 @@ class InvoiceDAO(BaseDAO[Invoice]):
             new_invoice: Invoice = await super().create(
                 db_session=db_session, obj_in=invoice_info
             )
+            print(new_invoice)
 
             details_methods = {
                 "invoice_items": (
@@ -70,9 +71,10 @@ class InvoiceDAO(BaseDAO[Invoice]):
             # commit object to db session
             await self.commit_and_refresh(db_session, new_invoice)
 
-            return DAOResponse[InvoiceResponse](
-                success=True, data=InvoiceResponse.from_orm_model(new_invoice)
-            )
+            # return DAOResponse[InvoiceResponse](
+            #     success=True, data=InvoiceResponse.from_orm_model(new_invoice)
+            # )
+            return DAOResponse[InvoiceResponse](success=True, data=[])
         except ValidationError as e:
             return DAOResponse(success=False, data=str(e))
         except Exception as e:

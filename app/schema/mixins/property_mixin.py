@@ -125,6 +125,7 @@ class PropertyUnitBase(BaseModel):
     property_unit_floor_space: Optional[int] = None
     property_unit_amount: Optional[float] = None
     property_floor_id: Optional[int] = None
+    property_status: PropertyStatus
     property_unit_notes: Optional[str] = None
     property_unit_security_deposit: Optional[float] = None
     property_unit_commission: Optional[float] = None
@@ -160,6 +161,7 @@ class PropertyUnitInfoMixin:
             property_id=property_unit.property_id,
             property_unit_security_deposit=property_unit.property_unit_security_deposit,
             property_unit_commission=property_unit.property_unit_commission,
+            property_status=property_unit.property_status
         )
 
 

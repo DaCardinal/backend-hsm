@@ -1,3 +1,4 @@
+import enum
 from datetime import datetime
 from sqlalchemy.orm import relationship, column_property
 from sqlalchemy import (
@@ -7,6 +8,7 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     Text,
+    Enum,
     Boolean,
     UUID,
     select,
@@ -16,6 +18,7 @@ from sqlalchemy import (
 
 from app.models.under_contract import UnderContract
 from app.models.property_unit_assoc import PropertyUnitAssoc
+from app.models.property import PropertyStatus
 
 
 # TODO: Review calendar events
@@ -33,6 +36,7 @@ class Units(PropertyUnitAssoc):
     property_unit_security_deposit = Column(Numeric(10, 2))
     property_unit_commission = Column(Numeric(10, 2))
     property_floor_id = Column(Integer)
+    property_status = Column(Enum(PropertyStatus))
     property_unit_notes = Column(Text)
     has_amenities = Column(Boolean, default=False)
     property_id = Column(

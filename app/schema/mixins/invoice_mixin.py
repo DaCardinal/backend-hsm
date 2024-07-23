@@ -4,7 +4,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, constr
 from typing import List, Optional, Union, Annotated
 
-from app.schema.enums import PaymentStatus
+from app.schema.enums import InvoiceType, PaymentStatus
 from app.schema.mixins.user_mixins import UserBase
 
 
@@ -83,6 +83,7 @@ class InvoiceBase(BaseModel):
     due_date: Optional[datetime] = None
     date_paid: Optional[datetime] = None
     status: Union[PaymentStatus, Annotated[str, constr(max_length=50)]]
+    invoice_type: Union[InvoiceType, Annotated[str, constr(max_length=50)]]
     transaction_id: Optional[UUID] = None
     invoice_items: List[InvoiceItemBase] = []
 
