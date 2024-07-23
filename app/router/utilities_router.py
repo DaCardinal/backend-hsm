@@ -2,7 +2,7 @@ from typing import List
 
 from app.schema.schemas import UtilitiesSchema
 from app.schema.billable import UtilitiesCreateSchema, UtilitiesUpdateSchema
-from app.dao.utilities_dao import UtilitiesDAO
+from app.dao.resources.utilities_dao import UtilitiesDAO
 from app.router.base_router import BaseCRUDRouter
 
 

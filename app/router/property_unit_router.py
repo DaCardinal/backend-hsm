@@ -3,7 +3,7 @@ from typing import List
 from app.router.base_router import BaseCRUDRouter
 
 # daos
-from app.dao.property_unit_dao import PropertyUnitDAO
+from app.dao.properties.property_unit_dao import PropertyUnitDAO
 
 # schemas
 from app.schema.schemas import PropertyUnitSchema

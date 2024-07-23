@@ -1,7 +1,7 @@
 from typing import List
 
 # daos
-from app.dao.media_dao import MediaDAO
+from app.dao.resources.media_dao import MediaDAO
 
 # routers
 from app.router.base_router import BaseCRUDRouter

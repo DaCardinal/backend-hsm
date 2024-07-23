@@ -2,7 +2,7 @@ from typing import List
 from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dao.role_dao import RoleDAO
+from app.dao.auth.role_dao import RoleDAO
 from app.router.base_router import BaseCRUDRouter
 
 # schemas

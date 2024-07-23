@@ -1,6 +1,6 @@
 from typing import List
 
-from app.dao.permission_dao import PermissionDAO
+from app.dao.auth.permission_dao import PermissionDAO
 from app.router.base_router import BaseCRUDRouter
 
 # schemas

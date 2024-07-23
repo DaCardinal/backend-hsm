@@ -5,7 +5,7 @@ from sqlalchemy import and_, or_, select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 # daos
-from app.dao.message_dao import MessageDAO
+from app.dao.communication.message_dao import MessageDAO
 
 # utils
 from app.utils.response import DAOResponse

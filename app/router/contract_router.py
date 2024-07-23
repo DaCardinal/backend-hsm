@@ -4,7 +4,7 @@ from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 # daos
-from app.dao.contract_dao import ContractDAO
+from app.dao.contracts.contract_dao import ContractDAO
 
 # routers
 from app.router.base_router import BaseCRUDRouter

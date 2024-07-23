@@ -2,7 +2,7 @@ from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, HTTPException, Query, Request
 
-from app.dao.invoice_dao import InvoiceDAO
+from app.dao.billing.invoice_dao import InvoiceDAO
 from app.router.base_router import BaseCRUDRouter
 
 # schemas

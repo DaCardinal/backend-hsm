@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user import User
 
 # daos
-from app.dao.auth_dao import AuthDAO
+from app.dao.auth.auth_dao import AuthDAO
 
 # services
 from app.services.email_service import EmailService

@@ -3,7 +3,7 @@ from typing import List
 from app.router.base_router import BaseCRUDRouter
 
 # daos
-from app.dao.maintenance_request_dao import MaintenanceRequestDAO
+from app.dao.communication.maintenance_request_dao import MaintenanceRequestDAO
 
 # schemas
 from app.schema.schemas import MaintenanceRequestSchema

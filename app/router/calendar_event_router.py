@@ -3,7 +3,7 @@ from typing import List
 from app.router.base_router import BaseCRUDRouter
 
 # daos
-from app.dao.calendar_event_dao import CalendarEventDAO
+from app.dao.communication.calendar_event_dao import CalendarEventDAO
 
 # schemas
 from app.schema.schemas import CalendarEventSchema

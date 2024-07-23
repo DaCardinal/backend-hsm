@@ -1,6 +1,6 @@
 from typing import List
 
-from app.dao.company_dao import CompanyDAO
+from app.dao.auth.company_dao import CompanyDAO
 from app.schema.schemas import CompanySchema
 from app.router.base_router import BaseCRUDRouter
 

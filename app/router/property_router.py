@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.utils.response import DAOResponse
 
 # daos
-from app.dao.media_dao import MediaDAO
-from app.dao.property_dao import PropertyDAO
+from app.dao.resources.media_dao import MediaDAO
+from app.dao.properties.property_dao import PropertyDAO
 
 # models
 from app.models.entity_media import EntityMedia

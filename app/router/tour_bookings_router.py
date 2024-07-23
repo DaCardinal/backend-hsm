@@ -2,7 +2,7 @@ from typing import List
 
 from app.schema.schemas import TourBookingSchema
 from app.router.base_router import BaseCRUDRouter
-from app.dao.tour_booking_dao import TourBookingDAO
+from app.dao.communication.tour_booking_dao import TourBookingDAO
 
 
 class TourBookingRouter(BaseCRUDRouter):

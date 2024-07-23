@@ -1,7 +1,7 @@
 from typing import List
 
 from app.router.base_router import BaseCRUDRouter
-from app.dao.under_contract_dao import UnderContractDAO
+from app.dao.contracts.under_contract_dao import UnderContractDAO
 
 # schemas
 from app.schema.schemas import UnderContractSchema

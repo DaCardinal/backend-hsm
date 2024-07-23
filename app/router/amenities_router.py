@@ -10,7 +10,7 @@ from app.utils.response import DAOResponse
 from app.models.entity_amenities import EntityAmenities
 
 # daos
-from app.dao.amenities_dao import AmenitiesDAO
+from app.dao.resources.amenities_dao import AmenitiesDAO
 
 # schemas
 from app.schema.schemas import AmenitiesSchema

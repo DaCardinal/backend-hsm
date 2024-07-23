@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schema.schemas import TransactionSchema
 from app.router.base_router import BaseCRUDRouter
-from app.dao.transaction_dao import TransactionDAO
+from app.dao.billing.transaction_dao import TransactionDAO
 
 
 class TransactionRouter(BaseCRUDRouter):

@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Any, List, TypeVar, Generic, Optional, Union
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 
-from app.dao.base_dao import BaseDAO
+from app.dao.resources.base_dao import BaseDAO
 from app.utils.response import DAOResponse
 from app.utils.lifespan import get_db
 from app.schema.base_schema import SchemasDictType

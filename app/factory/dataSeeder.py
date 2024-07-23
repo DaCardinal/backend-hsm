@@ -46,7 +46,7 @@ class DataSeeder:
                     role = user.email.split("@")[0]
 
                     # user dao model
-                    models_module = import_module("app.dao.user_dao")
+                    models_module = import_module("app.dao.auth.user_dao")
                     UserDAO = getattr(models_module, "UserDAO")
 
                     # user dao instance
@@ -65,7 +65,7 @@ class DataSeeder:
         RoleObject = getattr(role_models_module, "Role")
 
         # role dao model
-        models_module = import_module("app.dao.role_dao")
+        models_module = import_module("app.dao.auth.role_dao")
         RoleDAO = getattr(models_module, "RoleDAO")
 
         # role dao instance

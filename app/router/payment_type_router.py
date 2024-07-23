@@ -2,7 +2,7 @@ from typing import List
 
 from app.schema.schemas import PaymentTypeSchema
 from app.router.base_router import BaseCRUDRouter
-from app.dao.payment_type_dao import PaymentTypeDAO
+from app.dao.billing.payment_type_dao import PaymentTypeDAO
 
 
 class PaymentTypeRouter(BaseCRUDRouter):

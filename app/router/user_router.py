@@ -3,7 +3,7 @@ from typing import List
 from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dao.user_dao import UserDAO
+from app.dao.auth.user_dao import UserDAO
 from app.utils.lifespan import AppLogger
 from app.router.base_router import BaseCRUDRouter
 
