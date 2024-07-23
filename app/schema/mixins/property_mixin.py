@@ -161,7 +161,7 @@ class PropertyUnitInfoMixin:
             property_id=property_unit.property_id,
             property_unit_security_deposit=property_unit.property_unit_security_deposit,
             property_unit_commission=property_unit.property_unit_commission,
-            property_status=property_unit.property_status
+            property_status=property_unit.property_status,
         )
 
 

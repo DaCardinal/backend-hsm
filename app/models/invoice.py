@@ -22,11 +22,13 @@ class PaymentStatusEnum(enum.Enum):
     completed = "completed"
     cancelled = "cancelled"
 
+
 class InvoiceTypeEnum(enum.Enum):
     lease = "lease"
     maintenance = "maintenance"
     other = "other"
     general = "general"
+
 
 class Invoice(Base):
     __tablename__ = "invoice"
