@@ -56,7 +56,7 @@ class TestMaintenanceRequest:
         name="update_maintenance_request_by_id",
     )
     async def test_update_maintenance_request(self, client: AsyncClient):
-        maintenance_request_id = self.default_maintenance_request["id"]
+        maintenance_request_id = self.default_maintenance_request["task_number"]
 
         response = await client.put(
             f"/maintenance_request/{maintenance_request_id}",
@@ -80,17 +80,12 @@ class TestMaintenanceRequest:
         name="delete_maintenance_request_by_id",
     )
     async def test_delete_maintenance_request(self, client: AsyncClient):
-        maintenance_request_id = self.default_maintenance_request["id"]
-        maintenance_request_task_number = self.default_maintenance_request[
-            "task_number"
-        ]
+        maintenance_request_id = self.default_maintenance_request["task_number"]
 
         response = await client.delete(f"/maintenance_request/{maintenance_request_id}")
         assert response.status_code == 204
 
         # Verify the maintenance request is deleted
-        response = await client.get(
-            f"/maintenance_request/{maintenance_request_task_number}"
-        )
+        response = await client.get(f"/maintenance_request/{maintenance_request_id}")
         assert response.status_code == 200
         assert response.json()["data"] == {}

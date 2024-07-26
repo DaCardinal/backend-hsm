@@ -33,39 +33,41 @@ class TestTransactionType:
         depends=["create_transaction_type"], name="get_transaction_type_by_id"
     )
     async def test_get_transaction_type_by_id(self, client: AsyncClient):
-        transaction_type_id = self.default_transaction_type.get("transaction_type_name")
+        transaction_type_name = self.default_transaction_type["transaction_type_name"]
 
-        response = await client.get(f"/transaction_type/{transaction_type_id}")
+        response = await client.get(f"/transaction_type/{transaction_type_name}")
 
         assert response.status_code == 200
-        assert response.json()["data"]["transaction_type_name"] == transaction_type_id
+        assert response.json()["data"]["transaction_type_name"] == transaction_type_name
 
     @pytest.mark.asyncio(scope="session")
     @pytest.mark.dependency(
         depends=["get_transaction_type_by_id"], name="update_transaction_type_by_id"
     )
     async def test_update_transaction_type(self, client: AsyncClient):
-        transaction_type_id = self.default_transaction_type["transaction_type_id"]
+        transaction_type_name = self.default_transaction_type["transaction_type_name"]
 
         response = await client.put(
-            f"/transaction_type/{transaction_type_id}",
+            f"/transaction_type/{transaction_type_name}",
             json={
-                "transaction_type_name": "sale",
+                "transaction_type_name": "prepaid_card",
                 "transaction_type_description": "Sale transaction type",
             },
         )
         assert response.status_code == 200
-        assert response.json()["data"]["transaction_type_name"] == "sale"
+        assert (
+            response.json()["data"]["transaction_type_description"]
+            == "Sale transaction type"
+        )
 
     @pytest.mark.asyncio(scope="session")
     @pytest.mark.dependency(
         depends=["update_transaction_type_by_id"], name="delete_transaction_type_by_id"
     )
     async def test_delete_transaction_type(self, client: AsyncClient):
-        transaction_type_id = self.default_transaction_type["transaction_type_id"]
         transaction_type_name = self.default_transaction_type["transaction_type_name"]
 
-        response = await client.delete(f"/transaction_type/{transaction_type_id}")
+        response = await client.delete(f"/transaction_type/{transaction_type_name}")
         assert response.status_code == 204
 
         # verify the transaction type is deleted

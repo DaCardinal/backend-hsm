@@ -251,10 +251,13 @@ class BaseCRUDRouter(Generic[DBModelType]):
     def add_update_route(self):
         @self.router.put("/{id}")
         async def update(
-            id: UUID, item: self.update_schema, db: AsyncSession = Depends(self.get_db)
+            id: Union[UUID | str],
+            item: self.update_schema,
+            db: AsyncSession = Depends(self.get_db),
         ) -> DAOResponse:
+            # changed this from 'self.model_pk[0]' to self.dao.primary_key
             db_item = await self.dao.query(
-                db_session=db, filters={f"{self.model_pk[0]}": id}, single=True
+                db_session=db, filters={f"{self.dao.primary_key}": id}, single=True
             )
             if not db_item:
                 raise HTTPException(
@@ -275,9 +278,12 @@ class BaseCRUDRouter(Generic[DBModelType]):
 
     def add_delete_route(self):
         @self.router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-        async def delete(id: UUID, db: AsyncSession = Depends(self.get_db)):
+        async def delete(
+            id: Union[UUID | str], db: AsyncSession = Depends(self.get_db)
+        ):
+            # changed this from 'self.model_pk[0]' to self.dao.primary_key
             db_item = await self.dao.query(
-                db_session=db, filters={f"{self.model_pk[0]}": id}, single=True
+                db_session=db, filters={f"{self.dao.primary_key}": id}, single=True
             )
 
             if not db_item:

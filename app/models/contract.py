@@ -90,9 +90,9 @@ class Contract(Base):
     properties = relationship(
         "PropertyUnitAssoc",
         secondary="under_contract",
-        primaryjoin="Contract.contract_id == UnderContract.contract_id",
+        primaryjoin="Contract.contract_number == UnderContract.contract_id",
         secondaryjoin="UnderContract.property_unit_assoc_id == PropertyUnitAssoc.property_unit_assoc_id",
-        foreign_keys="[Contract.contract_id, PropertyUnitAssoc.property_unit_assoc_id]",
+        foreign_keys="[Contract.contract_number, PropertyUnitAssoc.property_unit_assoc_id]",
         lazy="selectin",
         viewonly=True,
     )

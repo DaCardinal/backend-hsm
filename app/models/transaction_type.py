@@ -18,4 +18,4 @@ class TransactionType(Base):
     transaction_type_name = Column(String(128), unique=True, index=True)
     transaction_type_description = Column(String(128))
 
-    transactions = relationship("Transaction", back_populates="transaction_type")
+    transactions = relationship("Transaction", back_populates="transaction_types")

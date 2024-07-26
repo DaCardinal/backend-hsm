@@ -53,7 +53,7 @@ class TestCalendarEvent:
         depends=["get_calendar_event_by_id"], name="update_calendar_event_by_id"
     )
     async def test_update_calendar_event(self, client: AsyncClient):
-        calendar_event_id = self.default_calendar_event["id"]
+        calendar_event_id = self.default_calendar_event["event_id"]
 
         response = await client.put(
             f"/calendar_event/{calendar_event_id}",
@@ -77,9 +77,9 @@ class TestCalendarEvent:
     )
     async def test_delete_calendar_event(self, client: AsyncClient):
         calendar_event_get_id = self.default_calendar_event["event_id"]
-        calendar_event_id = self.default_calendar_event["id"]
+        # calendar_event_id = self.default_calendar_event["id"]
 
-        response = await client.delete(f"/calendar_event/{calendar_event_id}")
+        response = await client.delete(f"/calendar_event/{calendar_event_get_id}")
         assert response.status_code == 204
 
         # Verify the calendar event is deleted

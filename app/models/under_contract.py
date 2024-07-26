@@ -1,13 +1,14 @@
 import uuid
 import enum
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, DateTime, ForeignKey, Enum, UUID
+from sqlalchemy import Column, DateTime, ForeignKey, Enum, UUID, String
 
 from app.models.model_base import BaseModel as Base
 
 
 class ContractStatusEnum(enum.Enum):
     active = "active"
+    inactive = "inactive"
     expired = "expired"
     terminated = "terminated"
     pending = "pending"
@@ -28,7 +29,7 @@ class UnderContract(Base):
     )
     contract_status = Column(Enum(ContractStatusEnum))
     contract_id = Column(
-        UUID(as_uuid=True), ForeignKey("contract.contract_id", ondelete="CASCADE")
+        String(80), ForeignKey("contract.contract_number", ondelete="CASCADE")
     )
     client_id = Column(UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=True)
     employee_id = Column(UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=True)

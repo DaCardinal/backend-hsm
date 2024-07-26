@@ -231,7 +231,7 @@ class PropertyAssignmentResponse(BaseModel, UserBaseMixin, PropertyDetailsMixin)
     property_unit_assoc_id: Optional[Union[Property | PropertyUnit | Any]] = None
     user_id: Optional[UserBase] = None
     assignment_type: AssignmentType
-    date_from: datetime
+    date_from: Optional[datetime] = None
     date_to: Optional[datetime] = None
     notes: Optional[str] = None
 

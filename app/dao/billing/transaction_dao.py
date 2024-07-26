@@ -15,13 +15,17 @@ from app.models.transaction import Transaction
 
 # schemas
 from app.schema.enums import PaymentStatus
-from app.schema.transaction import TransactionResponse, TransactionCreateSchema
+from app.schema.transaction import (
+    TransactionResponse,
+    TransactionCreateSchema,
+    TransactionUpdateSchema,
+)
 
 
 class TransactionDAO(BaseDAO[Transaction]):
     def __init__(self, excludes=[], nesting_degree: str = BaseDAO.NO_NESTED_CHILD):
         self.model = Transaction
-        self.primary_key = "transaction_id"
+        self.primary_key = "transaction_number"
 
         super().__init__(self.model, nesting_degree=nesting_degree, excludes=excludes)
 
@@ -44,6 +48,34 @@ class TransactionDAO(BaseDAO[Transaction]):
 
             return DAOResponse[TransactionResponse](
                 success=True, data=TransactionResponse.from_orm_model(new_transaction)
+            )
+        except ValidationError as e:
+            return DAOResponse(success=False, data=str(e))
+        except Exception as e:
+            await db_session.rollback()
+            return DAOResponse[TransactionResponse](
+                success=False, error=f"Fatal {str(e)}"
+            )
+
+    @override
+    async def update(
+        self,
+        db_session: AsyncSession,
+        db_obj: Transaction,
+        obj_in: TransactionUpdateSchema,
+    ) -> DAOResponse[TransactionResponse]:
+        try:
+            # extract base information
+            transaction_info = obj_in.model_dump()
+            transaction: Transaction = await super().update(
+                db_session=db_session, db_obj=db_obj, obj_in=transaction_info.items()
+            )
+
+            # commit object to db session
+            await self.commit_and_refresh(db_session, transaction)
+
+            return DAOResponse[TransactionResponse](
+                success=True, data=TransactionResponse.from_orm_model(transaction)
             )
         except ValidationError as e:
             return DAOResponse(success=False, data=str(e))

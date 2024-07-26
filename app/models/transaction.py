@@ -1,7 +1,8 @@
-import uuid
 import enum
+import uuid
+import datetime
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, ForeignKey, DateTime, Enum, String, Text, UUID
+from sqlalchemy import Column, ForeignKey, DateTime, Enum, String, Text, UUID, event
 
 from app.models.model_base import BaseModel as Base
 
@@ -23,6 +24,7 @@ class Transaction(Base):
         index=True,
         default=uuid.uuid4,
     )
+    transaction_number = Column(String(128), unique=True, nullable=False)
     payment_method = Column(String, ForeignKey("payment_types.payment_type_name"))
     client_offered = Column(
         UUID(as_uuid=True), ForeignKey("users.user_id")
@@ -32,8 +34,8 @@ class Transaction(Base):
     )  # payee_name
     transaction_date = Column(DateTime)
     transaction_details = Column(Text)
-    transaction_type_id = Column(
-        String, ForeignKey("transaction_type.transaction_type_name")
+    transaction_type = Column(
+        String(128), ForeignKey("transaction_type.transaction_type_name")
     )
     transaction_status = Column(Enum(PaymentStatusEnum))
     invoice_number = Column(
@@ -45,7 +47,7 @@ class Transaction(Base):
         ),
     )
 
-    transaction_type = relationship("TransactionType", back_populates="transactions")
+    transaction_types = relationship("TransactionType", back_populates="transactions")
 
     client_offered_transaction = relationship(
         "User",
@@ -66,3 +68,22 @@ class Transaction(Base):
         back_populates="transaction",
         lazy="selectin",
     )
+
+
+@event.listens_for(Transaction, "before_insert")
+def receive_before_insert(mapper, connection, target):
+    if not target.transaction_number:
+        current_time_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        target.transaction_number = f"TRANS{current_time_str}"
+
+
+@event.listens_for(Transaction, "after_insert")
+def receive_after_insert(mapper, connection, target):
+    if not target.transaction_number:
+        current_time_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        target.transaction_number = f"TRANS{current_time_str}"
+        connection.execute(
+            target.__table__.update()
+            .where(target.__table__.c.id == target.id)
+            .values(transaction_number=target.transaction_number)
+        )

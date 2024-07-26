@@ -15,6 +15,7 @@ from app.schema.mixins.property_mixin import (
 from app.schema.mixins.invoice_mixin import (
     InvoiceItemBase,
     InvoiceBase,
+    InvoiceItem,
     InvoiceItemMixin,
 )
 
@@ -76,8 +77,9 @@ class InvoiceUpdateSchema(InvoiceBase):
         invoice_number (Optional[str]): The number of the invoice.
     """
 
-    id: Optional[UUID] = None
-    invoice_number: Optional[Annotated[str, constr(max_length=50)]] = None
+    # id: Optional[UUID] = None
+    # invoice_number: Optional[Annotated[str, constr(max_length=50)]] = None
+    invoice_items: List[InvoiceItem] = []
 
     model_config = ConfigDict(
         from_attributes=True,
@@ -113,8 +115,8 @@ class InvoiceResponse(BaseModel, InvoiceItemMixin):
     due_date: Optional[datetime] = None
     date_paid: Optional[datetime] = None
     status: PaymentStatus
-    transaction_id: Optional[UUID] = None
-    invoice_items: List[InvoiceItemBase] = []
+    transaction_number: Optional[Annotated[str, constr(max_length=50)]] = None
+    invoice_items: List[InvoiceItem] = []
 
     @classmethod
     def from_orm_model(cls, invoice: InvoiceModel) -> "InvoiceResponse":
@@ -137,7 +139,7 @@ class InvoiceResponse(BaseModel, InvoiceItemMixin):
             due_date=invoice.due_date,
             date_paid=invoice.date_paid,
             status=invoice.status,
-            transaction_id=invoice.transaction_id,
+            transaction_number=invoice.transaction_number,
             invoice_items=cls.get_invoice_items(invoice.invoice_items),
         ).model_dump()
 
@@ -170,7 +172,7 @@ class InvoiceDueResponse(BaseModel, InvoiceItemMixin, PropertyDetailsMixin):
     date_paid: Optional[datetime] = None
     invoice_type: InvoiceType
     status: PaymentStatus
-    transaction_id: Optional[UUID] = None
+    transaction_number: Optional[Annotated[str, constr(max_length=50)]] = None
     invoice_items: List[InvoiceItemBase] = []
     property: Optional[List[Union[Property, PropertyUnit]]]
 
@@ -196,7 +198,7 @@ class InvoiceDueResponse(BaseModel, InvoiceItemMixin, PropertyDetailsMixin):
             date_paid=invoice.date_paid,
             invoice_type=invoice.invoice_type,
             status=invoice.status,
-            transaction_id=invoice.transaction_id,
+            transaction_number=invoice.transaction_number,
             invoice_items=cls.get_invoice_items(invoice.invoice_items),
             property=cls.get_property_details_from_contract(invoice.contracts),
         ).model_dump()

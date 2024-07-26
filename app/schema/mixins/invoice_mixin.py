@@ -47,11 +47,10 @@ class InvoiceItem(BaseModel):
         description (Optional[str]): The description of the invoice item.
     """
 
+    invoice_item_id: Optional[UUID] = None
     quantity: int
     unit_price: Decimal
     total_price: Decimal
-    invoice_item_id: UUID
-    invoice_number: UUID
     reference_id: Optional[Annotated[str, constr(max_length=255)]] = None
     description: Optional[Annotated[str, constr(max_length=255)]] = None
 
@@ -84,7 +83,7 @@ class InvoiceBase(BaseModel):
     date_paid: Optional[datetime] = None
     status: Union[PaymentStatus, Annotated[str, constr(max_length=50)]]
     invoice_type: Union[InvoiceType, Annotated[str, constr(max_length=50)]]
-    transaction_id: Optional[UUID] = None
+    transaction_number: Optional[Annotated[str, constr(max_length=50)]] = None
     invoice_items: List[InvoiceItemBase] = []
 
     model_config = ConfigDict(
@@ -117,8 +116,8 @@ class Invoice(BaseModel):
     due_date: Optional[datetime] = None
     date_paid: Optional[datetime] = None
     status: Union[PaymentStatus, Annotated[str, constr(max_length=50)]]
-    transaction_id: Optional[UUID] = None
-    invoice_items: List[InvoiceItemBase] = []
+    transaction_number: Optional[Annotated[str, constr(max_length=50)]] = None
+    invoice_items: List[InvoiceItem] = []
 
     model_config = ConfigDict(
         from_attributes=True,
@@ -129,9 +128,7 @@ class Invoice(BaseModel):
 
 class InvoiceItemMixin:
     @classmethod
-    def get_invoice_items(
-        cls, invoice_details: List[InvoiceItem]
-    ) -> List[InvoiceItemBase]:
+    def get_invoice_items(cls, invoice_details: List[InvoiceItem]) -> List[InvoiceItem]:
         """
         Get the items in the invoice.
 
@@ -144,7 +141,8 @@ class InvoiceItemMixin:
         result = []
         for invoice in invoice_details:
             result.append(
-                InvoiceItemBase(
+                InvoiceItem(
+                    invoice_item_id=invoice.invoice_item_id,
                     reference_id=invoice.reference_id,
                     description=invoice.description,
                     quantity=invoice.quantity,

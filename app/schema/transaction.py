@@ -6,10 +6,10 @@ from typing import Optional, Union, Annotated
 # schemas
 from app.schema.user import UserBase
 from app.schema.enums import PaymentStatus
+from app.schema.mixins.user_mixins import UserBaseMixin
 
 # models
 from app.models.transaction import Transaction as TransactionModel
-from app.models.user import User as UserModel
 
 
 class TransactionBase(BaseModel):
@@ -17,7 +17,7 @@ class TransactionBase(BaseModel):
     Base model for transaction information.
 
     Attributes:
-        transaction_type_id (str): The type ID of the transaction.
+        transaction_type (str): The type ID of the transaction.
         client_offered (Optional[Union[UUID, UserBase]]): The user who offered the transaction (payer).
         client_requested (Optional[Union[UUID, UserBase]]): The user who requested the transaction (payee).
         transaction_date (datetime): The date of the transaction.
@@ -27,7 +27,8 @@ class TransactionBase(BaseModel):
         invoice_number (str): The invoice number associated with the transaction.
     """
 
-    transaction_type_id: Annotated[str, constr(max_length=50)]
+    transaction_type: Annotated[str, constr(max_length=50)]
+    transaction_number: Optional[Annotated[str, constr(max_length=50)]] = None
     client_offered: Optional[Union[UUID, UserBase]] = None
     client_requested: Optional[Union[UUID, UserBase]] = None
     transaction_date: datetime
@@ -80,7 +81,7 @@ class TransactionUpdateSchema(TransactionBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-class TransactionResponse(TransactionBase):
+class TransactionResponse(TransactionBase, UserBaseMixin):
     """
     Model for representing a transaction response.
 
@@ -88,7 +89,7 @@ class TransactionResponse(TransactionBase):
         transaction_id (UUID): The unique identifier for the transaction.
     """
 
-    transaction_id: UUID
+    transaction_id: Optional[UUID] = None
 
     model_config = ConfigDict(
         from_attributes=True,
@@ -96,24 +97,6 @@ class TransactionResponse(TransactionBase):
         use_enum_values=True,
         populate_by_name=True,
     )
-
-    @classmethod
-    def get_user_info(cls, user: UserModel) -> UserBase:
-        """
-        Get basic user information.
-
-        Args:
-            user (User): The user object.
-
-        Returns:
-            UserBase: Basic user information.
-        """
-        return UserBase(
-            first_name=user.first_name,
-            last_name=user.last_name,
-            photo_url=user.photo_url,
-            email=user.email,
-        )
 
     @classmethod
     def from_orm_model(cls, transaction: TransactionModel) -> "TransactionResponse":
@@ -128,7 +111,8 @@ class TransactionResponse(TransactionBase):
         """
         return cls(
             transaction_id=transaction.transaction_id,
-            transaction_type_id=transaction.transaction_type_id,
+            transaction_number=transaction.transaction_number,
+            transaction_type=transaction.transaction_type,
             client_offered=transaction.client_offered_transaction,
             client_requested=transaction.client_requested_transaction,
             transaction_date=transaction.transaction_date,

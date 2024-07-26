@@ -16,6 +16,8 @@ from app.dao.billing.invoice_item_dao import InvoiceItemDAO
 # schemas
 from app.schema.invoice import (
     InvoiceCreateSchema,
+    InvoiceUpdateSchema,
+    InvoiceItem as InvoiceItem,
     InvoiceItemBase,
     InvoiceDueResponse,
     InvoiceResponse,
@@ -23,7 +25,7 @@ from app.schema.invoice import (
 
 # models
 from app.models.contract import Contract
-from app.models.invoice_item import InvoiceItem
+from app.models.invoice_item import InvoiceItem as InvoiceItemModel
 from app.models.contract_type import ContractType
 from app.models.contract import ContractStatusEnum
 from app.models.under_contract import UnderContract
@@ -38,7 +40,7 @@ class InvoiceDAO(BaseDAO[Invoice]):
     def __init__(self, excludes=[], nesting_degree: str = BaseDAO.NO_NESTED_CHILD):
         self.model = Invoice
         self.primary_key = "invoice_number"
-        self.invoice_item_dao = InvoiceItemDAO(InvoiceItem)
+        self.invoice_item_dao = InvoiceItemDAO(InvoiceItemModel)
 
         super().__init__(self.model, nesting_degree=nesting_degree, excludes=excludes)
 
@@ -55,7 +57,6 @@ class InvoiceDAO(BaseDAO[Invoice]):
             new_invoice: Invoice = await super().create(
                 db_session=db_session, obj_in=invoice_info
             )
-            print(new_invoice)
 
             details_methods = {
                 "invoice_items": (
@@ -73,6 +74,42 @@ class InvoiceDAO(BaseDAO[Invoice]):
 
             return DAOResponse[InvoiceResponse](
                 success=True, data=InvoiceResponse.from_orm_model(new_invoice)
+            )
+        except ValidationError as e:
+            return DAOResponse(success=False, data=str(e))
+        except Exception as e:
+            await db_session.rollback()
+            return DAOResponse[InvoiceResponse](success=False, error=f"Fatal {str(e)}")
+
+    @override
+    async def update(
+        self, db_session: AsyncSession, db_obj: Invoice, obj_in: InvoiceUpdateSchema
+    ) -> DAOResponse[InvoiceResponse]:
+        try:
+            # extract information
+            invoice_info = obj_in.model_dump()
+
+            invoice: Invoice = await super().update(
+                db_session=db_session,
+                db_obj=db_obj,
+                obj_in=obj_in.model_dump(exclude=["invoice_items"]).items(),
+            )
+
+            details_methods = {
+                "invoice_items": (
+                    partial(self.add_invoice_details, invoice=invoice),
+                    InvoiceItem,
+                )
+            }
+            if details_methods.keys() & set(invoice_info.keys()):
+                await self.process_entity_details(
+                    db_session, invoice.invoice_number, invoice_info, details_methods
+                )
+            # commit object to db session
+            await self.commit_and_refresh(db_session, invoice)
+
+            return DAOResponse[InvoiceResponse](
+                success=True, data=InvoiceResponse.from_orm_model(invoice)
             )
         except ValidationError as e:
             return DAOResponse(success=False, data=str(e))
@@ -156,7 +193,7 @@ class InvoiceDAO(BaseDAO[Invoice]):
         self,
         db_session: AsyncSession,
         invoice_number: str,
-        invoice_info: InvoiceItemBase,
+        invoice_info: Union[InvoiceItem | InvoiceItemBase],
         invoice: Invoice = None,
     ):
         try:
@@ -164,7 +201,8 @@ class InvoiceDAO(BaseDAO[Invoice]):
                 invoice_info = [invoice_info]
 
             for invoice_item in invoice_info:
-                invoice_item: InvoiceItemBase = invoice_item
+                invoice_item: Union[InvoiceItem | InvoiceItemBase] = invoice_item
+                invoice_item_dump = invoice_item.model_dump()
 
                 invoice_item_obj = {
                     "description": invoice_item.description,
@@ -175,20 +213,28 @@ class InvoiceDAO(BaseDAO[Invoice]):
                 }
 
                 # Update if reference id found
-                if invoice_item.reference_id:
+                if "reference_id" in invoice_item_dump and invoice_item.reference_id:
                     invoice_item_obj["reference_id"] = invoice_item.reference_id
 
-                if "invoice_number" in invoice_item.model_fields:
-                    existing_invoice_item: InvoiceItem = (
+                if (
+                    "invoice_item_id" in invoice_item_dump
+                    and invoice_item.invoice_item_id
+                ):
+                    invoice_item_obj["invoice_item_id"] = invoice_item.invoice_item_id
+
+                if "invoice_item_id" in invoice_item_dump:
+                    existing_invoice_item: InvoiceItemModel = (
                         await self.invoice_item_dao.query(
-                            db_session=db_session, filters=invoice_item_obj, single=True
+                            db_session=db_session,
+                            filters={"invoice_item_id": invoice_item.invoice_item_id},
+                            single=True,
                         )
                     )
                 else:
                     existing_invoice_item = None
 
                 if existing_invoice_item:
-                    invoice_item_details: InvoiceItem = (
+                    invoice_item_details: InvoiceItemModel = (
                         await self.invoice_item_dao.update(
                             db_session=db_session,
                             db_obj=existing_invoice_item,
@@ -196,7 +242,7 @@ class InvoiceDAO(BaseDAO[Invoice]):
                         )
                     )
                 else:
-                    invoice_item_details: InvoiceItem = (
+                    invoice_item_details: InvoiceItemModel = (
                         await self.invoice_item_dao.create(
                             db_session=db_session, obj_in={**invoice_item_obj}
                         )

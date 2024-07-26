@@ -39,6 +39,30 @@ class PropertyAssignmentDAO(BaseDAO[PropertyAssignment]):
             return DAOResponse(success=False, error=f"Fatal {str(e)}")
 
     @override
+    async def update(
+        self,
+        db_session: AsyncSession,
+        db_obj: PropertyAssignment,
+        obj_in: Union[PropertyAssignmentCreate],
+    ) -> DAOResponse:
+        try:
+            # extract base information
+            property_assignment_info = obj_in.model_dump()
+            property_assignment: PropertyAssignment = await super().update(
+                db_session=db_session,
+                db_obj=db_obj,
+                obj_in=property_assignment_info.items(),
+            )
+
+            return DAOResponse[PropertyAssignmentResponse](
+                success=True,
+                data=PropertyAssignmentResponse.from_orm_model(property_assignment),
+            )
+        except Exception as e:
+            await db_session.rollback()
+            return DAOResponse(success=False, error=f"Fatal {str(e)}")
+
+    @override
     async def get_all(
         self, db_session: AsyncSession, offset=0, limit=100
     ) -> DAOResponse[List[PropertyAssignmentResponse]]:

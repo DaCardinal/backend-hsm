@@ -55,9 +55,9 @@ class Invoice(Base):
     date_paid = Column(DateTime)
     invoice_type = Column(Enum(InvoiceTypeEnum), default=InvoiceTypeEnum.general)
     status = Column(Enum(PaymentStatusEnum), default=PaymentStatusEnum.pending)
-    transaction_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("transaction.transaction_id", ondelete="CASCADE"),
+    transaction_number = Column(
+        String(128),
+        ForeignKey("transaction.transaction_number", ondelete="CASCADE"),
         nullable=True,
     )
 
@@ -71,7 +71,10 @@ class Invoice(Base):
         lazy="selectin",
     )
     invoice_items = relationship(
-        "InvoiceItem", back_populates="invoice", lazy="selectin"
+        "InvoiceItem",
+        back_populates="invoice",
+        lazy="selectin",
+        cascade="all, delete-orphan",
     )  # [property, property_unit, maintenance, service, fee]
 
     issued_by_user = relationship(

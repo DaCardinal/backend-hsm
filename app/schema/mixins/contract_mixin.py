@@ -70,10 +70,13 @@ class UnderContractSchema(BaseModel):
 
     under_contract_id: Optional[UUID] = None
     property_unit_assoc: Optional[UUID | Property | PropertyUnit] = None
-    contract_id: Optional[UUID] = None
+    contract_id: Optional[UUID | str] = None
     contract_status: Optional[ContractStatus] = None
     client_id: Optional[UUID | UserBase] = None
     employee_id: Optional[UUID | UserBase] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    next_payment_due: Optional[datetime] = None
 
     model_config = ConfigDict(
         from_attributes=True,
@@ -101,19 +104,21 @@ class ContractInfoMixin(PropertyDetailsMixin, UserBaseMixin, UtilitiesMixin):
                 [contract_detail.properties]
             )
 
-            if len(property_unit_assoc_query) != 0:
-                property_unit_assoc = property_unit_assoc_query[0]
-
             result.append(
                 UnderContractSchema(
                     under_contract_id=contract_detail.under_contract_id,
-                    property_unit_assoc=property_unit_assoc,
+                    property_unit_assoc=property_unit_assoc_query[0]
+                    if len(property_unit_assoc_query) != 0
+                    else None,
                     contract_id=contract_detail.contract_id,
                     contract_status=contract_detail.contract_status,
                     client_id=cls.get_user_info(contract_detail.client_representative),
                     employee_id=cls.get_user_info(
                         contract_detail.employee_representative
                     ),
+                    start_date=contract_detail.start_date,
+                    end_date=contract_detail.end_date,
+                    next_payment_due=contract_detail.next_payment_due,
                 )
             )
 

@@ -121,7 +121,6 @@ class TestContract:
             },
         )
         assert response.status_code == 200
-
         TestContract.default_contract = response.json()["data"]
 
     @pytest.mark.asyncio(scope="session")
@@ -145,10 +144,11 @@ class TestContract:
         depends=["get_contract_by_id"], name="update_contract_by_id"
     )
     async def test_update_contract(self, client: AsyncClient):
-        contract_id = TestContract.default_contract["contract_id"]
+        contract_number = TestContract.default_contract["contract_number"]
+        # contract_id = TestContract.default_contract["contract_id"]
 
         response = await client.put(
-            f"/contract/{contract_id}",
+            f"/contract/{contract_number}",
             json={
                 "contract_type": "sale",
                 "payment_type": "monthly",
@@ -162,7 +162,7 @@ class TestContract:
                 "end_date": "2024-06-23T19:11:07.570Z",
                 "contract_info": [
                     {
-                        "contract_id": contract_id,
+                        "contract_id": contract_number,
                         "property_unit_assoc": TestContract.default_property.get(
                             "property_unit_assoc_id"
                         ),
@@ -182,13 +182,12 @@ class TestContract:
         depends=["update_contract_by_id"], name="delete_contract_by_id"
     )
     async def test_delete_contract(self, client: AsyncClient):
-        contract_id = self.default_contract["contract_id"]
-        contract_number = self.default_contract["contract_number"]
+        contract_id = self.default_contract["contract_number"]
 
         response = await client.delete(f"/contract/{contract_id}")
         assert response.status_code == 204
 
         # Verify the contract is deleted
-        response = await client.get(f"/contract/{contract_number}")
+        response = await client.get(f"/contract/{contract_id}")
         assert response.status_code == 200
         assert response.json()["data"] == {}

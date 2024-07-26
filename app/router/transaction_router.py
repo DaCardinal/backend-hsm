@@ -3,12 +3,15 @@ from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schema.schemas import TransactionSchema
+from app.schema.transaction import TransactionCreateSchema, TransactionUpdateSchema
 from app.router.base_router import BaseCRUDRouter
 from app.dao.billing.transaction_dao import TransactionDAO
 
 
 class TransactionRouter(BaseCRUDRouter):
     def __init__(self, prefix: str = "", tags: List[str] = []):
+        TransactionSchema["create_schema"] = TransactionCreateSchema
+        TransactionSchema["update_schema"] = TransactionUpdateSchema
         self.dao: TransactionDAO = TransactionDAO(
             nesting_degree=BaseCRUDRouter.IMMEDIATE_CHILD, excludes=[""]
         )
