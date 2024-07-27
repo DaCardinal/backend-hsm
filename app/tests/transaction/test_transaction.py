@@ -49,6 +49,7 @@ class TestTransaction:
                 "invoice_number": self.default_invoice["invoice_number"],
             },
         )
+
         assert response.status_code == 200
 
         TestTransaction.default_transaction = response.json()["data"]

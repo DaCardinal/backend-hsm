@@ -1,11 +1,13 @@
 from typing import List, Type, TypeVar, Generic, Dict, Any, Union, Optional
 from uuid import UUID
+from asyncpg import ForeignKeyViolationError
 from sqlalchemy import and_, func
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import inspect
 from sqlalchemy.orm import selectinload
 
+from app.db.dbExceptions import IntegrityError
 from app.utils.response import DAOResponse
 
 DBModelType = TypeVar("DBModelType")
@@ -25,9 +27,16 @@ class UtilsMixin:
             await db_session.commit()
             await db_session.refresh(obj)
             return obj
+        
+        except IntegrityError as e:
+            await db_session.rollback()
+            raise IntegrityError(f"Integrity error: {str(e)}")
+        except ForeignKeyViolationError as e:
+            await db_session.rollback()
+            raise ForeignKeyViolationError(f"Foreign key violation: {str(e)}")
         except Exception as e:
             await db_session.rollback()
-            return DAOResponse(success=False, error=f"Error committing data: {str(e)}")
+            raise Exception(f"Error committing data: {str(e)}")
 
 
 class CreateMixin(UtilsMixin):
@@ -36,8 +45,13 @@ class CreateMixin(UtilsMixin):
     async def create(self, db_session: AsyncSession, obj_in) -> DBModelType:
         db_obj = self.model(**obj_in)
         db_session.add(db_obj)
-
-        return await self.commit_and_refresh(db_session=db_session, obj=db_obj)
+        
+        try:
+            return await self.commit_and_refresh(db_session=db_session, obj=db_obj)
+        
+        except Exception as e:
+            await db_session.rollback()
+            raise Exception(f"{str(e)}")
 
 
 class ReadMixin(UtilsMixin):

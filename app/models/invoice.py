@@ -1,6 +1,7 @@
 import enum
 import uuid
-import datetime
+from datetime import datetime
+import pytz
 from sqlalchemy.orm import relationship
 from sqlalchemy import (
     Column,
@@ -51,8 +52,8 @@ class Invoice(Base):
     )
     invoice_details = Column(Text)
     invoice_amount = Column(Numeric(10, 2))
-    due_date = Column(DateTime)
-    date_paid = Column(DateTime)
+    due_date = Column(DateTime(timezone=True), default=lambda: datetime.now(pytz.utc))
+    date_paid = Column(DateTime(timezone=True), default=lambda: datetime.now(pytz.utc))
     invoice_type = Column(Enum(InvoiceTypeEnum), default=InvoiceTypeEnum.general)
     status = Column(Enum(PaymentStatusEnum), default=PaymentStatusEnum.pending)
     transaction_number = Column(
@@ -94,14 +95,14 @@ class Invoice(Base):
 @event.listens_for(Invoice, "before_insert")
 def receive_before_insert(mapper, connection, target):
     if not target.invoice_number:
-        current_time_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        current_time_str = datetime.now().strftime("%Y%m%d%H%M%S")
         target.invoice_number = f"INV{current_time_str}"
 
 
 @event.listens_for(Invoice, "after_insert")
 def receive_after_insert(mapper, connection, target):
     if not target.invoice_number:
-        current_time_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        current_time_str = datetime.now().strftime("%Y%m%d%H%M%S")
         target.invoice_number = f"INV{current_time_str}"
         connection.execute(
             target.__table__.update()

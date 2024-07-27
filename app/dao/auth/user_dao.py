@@ -85,6 +85,7 @@ class UserDAO(BaseDAO[User]):
             new_user: User = await super().create(
                 db_session=db_session, obj_in=user_info
             )
+            print(new_user)
             user_id = new_user.user_id
 
             # create verification token and password hash
@@ -209,7 +210,7 @@ class UserDAO(BaseDAO[User]):
                 await self.add_user_role(db_session, user_id, entity_data.get("role"))
 
             # commit object to db session
-            await self.commit_and_refresh(db_session, existing_user)
+            # await self.commit_and_refresh(db_session, existing_user)
 
             return DAOResponse[UserResponse](
                 success=True, data=UserResponse.from_orm_model(existing_user)

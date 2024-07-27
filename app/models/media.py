@@ -16,5 +16,5 @@ class Media(Base):
     )
     media_name = Column(String(128))
     media_type = Column(String(50))
-    content_url = Column(String(128))
+    content_url = Column(String(500))
     is_thumbnail = Column(Boolean, default=False)

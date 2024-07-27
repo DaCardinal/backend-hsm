@@ -3,6 +3,7 @@ from typing import Any, List, Union
 from pydantic import ValidationError
 from typing_extensions import override
 from sqlalchemy.ext.asyncio import AsyncSession
+from asyncpg.exceptions import ForeignKeyViolationError
 
 # daos
 from app.dao.resources.base_dao import BaseDAO
@@ -53,6 +54,7 @@ class TransactionDAO(BaseDAO[Transaction]):
             return DAOResponse(success=False, data=str(e))
         except Exception as e:
             await db_session.rollback()
+            
             return DAOResponse[TransactionResponse](
                 success=False, error=f"Fatal {str(e)}"
             )

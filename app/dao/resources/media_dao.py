@@ -60,7 +60,8 @@ class MediaDAO(BaseDAO[MediaModel]):
                 db_session=db_session, obj_in=entity_media_object
             )
 
-        return []
+        # TODO: Double check flow
+        return None
 
     @override
     async def get_all(
@@ -201,7 +202,7 @@ class MediaDAO(BaseDAO[MediaModel]):
                 media_item: Media = media_item
 
                 # Check if the entity already exists
-                existing_media_item: Media = await self.query(
+                existing_media_item = await self.query(
                     db_session=db_session,
                     filters={**media_item.model_dump(exclude=["content_url"])},
                     single=True,
@@ -237,8 +238,10 @@ class MediaDAO(BaseDAO[MediaModel]):
                     entity_model=entity_model_name,
                 )
 
-                # commit object to db session
-                await self.commit_and_refresh(db_session, entity_media_item)
+                if entity_media_item:
+                    # commit object to db session
+                    await self.commit_and_refresh(db_session, entity_media_item)
+
                 results.append(media_upload)
 
             return results

@@ -1,6 +1,8 @@
+from datetime import datetime
 import uuid
+import pytz
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy import Column, ForeignKey, Boolean, DateTime, String, Text, func, UUID
+from sqlalchemy import Column, ForeignKey, Boolean, DateTime, String, Text, UUID
 
 from app.models.model_base import BaseModel as Base
 
@@ -23,9 +25,15 @@ class Message(Base):
     is_reminder = Column(Boolean, default=False, nullable=True)
     is_scheduled = Column(Boolean, default=False, nullable=True)
     is_read = Column(Boolean, default=False, nullable=True)
-    date_created = Column(DateTime(timezone=True), default=func.now())
-    scheduled_date = Column(DateTime(timezone=True), default=func.now())
-    next_remind_date = Column(DateTime(timezone=True), nullable=True)
+    date_created = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(pytz.utc)
+    )
+    scheduled_date = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(pytz.utc)
+    )
+    next_remind_date = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(pytz.utc), nullable=True
+    )
 
     # TODO: Add to next update on message model
     reminder_frequency_id = Column(

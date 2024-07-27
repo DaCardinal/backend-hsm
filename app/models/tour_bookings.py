@@ -1,6 +1,8 @@
+from datetime import datetime
 import enum
 import uuid
-from sqlalchemy import UUID, Column, String, Enum, DateTime, ForeignKey, func
+import pytz
+from sqlalchemy import UUID, Column, String, Enum, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 
 from app.models.model_base import BaseModel as Base
@@ -31,7 +33,7 @@ class Tour(Base):
     status = Column(
         Enum(TourStatus), default=TourStatus.incoming, nullable=True, name="status"
     )
-    tour_date = Column(DateTime(timezone=True), default=func.now())
+    tour_date = Column(DateTime(timezone=True), default=lambda: datetime.now(pytz.utc))
     property_unit_assoc_id = Column(
         UUID,
         ForeignKey("property_unit_assoc.property_unit_assoc_id", ondelete="CASCADE"),

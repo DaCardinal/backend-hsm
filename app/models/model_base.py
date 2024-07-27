@@ -1,7 +1,8 @@
 from datetime import datetime
 
 # from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy import Column, DateTime, func, UUID
+import pytz
+from sqlalchemy import Column, DateTime, UUID
 from sqlalchemy.ext.declarative import declared_attr
 
 from app.db.dbDeclarative import Base
@@ -14,9 +15,11 @@ class BaseModel(Base):
     def __tablename__(cls):
         return cls.__name__.lower()
 
-    created_at = Column(DateTime(timezone=True), default=func.now())
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(pytz.utc))
     updated_at = Column(
-        DateTime(timezone=True), default=func.now(), onupdate=func.now()
+        DateTime(timezone=True),
+        default=lambda: datetime.now(pytz.utc),
+        onupdate=datetime.now(pytz.utc),
     )
 
     def to_dict(self, exclude=None):

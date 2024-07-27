@@ -1,8 +1,9 @@
 import enum
 import uuid
 from datetime import datetime
+import pytz
 from sqlalchemy.orm import relationship
-from sqlalchemy import UUID, Boolean, Column, DateTime, Enum, String, func
+from sqlalchemy import UUID, Boolean, Column, DateTime, Enum, String
 
 from app.models.model_base import BaseModel as Base
 # from app.utils.lifespan import get_db as async_session
@@ -43,8 +44,12 @@ class User(Base):
     is_disabled = Column(Boolean, default=False)
     is_verified = Column(Boolean, default=True)
     is_subscribed = Column(Boolean, default=True)
-    current_login_time = Column(DateTime(timezone=True), default=func.now())
-    last_login_time = Column(DateTime(timezone=True))
+    current_login_time = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(pytz.utc)
+    )
+    last_login_time = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(pytz.utc)
+    )
 
     # Employment info
     employer_name = Column(String(128), nullable=True)

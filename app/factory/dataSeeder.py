@@ -41,8 +41,9 @@ class DataSeeder:
 
             if not item:
                 user = await db_crud.create(db_session=session, obj_in=item_data)
-
+                
                 if data_factory.model.__name__ == "User" and user:
+                    # user = user_response.data
                     role = user.email.split("@")[0]
 
                     # user dao model

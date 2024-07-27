@@ -1,6 +1,7 @@
 import enum
 import uuid
-import datetime
+from datetime import datetime
+import pytz
 from sqlalchemy.orm import relationship
 from sqlalchemy import (
     event,
@@ -49,8 +50,12 @@ class MaintenanceRequest(Base):
         ForeignKey("property_unit_assoc.property_unit_assoc_id"),
         nullable=True,
     )
-    scheduled_date = Column(DateTime(timezone=True), nullable=True)
-    completed_date = Column(DateTime(timezone=True), nullable=True)
+    scheduled_date = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(pytz.utc), nullable=True
+    )
+    completed_date = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(pytz.utc), nullable=True
+    )
     is_emergency = Column(Boolean, default=False, nullable=False)
 
     property = relationship(
@@ -90,7 +95,7 @@ def receive_before_insert(mapper, connection, target: MaintenanceRequest):
     task: dict = target.to_dict()
 
     if "task_number" not in task or not task["task_number"]:
-        current_time_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        current_time_str = datetime.now().strftime("%Y%m%d%H%M%S")
         setattr(target, "task_number", f"TSK{current_time_str}")
 
 
@@ -99,7 +104,7 @@ def receive_after_insert(mapper, connection, target: MaintenanceRequest):
     task: dict = target.to_dict()
 
     if "task_number" not in task or not task["task_number"] or not target.task_number:
-        current_time_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        current_time_str = datetime.now().strftime("%Y%m%d%H%M%S")
         target.task_number = f"TSK{current_time_str}"
         connection.execute(
             target.__table__.update()

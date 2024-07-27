@@ -1,4 +1,6 @@
+from datetime import datetime
 import uuid
+import pytz
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, DateTime, ForeignKey, Boolean, UUID
 
@@ -17,7 +19,9 @@ class MessageRecipient(Base):
     )
     message_id = Column(UUID(as_uuid=True), ForeignKey("message.message_id"))
     is_read = Column(Boolean)
-    msg_send_date = Column(DateTime(timezone=True))
+    msg_send_date = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(pytz.utc)
+    )
 
     recipient = relationship(
         "User", back_populates="received_messages", lazy="selectin"

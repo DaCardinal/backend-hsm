@@ -1,6 +1,7 @@
 import uuid
 import enum
-import datetime
+from datetime import datetime
+import pytz
 from sqlalchemy.orm import relationship, column_property
 from sqlalchemy import (
     Numeric,
@@ -52,9 +53,11 @@ class Contract(Base):
     payment_amount = Column(Numeric(10, 2))
     fee_percentage = Column(Numeric(5, 2))
     fee_amount = Column(Numeric(10, 2))
-    date_signed = Column(DateTime(timezone=True))
-    start_date = Column(DateTime(timezone=True))
-    end_date = Column(DateTime(timezone=True))
+    date_signed = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(pytz.utc)
+    )
+    start_date = Column(DateTime(timezone=True), default=lambda: datetime.now(pytz.utc))
+    end_date = Column(DateTime(timezone=True), default=lambda: datetime.now(pytz.utc))
 
     # generate dynamic column property
     contract_type_value = column_property(
@@ -139,14 +142,14 @@ class Contract(Base):
 @event.listens_for(Contract, "before_insert")
 def receive_before_insert(mapper, connection, target):
     if not target.contract_number:
-        current_time_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        current_time_str = datetime.now().strftime("%Y%m%d%H%M%S")
         target.contract_number = f"CTR{current_time_str}"
 
 
 @event.listens_for(Contract, "after_insert")
 def receive_after_insert(mapper, connection, target):
     if not target.contract_number:
-        current_time_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        current_time_str = datetime.now().strftime("%Y%m%d%H%M%S")
         target.contract_number = f"CTR{current_time_str}"
         connection.execute(
             target.__table__.update()

@@ -1,6 +1,7 @@
 import enum
-import datetime
+from datetime import datetime
 import uuid
+import pytz
 from sqlalchemy.orm import relationship
 from sqlalchemy import (
     event,
@@ -46,9 +47,15 @@ class CalendarEvent(Base):
     description = Column(Text, nullable=True)
     status = Column(Enum(CalendarStatusEnum, default=CalendarStatusEnum.pending))
     event_type = Column(Enum(EventTypeEnum), default=EventTypeEnum.other, nullable=True)
-    event_start_date = Column(DateTime(timezone=True), nullable=True)
-    event_end_date = Column(DateTime(timezone=True), nullable=True)
-    completed_date = Column(DateTime(timezone=True), nullable=True)
+    event_start_date = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(pytz.utc), nullable=True
+    )
+    event_end_date = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(pytz.utc), nullable=True
+    )
+    completed_date = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(pytz.utc), nullable=True
+    )
     organizer_id = Column(
         UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=False
     )
@@ -61,7 +68,7 @@ def receive_before_insert(mapper, connection, target: CalendarEvent):
     event: dict = target.to_dict()
 
     if "event_id" not in event or not event["event_id"]:
-        current_time_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        current_time_str = datetime.now().strftime("%Y%m%d%H%M%S")
         setattr(target, "event_id", f"EV{current_time_str}")
 
 
@@ -70,7 +77,7 @@ def receive_after_insert(mapper, connection, target: CalendarEvent):
     event: dict = target.to_dict()
 
     if "event_id" not in event or not event["event_id"] or not target.event_id:
-        current_time_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        current_time_str = datetime.now().strftime("%Y%m%d%H%M%S")
         target.event_id = f"EV{current_time_str}"
         connection.execute(
             target.__table__.update()

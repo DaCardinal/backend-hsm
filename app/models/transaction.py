@@ -1,6 +1,7 @@
 import enum
 import uuid
-import datetime
+from datetime import datetime
+import pytz
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, ForeignKey, DateTime, Enum, String, Text, UUID, event
 
@@ -32,7 +33,9 @@ class Transaction(Base):
     client_requested = Column(
         UUID(as_uuid=True), ForeignKey("users.user_id")
     )  # payee_name
-    transaction_date = Column(DateTime)
+    transaction_date = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(pytz.utc)
+    )
     transaction_details = Column(Text)
     transaction_type = Column(
         String(128), ForeignKey("transaction_type.transaction_type_name")
@@ -73,14 +76,14 @@ class Transaction(Base):
 @event.listens_for(Transaction, "before_insert")
 def receive_before_insert(mapper, connection, target):
     if not target.transaction_number:
-        current_time_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        current_time_str = datetime.now().strftime("%Y%m%d%H%M%S")
         target.transaction_number = f"TRANS{current_time_str}"
 
 
 @event.listens_for(Transaction, "after_insert")
 def receive_after_insert(mapper, connection, target):
     if not target.transaction_number:
-        current_time_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        current_time_str = datetime.now().strftime("%Y%m%d%H%M%S")
         target.transaction_number = f"TRANS{current_time_str}"
         connection.execute(
             target.__table__.update()

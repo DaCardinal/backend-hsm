@@ -1,5 +1,7 @@
+from datetime import datetime
 import enum
 import uuid
+import pytz
 from sqlalchemy.orm import relationship
 from sqlalchemy import (
     Column,
@@ -35,8 +37,8 @@ class PropertyAssignment(Base):
     )
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.user_id"))
     assignment_type = Column(Enum(AssignmentType))
-    date_from = Column(DateTime(timezone=True))
-    date_to = Column(DateTime(timezone=True))
+    date_from = Column(DateTime(timezone=True), default=lambda: datetime.now(pytz.utc))
+    date_to = Column(DateTime(timezone=True), default=lambda: datetime.now(pytz.utc))
     notes = Column(Text)
 
     property_unit_assoc = relationship(

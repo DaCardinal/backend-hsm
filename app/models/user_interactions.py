@@ -1,3 +1,5 @@
+from datetime import datetime
+import pytz
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, DateTime, ForeignKey, Text, UUID
 
@@ -12,7 +14,9 @@ class UserInteractions(Base):
     property_unit_assoc_id = Column(
         UUID(as_uuid=True), ForeignKey("property_unit_assoc.property_unit_assoc_id")
     )
-    contact_time = Column(DateTime)
+    contact_time = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(pytz.utc)
+    )
     contact_details = Column(Text)
 
     user = relationship(
