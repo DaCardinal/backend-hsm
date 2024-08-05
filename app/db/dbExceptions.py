@@ -1,6 +1,9 @@
 from sqlite3 import IntegrityError as SQLiteIntegrityError
 from pymysql import IntegrityError as PYIntegrityError
-from asyncpg.exceptions import ForeignKeyViolationError, IntegrityConstraintViolationError
+from asyncpg.exceptions import (
+    ForeignKeyViolationError,
+    IntegrityConstraintViolationError,
+)
 
 
 class DatabaseConnectionException(Exception):
@@ -34,7 +37,9 @@ class RecordNotFoundException(Exception):
         return self.msg
 
 
-class IntegrityError(PYIntegrityError, SQLiteIntegrityError, IntegrityConstraintViolationError):
+class IntegrityError(
+    PYIntegrityError, SQLiteIntegrityError, IntegrityConstraintViolationError
+):
     def __init__(self, err_msg="Integrity error during SQL operation."):
         self.msg = err_msg
         super().__init__(self.msg)

@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, UUID, Boolean
+from sqlalchemy import Column, String, UUID, Boolean, Text
 
 from app.models.model_base import BaseModel as Base
 
@@ -17,4 +17,6 @@ class Media(Base):
     media_name = Column(String(128))
     media_type = Column(String(50))
     content_url = Column(String(500))
+    caption = Column(String(500), nullable=True)
+    description = Column(Text, nullable=True)
     is_thumbnail = Column(Boolean, default=False)

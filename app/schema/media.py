@@ -36,6 +36,8 @@ class MediaBase(BaseModel):
     media_type: Annotated[str, constr(max_length=50)]
     content_url: Annotated[str, constr(max_length=255)]
     is_thumbnail: Optional[bool] = None
+    caption: Optional[str] = None
+    description: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -67,6 +69,8 @@ class MediaCreateSchema(BaseModel):
     media_type: Annotated[str, constr(max_length=50)]
     content_url: Annotated[str, constr(max_length=255)]
     is_thumbnail: Optional[bool]
+    caption: Optional[str] = None
+    description: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -85,6 +89,8 @@ class MediaUpdateSchema(MediaBase):
     media_type: Annotated[str, constr(max_length=50)]
     content_url: Annotated[str, constr(max_length=255)]
     is_thumbnail: Optional[bool]
+    caption: Optional[str] = None
+    description: Optional[str] = None
 
     # TODO: Add media_id to MediaUpdateSchema
     model_config = ConfigDict(from_attributes=True)
@@ -106,6 +112,8 @@ class MediaResponse(Media):
     media_type: Annotated[str, constr(max_length=50)]
     content_url: Annotated[str, constr(max_length=255)]
     is_thumbnail: Optional[bool]
+    caption: Optional[str] = None
+    description: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
@@ -126,4 +134,6 @@ class MediaResponse(Media):
             media_type=media.media_type,
             content_url=media.content_url,
             is_thumbnail=media.is_thumbnail,
+            caption=media.caption,
+            description=media.description
         ).model_dump()

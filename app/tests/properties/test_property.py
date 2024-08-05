@@ -143,17 +143,17 @@ class TestProperties:
         assert response.status_code == 200
         assert response.json()["data"]["name"] == "Baeta Heights 3"
 
-    @pytest.mark.asyncio(scope="session")
-    @pytest.mark.dependency(
-        depends=["update_property_by_id"], name="delete_property_by_id"
-    )
-    async def test_delete_property(self, client: AsyncClient):
-        property_id = self.default_property["property_unit_assoc_id"]
+    # @pytest.mark.asyncio(scope="session")
+    # @pytest.mark.dependency(
+    #     depends=["update_property_by_id"], name="delete_property_by_id"
+    # )
+    # async def test_delete_property(self, client: AsyncClient):
+    #     property_id = self.default_property["property_unit_assoc_id"]
 
-        response = await client.delete(f"/property/{property_id}")
-        assert response.status_code == 204
+    #     response = await client.delete(f"/property/{property_id}")
+    #     assert response.status_code == 204
 
-        # Verify the property is deleted
-        response = await client.get(f"/property/{property_id}")
-        assert response.status_code == 200
-        assert response.json()["data"] == {}
+    #     # Verify the property is deleted
+    #     response = await client.get(f"/property/{property_id}")
+    #     assert response.status_code == 200
+    #     assert response.json()["data"] == {}

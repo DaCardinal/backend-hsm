@@ -54,7 +54,7 @@ class TransactionDAO(BaseDAO[Transaction]):
             return DAOResponse(success=False, data=str(e))
         except Exception as e:
             await db_session.rollback()
-            
+
             return DAOResponse[TransactionResponse](
                 success=False, error=f"Fatal {str(e)}"
             )

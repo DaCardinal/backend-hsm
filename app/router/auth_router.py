@@ -71,7 +71,7 @@ class AuthRouter(BaseCRUDRouter):
                 )
 
         @self.router.post("/reset-password")
-        async def reset_passowrd(
+        async def reset_password(
             request: ResetPassword, db: AsyncSession = Depends(self.get_db)
         ):
             current_user: User = await self.dao.user_exists(

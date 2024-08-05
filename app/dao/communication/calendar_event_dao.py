@@ -99,6 +99,9 @@ class CalendarEventDAO(BaseDAO[CalendarEvent]):
         entity_data = obj_in.model_dump(
             exclude_none=True, exclude=["event_id", "id"]
         ).items()
+        entity_data["event_type"] = EventType(
+            entity_data["event_type"]
+        )
         result: CalendarEvent = await super().update(
             db_session=db_session, db_obj=db_obj, obj_in=entity_data
         )

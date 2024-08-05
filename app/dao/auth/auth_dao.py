@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user import User
 
 # daos
-from app.dao.resources.base_dao import BaseDAO
 from app.dao.auth.user_dao import UserDAO
+from app.dao.resources.base_dao import BaseDAO
 
 # utils
 from app.utils.hashing import Hash

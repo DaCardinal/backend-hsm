@@ -27,7 +27,7 @@ class UtilsMixin:
             await db_session.commit()
             await db_session.refresh(obj)
             return obj
-        
+
         except IntegrityError as e:
             await db_session.rollback()
             raise IntegrityError(f"Integrity error: {str(e)}")
@@ -45,10 +45,10 @@ class CreateMixin(UtilsMixin):
     async def create(self, db_session: AsyncSession, obj_in) -> DBModelType:
         db_obj = self.model(**obj_in)
         db_session.add(db_obj)
-        
+
         try:
             return await self.commit_and_refresh(db_session=db_session, obj=db_obj)
-        
+
         except Exception as e:
             await db_session.rollback()
             raise Exception(f"{str(e)}")

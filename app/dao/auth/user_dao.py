@@ -85,8 +85,9 @@ class UserDAO(BaseDAO[User]):
             new_user: User = await super().create(
                 db_session=db_session, obj_in=user_info
             )
-            print(new_user)
             user_id = new_user.user_id
+            verification_token = str(uuid.uuid4())
+            is_subscribed_token = str(uuid.uuid4())
 
             # create verification token and password hash
             if (
@@ -97,8 +98,8 @@ class UserDAO(BaseDAO[User]):
                 user_data["user_auth_info"]["password"] = Hash.bcrypt(
                     user_data["user_auth_info"]["password"]
                 )
-                user_data["user_auth_info"]["verification_token"] = str(uuid.uuid4())
-                user_data["user_auth_info"]["is_subscribed_token"] = str(uuid.uuid4())
+                user_data["user_auth_info"]["verification_token"] = verification_token
+                user_data["user_auth_info"]["is_subscribed_token"] = is_subscribed_token
 
             # add additional info if exists | Determine the correct schema for the address
             details_methods = {
@@ -131,8 +132,6 @@ class UserDAO(BaseDAO[User]):
             )
 
             # create verification token and password hash
-            verification_token = str(uuid.uuid4())
-            is_subscribed_token = str(uuid.uuid4())
             user_load_addr.verification_token = verification_token
             user_load_addr.is_subscribed_token = is_subscribed_token
 
@@ -177,7 +176,7 @@ class UserDAO(BaseDAO[User]):
             )
             user_id = existing_user.user_id
 
-            # # add additional info if exists | Determine the correct schema for the address
+            # add additional info if exists | Determine the correct schema for the address
             address_schema = (
                 Address
                 if "address" in obj_in.model_fields
@@ -367,6 +366,12 @@ class UserDAO(BaseDAO[User]):
             updated_user: User = await super().update(
                 db_session=db_session, db_obj=user, obj_in=emergency_info
             )
+
+            # TODO: Add support for adding emergency address
+            # 1. Create emergency_address hash
+            # 2. Create address
+            # 3. Create entity_address object with entity_id as emergency_address
+            # 4. Set emergency_address field on entity_address to True
 
             return updated_user
         except NoResultFound:
