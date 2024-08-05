@@ -151,6 +151,7 @@ class CalendarEventResponse(BaseModel):
     title: Annotated[str, constr(max_length=255)]
     description: Optional[Annotated[str, constr(max_length=255)]] = None
     event_type: EventType = EventType.other
+    status: Optional[CalendarStatus]
     event_start_date: datetime
     event_end_date: datetime
     organizer_id: Optional[Union[UUID, UserBase]] = None
@@ -170,6 +171,7 @@ class CalendarEventResponse(BaseModel):
             id=calendar_event.id,
             event_id=calendar_event.event_id,
             title=calendar_event.title,
+            status=calendar_event.status,
             description=calendar_event.description,
             event_type=calendar_event.event_type,
             event_start_date=calendar_event.event_start_date,
