@@ -119,6 +119,7 @@ class PropertyUnitResponse(
     utilities: Optional[List[Any]] = None
     is_available: Optional[bool] = False
     assigned_users: Optional[List[Dict[str, Union[UserBase, AssignmentType]]]] = None
+    created_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
@@ -151,6 +152,7 @@ class PropertyUnitResponse(
             utilities=cls.get_utilities_info(property_unit.utilities),
             assigned_users=cls.get_assigned_users(property_unit.assigned_users),
             is_available=property_unit.is_contract_active,
+            created_at=property_unit.created_at
         ).model_dump()
 
 
@@ -173,6 +175,7 @@ class PropertyResponse(
     utilities: Optional[List[Any]] = None
     is_available: Optional[bool] = False
     assigned_users: Optional[List[Dict[str, Union[UserBase, AssignmentType]]]] = None
+    created_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
@@ -210,6 +213,7 @@ class PropertyResponse(
             utilities=cls.get_utilities_info(property.utilities),
             assigned_users=cls.get_assigned_users(property.assigned_users),
             is_available=property.is_contract_active,
+            created_at=property.created_at
         ).model_dump()
 
 
