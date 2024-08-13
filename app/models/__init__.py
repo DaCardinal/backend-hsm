@@ -23,6 +23,7 @@ from app.models.user_interactions import UserInteractions  # noqa: F401
 from app.models.role_permissions import RolePermissions  # noqa: F401
 from app.models.user_role import UserRoles  # noqa: F401
 from app.models.user_account import UserAccounts  # noqa: F401
+from app.models.rental_history import PastRentalHistory  # noqa: F401
 
 from app.models.transaction_type import TransactionType  # noqa: F401
 from app.models.payment_type import PaymentTypes  # noqa: F401

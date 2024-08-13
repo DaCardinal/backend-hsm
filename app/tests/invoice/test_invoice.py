@@ -29,7 +29,6 @@ class TestInvoice:
             },
         )
         assert response.status_code == 200
-
         TestInvoice.default_invoice = response.json()["data"]
 
     @pytest.mark.asyncio(scope="session")

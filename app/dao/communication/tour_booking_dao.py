@@ -58,10 +58,6 @@ class TourBookingDAO(BaseDAO[Tour]):
             db_session=db_session, offset=offset, limit=limit
         )
 
-        # check if no result
-        if not result:
-            return DAOResponse(success=True, data=[])
-
         return DAOResponse[List[TourResponse]](
             success=True, data=[TourResponse.from_orm_model(r) for r in result]
         )
@@ -72,10 +68,7 @@ class TourBookingDAO(BaseDAO[Tour]):
     ) -> DAOResponse[TourResponse]:
         result: Tour = await super().get(db_session=db_session, id=id)
 
-        # check if no result
-        if not result:
-            return DAOResponse(success=True, data={})
-
         return DAOResponse[TourResponse](
-            success=True, data=TourResponse.from_orm_model(result)
+            success=bool(result),
+            data={} if result is None else TourResponse.from_orm_model(result),
         )

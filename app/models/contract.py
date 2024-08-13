@@ -75,10 +75,18 @@ class Contract(Base):
     )
 
     contract_documents = relationship(
-        "Documents", secondary="contract_documents", back_populates="contract"
+        "Documents",
+        secondary="contract_documents",
+        back_populates="contract",
+        lazy="selectin",
+        viewonly=True,
     )
     invoices = relationship(
-        "Invoice", secondary="contract_invoice", back_populates="contracts"
+        "Invoice",
+        secondary="contract_invoice",
+        back_populates="contracts",
+        lazy="selectin",
+        viewonly=True,
     )
 
     under_contract = relationship(

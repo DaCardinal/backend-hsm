@@ -61,7 +61,7 @@ class User(Base):
     emergency_contact_email = Column(String(128), nullable=True)
     emergency_contact_relation = Column(String(128), nullable=True)
     emergency_contact_number = Column(String(128), nullable=True)
-    emergency_address_hash = Column(UUID(as_uuid=True))  # TODO: Change to hash function
+    emergency_address_hash = Column(UUID(as_uuid=True))
 
     accounts = relationship(
         "Accounts", secondary="user_accounts", back_populates="users", lazy="selectin"
@@ -69,13 +69,26 @@ class User(Base):
     maintenance_requests = relationship("MaintenanceRequest", back_populates="user")
     tours = relationship("Tour", back_populates="user")
     events = relationship("CalendarEvent", back_populates="organizer")
+    rental_histories = relationship(
+        "PastRentalHistory", back_populates="user", lazy="selectin"
+    )
 
     addresses = relationship(
         "Addresses",
         secondary="entity_address",
         primaryjoin="and_(User.user_id==EntityAddress.entity_id, EntityAddress.entity_type=='User')",
         secondaryjoin="EntityAddress.address_id==Addresses.address_id",
-        overlaps="address,entity_addresses,addresses,properties",
+        overlaps="address,entity_addresses,addresses,properties,rental_history",
+        back_populates="users",
+        lazy="selectin",
+    )
+
+    emergency_addresses = relationship(
+        "Addresses",
+        secondary="entity_address",
+        primaryjoin="and_(User.emergency_address_hash==EntityAddress.entity_id, EntityAddress.entity_type=='User')",
+        secondaryjoin="EntityAddress.address_id==Addresses.address_id",
+        overlaps="address,entity_addresses,addresses,properties,rental_history",
         back_populates="users",
         lazy="selectin",
     )

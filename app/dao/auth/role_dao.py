@@ -1,6 +1,6 @@
-from typing import List
 from sqlalchemy.sql import func
 from sqlalchemy.future import select
+from typing import Dict, List
 from typing_extensions import override
 from sqlalchemy.orm import selectinload
 from sqlalchemy.orm.exc import NoResultFound
@@ -11,6 +11,7 @@ from app.utils.response import DAOResponse
 
 # models
 from app.models.role import Role
+from app.models.user_role import UserRoles
 from app.models.permissions import Permissions
 
 # daos
@@ -18,8 +19,7 @@ from app.dao.resources.base_dao import BaseDAO
 from app.dao.auth.permission_dao import PermissionDAO
 
 # schemas
-from app.models.user_role import UserRoles
-from app.schema.role import Role as RoleSchema, RoleResponse
+from app.schema.role import RoleResponse
 
 
 class RoleDAO(BaseDAO[Role]):
@@ -27,19 +27,33 @@ class RoleDAO(BaseDAO[Role]):
         self.model = Role
         self.primary_key = "role_id"
 
+        self.permission_dao = PermissionDAO()
         super().__init__(self.model, nesting_degree=nesting_degree, excludes=excludes)
 
     @override
     async def get_all(
-        self, db_session: AsyncSession, offset=0, limit=100
+        self, db_session: AsyncSession, offset: int = 0, limit: int = 100
     ) -> DAOResponse[List[RoleResponse]]:
-        result = await super().get_all(
-            db_session=db_session, offset=offset, limit=limit
-        )
+        """
+        Retrieve all roles with pagination, including role statistics such as user count per role.
+        """
+        roles = await super().get_all(db_session=db_session, offset=offset, limit=limit)
 
-        if not result:
+        if not roles:
             return DAOResponse(success=True, data=[])
 
+        role_stats = await self.fetch_role_stats(db_session)
+
+        return DAOResponse[List[RoleResponse]](
+            success=True,
+            data=[RoleResponse.from_orm_model(role) for role in roles],
+            meta={"role_stats": role_stats},
+        )
+
+    async def fetch_role_stats(self, db_session: AsyncSession) -> Dict[str, int]:
+        """
+        Fetch statistics for roles, such as the number of users associated with each role.
+        """
         async with db_session as db:
             stmt = (
                 select(Role.name, func.count(UserRoles.user_id).label("user_count"))
@@ -49,64 +63,54 @@ class RoleDAO(BaseDAO[Role]):
             query_result = await db.execute(stmt)
             role_stats_results = query_result.all()
 
-        return DAOResponse[List[RoleResponse]](
-            success=True,
-            data=[RoleResponse.from_orm_model(r) for r in result],
-            meta={"role_stats": {name: count for name, count in role_stats_results}},
-        )
-
-    async def get_role_stats(self, db_session: AsyncSession):
-        try:
-            # TODO: Move this to base dao
-            async with db_session as db:
-                stmt = select(Role.name, func.count(Role.name).label("count")).group_by(
-                    Role.name
-                )
-                query_result = await db.execute(stmt)
-
-            # get results
-            result = query_result.all()
-
-            return DAOResponse(
-                success=True, data={name: count for name, count in result}
-            )
-        except NoResultFound:
-            return DAOResponse[str](success=False, error="Permission or Role not found")
-        except Exception as e:
-            return DAOResponse[str](success=False, error=str(e))
+        return {name: count for name, count in role_stats_results}
 
     async def add_role_permission(
         self, db_session: AsyncSession, role_alias: str, permission_alias: str
-    ):
-        permission_dao = PermissionDAO(Permissions)
-
+    ) -> DAOResponse:
+        """
+        Add a permission to a role, ensuring the permission doesn't already exist for the role.
+        """
         try:
-            async with db_session as db:
-                role: Role = await self.query(
-                    db_session=db,
-                    filters={"alias": role_alias},
-                    single=True,
-                    options=[selectinload(Role.permissions)],
+            role, permission = await self.fetch_role_and_permission(
+                db_session, role_alias, permission_alias
+            )
+
+            if permission in role.permissions:
+                return DAOResponse(
+                    success=False,
+                    error="Permission already exists for the role",
+                    data=role.to_dict(),
                 )
-                permission: Permissions = await permission_dao.query(
-                    db_session=db, filters={"alias": permission_alias}, single=True
-                )
 
-                if role is None or permission is None:
-                    raise NoResultFound()
+            role.permissions.append(permission)
+            await self.commit_and_refresh(db_session, role)
 
-                if permission in role.permissions:
-                    return DAOResponse[RoleSchema](
-                        success=False,
-                        error="Permission already exists for the role",
-                        data=role.to_dict(),
-                    )
+            return DAOResponse(success=True, data=role.to_dict())
 
-                role.permissions.append(permission)
-                await self.commit_and_refresh(db, role)
-
-                return DAOResponse[RoleSchema](success=True, data=role.to_dict())
         except NoResultFound:
-            return DAOResponse[str](success=False, error="Permission or Role not found")
+            return DAOResponse(success=False, error="Permission or Role not found")
         except Exception as e:
-            return DAOResponse[str](success=False, error=str(e))
+            return DAOResponse(success=False, error=str(e))
+
+    async def fetch_role_and_permission(
+        self, db_session: AsyncSession, role_alias: str, permission_alias: str
+    ) -> tuple[Role, Permissions]:
+        """
+        Fetch role and permission objects based on their aliases.
+        """
+        role = await self.query(
+            db_session=db_session,
+            filters={"alias": role_alias},
+            single=True,
+            options=[selectinload(Role.permissions)],
+        )
+
+        permission = await self.permission_dao.query(
+            db_session=db_session, filters={"alias": permission_alias}, single=True
+        )
+
+        if role is None or permission is None:
+            raise NoResultFound("Role or permission not found!")
+
+        return role, permission

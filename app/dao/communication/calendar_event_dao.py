@@ -67,10 +67,6 @@ class CalendarEventDAO(BaseDAO[CalendarEvent]):
             db_session=db_session, offset=offset, limit=limit
         )
 
-        # check if no result
-        if not result:
-            return DAOResponse(success=True, data=[])
-
         return DAOResponse[List[CalendarEventResponse]](
             success=True, data=[CalendarEventResponse.from_orm_model(r) for r in result]
         )
@@ -81,12 +77,9 @@ class CalendarEventDAO(BaseDAO[CalendarEvent]):
     ) -> DAOResponse[CalendarEventResponse]:
         result: CalendarEvent = await super().get(db_session=db_session, id=id)
 
-        # check if no result
-        if not result:
-            return DAOResponse(success=True, data={})
-
         return DAOResponse[CalendarEventResponse](
-            success=True, data=CalendarEventResponse.from_orm_model(result)
+            success=bool(result),
+            data={} if result is None else CalendarEventResponse.from_orm_model(result),
         )
 
     @override
@@ -106,7 +99,7 @@ class CalendarEventDAO(BaseDAO[CalendarEvent]):
         # check if no result
         if not result:
             return DAOResponse(success=True, data={})
-        
+
         return DAOResponse[CalendarEventResponse](
             success=True, data=CalendarEventResponse.from_orm_model(result)
         )

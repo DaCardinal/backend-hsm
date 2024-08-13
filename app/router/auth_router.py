@@ -1,10 +1,11 @@
 import uuid
 import asyncio
-from typing import List
+from typing import List, Union
 from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 # models
+from app.dao.auth.user_dao import UserDAO
 from app.models.user import User
 
 # daos
@@ -29,6 +30,7 @@ UNSUBSCRIBE_LINK = (
 class AuthRouter(BaseCRUDRouter):
     def __init__(self, prefix: str = "", tags: List[str] = []):
         self.dao: AuthDAO = AuthDAO()
+        self.user_dao: UserDAO = UserDAO()
         super().__init__(
             dao=self.dao,
             schemas=UserSchema,
@@ -42,7 +44,7 @@ class AuthRouter(BaseCRUDRouter):
     def register_routes(self):
         @self.router.post("/")
         async def user_login(request: Login, db: AsyncSession = Depends(self.get_db)):
-            current_user: User = await self.dao.user_exists(
+            current_user: User = await self.user_dao.user_exists(
                 db_session=db, email=request.username
             )
 
@@ -74,7 +76,7 @@ class AuthRouter(BaseCRUDRouter):
         async def reset_password(
             request: ResetPassword, db: AsyncSession = Depends(self.get_db)
         ):
-            current_user: User = await self.dao.user_exists(
+            current_user: Union[User, None] = await self.user_dao.user_exists(
                 db_session=db, email=request.email
             )
 
@@ -119,7 +121,9 @@ class AuthRouter(BaseCRUDRouter):
         async def verify_email(
             email: str, token: str, db: AsyncSession = Depends(self.get_db)
         ):
-            current_user: User = await self.dao.user_exists(db_session=db, email=email)
+            current_user: Union[User, None] = await self.user_dao.user_exists(
+                db_session=db, email=email
+            )
 
             if current_user is None:
                 raise HTTPException(status_code=400, detail="User not found")
@@ -151,7 +155,9 @@ class AuthRouter(BaseCRUDRouter):
         async def mail_unsubscribe(
             email: str, token: str, db: AsyncSession = Depends(self.get_db)
         ):
-            current_user: User = await self.dao.user_exists(db_session=db, email=email)
+            current_user: Union[User, None] = await self.user_dao.user_exists(
+                db_session=db, email=email
+            )
 
             if current_user is None:
                 raise HTTPException(status_code=400, detail="User not found")
@@ -180,7 +186,9 @@ class AuthRouter(BaseCRUDRouter):
         async def mail_subscribe(
             email: str, token: str, db: AsyncSession = Depends(self.get_db)
         ):
-            current_user: User = await self.dao.user_exists(db_session=db, email=email)
+            current_user: Union[User, None] = await self.user_dao.user_exists(
+                db_session=db, email=email
+            )
 
             if current_user is None:
                 raise HTTPException(status_code=400, detail="User not found")

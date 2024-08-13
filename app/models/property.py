@@ -158,7 +158,7 @@ class Property(PropertyUnitAssoc):
         secondary="entity_address",
         primaryjoin="and_(Property.property_unit_assoc_id==EntityAddress.entity_id, EntityAddress.entity_type=='Property')",
         secondaryjoin="EntityAddress.address_id==Addresses.address_id",
-        overlaps="address,entity_addresses,users,properties",
+        overlaps="address,entity_addresses,users,properties,rental_history",
         back_populates="properties",
         lazy="selectin",
     )

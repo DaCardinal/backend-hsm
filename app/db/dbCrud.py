@@ -8,7 +8,6 @@ from sqlalchemy import inspect
 from sqlalchemy.orm import selectinload
 
 from app.db.dbExceptions import IntegrityError
-from app.utils.response import DAOResponse
 
 DBModelType = TypeVar("DBModelType")
 

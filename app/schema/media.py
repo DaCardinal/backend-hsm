@@ -32,9 +32,9 @@ class MediaBase(BaseModel):
         content_url (str): The URL where the media content is located.
     """
 
-    media_name: Annotated[str, constr(max_length=255)]
-    media_type: Annotated[str, constr(max_length=50)]
-    content_url: Annotated[str, constr(max_length=255)]
+    media_name: str
+    media_type: str
+    content_url: str
     is_thumbnail: Optional[bool] = None
     caption: Optional[str] = None
     description: Optional[str] = None
@@ -42,7 +42,7 @@ class MediaBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class Media(MediaBase):
+class Media(BaseModel):
     """
     Model for representing media with additional details.
 
@@ -51,6 +51,12 @@ class Media(MediaBase):
     """
 
     media_id: UUID
+    media_name: str
+    media_type: str
+    content_url: str
+    is_thumbnail: Optional[bool] = None
+    caption: Optional[str] = None
+    description: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -65,9 +71,9 @@ class MediaCreateSchema(BaseModel):
         content_url (str): The URL where the media content is located.
     """
 
-    media_name: Annotated[str, constr(max_length=255)]
-    media_type: Annotated[str, constr(max_length=50)]
-    content_url: Annotated[str, constr(max_length=255)]
+    media_name: str
+    media_type: str
+    content_url: str
     is_thumbnail: Optional[bool]
     caption: Optional[str] = None
     description: Optional[str] = None
@@ -85,9 +91,10 @@ class MediaUpdateSchema(MediaBase):
         content_url (str): The URL where the media content is located.
     """
 
-    media_name: Annotated[str, constr(max_length=255)]
-    media_type: Annotated[str, constr(max_length=50)]
-    content_url: Annotated[str, constr(max_length=255)]
+    media_id: UUID
+    media_name: str
+    media_type: str
+    content_url: str
     is_thumbnail: Optional[bool]
     caption: Optional[str] = None
     description: Optional[str] = None
@@ -135,5 +142,5 @@ class MediaResponse(Media):
             content_url=media.content_url,
             is_thumbnail=media.is_thumbnail,
             caption=media.caption,
-            description=media.description
+            description=media.description,
         ).model_dump()

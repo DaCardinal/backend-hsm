@@ -93,10 +93,6 @@ class MessageDAO(BaseDAO[Message]):
             db_session=db_session, offset=offset, limit=limit
         )
 
-        # check if no result
-        if not result:
-            return DAOResponse(success=True, data=[])
-
         return DAOResponse[List[MessageResponseModel]](
             success=True, data=[MessageResponseModel.from_orm_model(r) for r in result]
         )
@@ -107,10 +103,7 @@ class MessageDAO(BaseDAO[Message]):
     ) -> DAOResponse[MessageResponseModel]:
         result: Message = await super().get(db_session=db_session, id=id)
 
-        # check if no result
-        if not result:
-            return DAOResponse(success=True, data={})
-
         return DAOResponse[MessageResponseModel](
-            success=True, data=MessageResponseModel.from_orm_model(result)
+            success=bool(result),
+            data={} if result is None else MessageResponseModel.from_orm_model(result),
         )

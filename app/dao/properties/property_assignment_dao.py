@@ -70,10 +70,6 @@ class PropertyAssignmentDAO(BaseDAO[PropertyAssignment]):
             db_session=db_session, offset=offset, limit=limit
         )
 
-        # check if no result
-        if not result:
-            return DAOResponse(success=True, data=[])
-
         return DAOResponse[List[PropertyAssignmentResponse]](
             success=True,
             data=[PropertyAssignmentResponse.from_orm_model(r) for r in result],
@@ -85,9 +81,9 @@ class PropertyAssignmentDAO(BaseDAO[PropertyAssignment]):
     ) -> DAOResponse[PropertyAssignmentResponse]:
         result: PropertyAssignment = await super().get(db_session=db_session, id=id)
 
-        if not result:
-            return DAOResponse(success=True, data={})
-
         return DAOResponse[PropertyAssignmentResponse](
-            success=True, data=PropertyAssignmentResponse.from_orm_model(result)
+            success=bool(result),
+            data={}
+            if result is None
+            else PropertyAssignmentResponse.from_orm_model(result),
         )

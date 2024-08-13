@@ -46,6 +46,7 @@ class TestMedia:
         response = await client.put(
             f"/media/{media_id}",
             json={
+                "media_id": media_id,
                 "media_name": "updated_property_image",
                 "media_type": "png",
                 "is_thumbnail": False,

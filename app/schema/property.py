@@ -5,7 +5,7 @@ from typing import Dict, Any, List, Optional, Union
 
 # schemas
 from app.schema.media import Media, MediaBase
-from app.schema.billable import EntityBillableCreate
+from app.schema.billable import Billable
 from app.schema.property_assignment import AssignmentType
 from app.schema.amenity import Amenities, AmenitiesCreateSchema
 
@@ -36,13 +36,13 @@ class PropertyCreateSchema(PropertyBase):
         address (Optional[AddressBase]): The address of the property.
         media (Optional[List[Media] | List[MediaBase] | Media | MediaBase]): Media associated with the property.
         amenities (Optional[List[AmenitiesCreateSchema] | AmenitiesCreateSchema]): Amenities associated with the property.
-        utilities (Optional[List[EntityBillableCreate] | EntityBillableCreate]): Utilities associated with the property.
+        utilities (Optional[List[Billable] | Billable]): Utilities associated with the property.
     """
 
     address: Optional[AddressBase] = None
     media: Optional[List[Media] | List[MediaBase] | Media | MediaBase] = None
     amenities: Optional[List[AmenitiesCreateSchema] | AmenitiesCreateSchema] = None
-    utilities: Optional[List[EntityBillableCreate] | EntityBillableCreate] = None
+    utilities: Optional[List[Billable] | Billable] = None
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
@@ -55,13 +55,13 @@ class PropertyUpdateSchema(PropertyBase):
         address (Optional[Address]): The address of the property.
         media (Optional[List[Media] | Media]): Media associated with the property.
         amenities (Optional[List[Amenities] | Amenities]): Amenities associated with the property.
-        utilities (Optional[List[EntityBillableCreate] | EntityBillableCreate]): Utilities associated with the property.
+        utilities (Optional[List[Billable] | Billable]): Utilities associated with the property.
     """
 
     address: Optional[Address] = None
     media: Optional[List[Media] | Media] = None
     amenities: Optional[List[Amenities] | Amenities] = None
-    utilities: Optional[List[EntityBillableCreate] | EntityBillableCreate] = None
+    utilities: Optional[List[Billable] | Billable] = None
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
@@ -73,12 +73,12 @@ class PropertyUnitCreateSchema(PropertyUnitBase):
     Attributes:
         media (Optional[List[Media] | List[MediaBase] | Media | MediaBase]): Media associated with the property unit.
         amenities (Optional[List[AmenitiesCreateSchema] | AmenitiesCreateSchema]): Amenities associated with the property unit.
-        utilities (Optional[List[EntityBillableCreate] | EntityBillableCreate]): Utilities associated with the property unit.
+        utilities (Optional[List[Billable] | Billable]): Utilities associated with the property unit.
     """
 
     media: Optional[List[Media] | List[MediaBase] | Media | MediaBase] = None
     amenities: Optional[List[AmenitiesCreateSchema] | AmenitiesCreateSchema] = None
-    utilities: Optional[List[EntityBillableCreate] | EntityBillableCreate] = None
+    utilities: Optional[List[Billable] | Billable] = None
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
@@ -90,12 +90,12 @@ class PropertyUnitUpdateSchema(PropertyUnit):
     Attributes:
         media (Optional[List[Media] | Media]): Media associated with the property unit.
         amenities (Optional[List[Amenities] | Amenities]): Amenities associated with the property unit.
-        utilities (Optional[List[EntityBillableCreate] | EntityBillableCreate]): Utilities associated with the property unit.
+        utilities (Optional[List[Billable] | Billable]): Utilities associated with the property unit.
     """
 
     media: Optional[List[Media] | Media] = None
     amenities: Optional[List[Amenities] | Amenities] = None
-    utilities: Optional[List[EntityBillableCreate] | EntityBillableCreate] = None
+    utilities: Optional[List[Billable] | Billable] = None
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
@@ -152,7 +152,7 @@ class PropertyUnitResponse(
             utilities=cls.get_utilities_info(property_unit.utilities),
             assigned_users=cls.get_assigned_users(property_unit.assigned_users),
             is_available=property_unit.is_contract_active,
-            created_at=property_unit.created_at
+            created_at=property_unit.created_at,
         ).model_dump()
 
 
@@ -213,7 +213,7 @@ class PropertyResponse(
             utilities=cls.get_utilities_info(property.utilities),
             assigned_users=cls.get_assigned_users(property.assigned_users),
             is_available=property.is_contract_active,
-            created_at=property.created_at
+            created_at=property.created_at,
         ).model_dump()
 
 

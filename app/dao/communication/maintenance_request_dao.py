@@ -65,10 +65,6 @@ class MaintenanceRequestDAO(BaseDAO[MaintenanceRequest]):
             db_session=db_session, offset=offset, limit=limit
         )
 
-        # check if no result
-        if not result:
-            return DAOResponse(success=True, data=[])
-
         return DAOResponse[List[MaintenanceRequestResponse]](
             success=True,
             data=[MaintenanceRequestResponse.from_orm_model(r) for r in result],
@@ -80,12 +76,11 @@ class MaintenanceRequestDAO(BaseDAO[MaintenanceRequest]):
     ) -> DAOResponse[MaintenanceRequestResponse]:
         result: MaintenanceRequest = await super().get(db_session=db_session, id=id)
 
-        # check if no result
-        if not result:
-            return DAOResponse(success=True, data={})
-
         return DAOResponse[MaintenanceRequestResponse](
-            success=True, data=MaintenanceRequestResponse.from_orm_model(result)
+            success=bool(result),
+            data={}
+            if result is None
+            else MaintenanceRequestResponse.from_orm_model(result),
         )
 
     @override

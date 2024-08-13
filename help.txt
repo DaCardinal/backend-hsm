@@ -2,6 +2,6 @@
 pipenv run uvicorn main:app --reload --port 8001
 
 # ALEMBIC
-alembic revision --autogenerate -m "Update media table"
+alembic revision --autogenerate -m "Initial migration"
 alembic upgrade head
 alembic current 

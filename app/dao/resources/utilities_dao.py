@@ -1,5 +1,5 @@
 from uuid import UUID
-from typing import List, Optional, Union
+from typing import Any, Dict, List, Union
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,9 +20,9 @@ from app.models.utility import Utilities as UtilitiesModel
 
 # schemas
 from app.schema.billable import (
-    UtilitiesBase,
+    Billable,
+    EntityBillableResponse,
     Utilities,
-    EntityBillableCreate,
     EntityBillable as EntityBillableSchema,
 )
 
@@ -35,24 +35,53 @@ class UtilitiesDAO(BaseDAO[UtilitiesModel]):
         self.media_dao = MediaDAO()
         self.entity_media_dao = EntityMediaDAO()
         self.payment_type_dao = PaymentTypeDAO()
-        self.enity_billable_dao = EntityBillableDAO()
+        self.entity_billable_dao = EntityBillableDAO()
 
         super().__init__(self.model, nesting_degree=nesting_degree, excludes=excludes)
 
-    async def link_entity_to_utility(
+    async def create_or_update_billable_entity(
+        self, db_session: AsyncSession, entity_object: Dict[str, Any]
+    ) -> EntityBillable:
+        # check if the entity utility linkage exists
+        entity_item: EntityBillable = await self.entity_billable_dao.query(
+            db_session=db_session,
+            filters={
+                "entity_type": entity_object["entity_type"],
+                "billable_type": entity_object["billable_type"],
+                "entity_assoc_id": entity_object["entity_assoc_id"],
+                "billable_assoc_id": entity_object["billable_assoc_id"],
+            },
+            single=True,
+        )
+
+        if entity_item:
+            entity_object["entity_billable_id"] = entity_item.entity_billable_id
+            # update existing entity linkage
+            return await self.entity_billable_dao.update(
+                db_session=db_session,
+                db_obj=entity_item,
+                obj_in=EntityBillableSchema(**entity_object),
+            )
+        else:
+            # create new entity linkage
+            return await self.entity_billable_dao.create(
+                db_session=db_session, obj_in=entity_object
+            )
+
+    async def associate_billable_with_entity(
         self,
         db_session: AsyncSession,
         entity_id: UUID,
         utility_id: UUID,
         utility_value: str,
         payment_type: str,
-        entity_model=None,
+        entity_model: str = None,
     ):
         # check if payment type exists
-        existing_payment_type: PaymentTypes = await self.payment_type_dao.query(
-            db_session=db_session,
-            filters={"payment_type_name": payment_type},
-            single=True,
+        existing_payment_type: PaymentTypes = (
+            await self.payment_type_dao.get_existing_payment_type(
+                db_session, payment_type
+            )
         )
 
         if not existing_payment_type:
@@ -60,88 +89,66 @@ class UtilitiesDAO(BaseDAO[UtilitiesModel]):
                 success=False, error="Payment type does not exist", data={}
             )
 
+        entity_model_name = entity_model or self.model.__name__
+
         entity_object = {
             "entity_assoc_id": entity_id,
             "payment_type_id": existing_payment_type.payment_type_id,
-            "entity_type": entity_model if entity_model else self.model.__name__,
+            "entity_type": entity_model_name,
             "billable_assoc_id": utility_id,
             "billable_type": "Utilities",
             "billable_amount": str(utility_value),
         }
 
-        # check if entity utility linkage exists
-        entity_item: EntityBillable = await self.enity_billable_dao.query(
-            db_session=db_session,
-            filters={
-                "entity_assoc_id": entity_id,
-                "entity_type": entity_model if entity_model else self.model.__name__,
-                "billable_assoc_id": utility_id,
-                "billable_type": "Utilities",
-            },
-            single=True,
-        )
-
-        result = []
-
-        # create entity utility linkage if it doesn't exist
-        if entity_item is None:
-            result = await self.enity_billable_dao.create(
-                db_session=db_session, obj_in=entity_object
-            )
-        else:
-            entity_object["billable_assoc_id"] = entity_item.billable_assoc_id
-            result = await self.enity_billable_dao.update(
-                db_session=db_session,
-                db_obj=entity_item,
-                obj_in=EntityBillableSchema(**entity_object),
-            )
-
-        return result
+        # link the billable entity
+        return await self.create_or_update_billable_entity(db_session, entity_object)
 
     async def add_entity_utility(
         self,
         db_session: AsyncSession,
         entity_id: str,
-        utilities_info: Union[EntityBillableCreate | List[EntityBillableCreate]],
-        entity_model=None,
-        entity_assoc_id=None,
-    ) -> Optional[Utilities | UtilitiesBase | List[Utilities] | List[UtilitiesBase]]:
+        utilities_info: Union[Billable | List[Billable]],
+        entity_model: Union[str | None] = None,
+        entity_assoc_id: Union[UUID | None] = None,
+    ) -> DAOResponse[List[EntityBillable | Dict]]:
         try:
             results = []
-            entity_assoc_id = entity_assoc_id if entity_assoc_id else entity_id
-            entity_model_name = entity_model if entity_model else self.model.__name__
-
-            if not isinstance(utilities_info, list):
-                utilities_info = [utilities_info]
+            entity_assoc_id = entity_assoc_id or entity_id
+            entity_model_name = entity_model or self.model.__name__
+            utilities_info = (
+                utilities_info if isinstance(utilities_info, list) else [utilities_info]
+            )
 
             for utilities_item in utilities_info:
-                utilities_item: EntityBillableCreate = utilities_item
-
-                # check if the utility exists
-                existing_utilities_item: Utilities = await self.query(
+                # check if utility exists
+                existing_utilities_item: Union[Utilities | None] = await self.query(
                     db_session=db_session,
                     filters={f"{self.primary_key}": utilities_item.billable_id},
                     single=True,
                 )
 
                 if not existing_utilities_item:
-                    return DAOResponse(
-                        success=False, error="Utility does not exist", data={}
+                    raise NoResultFound("Utility does not exist")
+
+                entity_utility: EntityBillable = (
+                    await self.associate_billable_with_entity(
+                        db_session=db_session,
+                        entity_id=entity_assoc_id,
+                        utility_id=existing_utilities_item.utility_id,
+                        entity_model=entity_model_name,
+                        utility_value=utilities_item.billable_amount,
+                        payment_type=utilities_item.payment_type,
                     )
-
-                # Link entity utility id
-                gen_utility_id = existing_utilities_item.utility_id
-                entity_utility: EntityBillable = await self.link_entity_to_utility(
-                    db_session=db_session,
-                    entity_id=entity_assoc_id,
-                    utility_id=gen_utility_id,
-                    entity_model=entity_model_name,
-                    utility_value=utilities_item.billable_amount,
-                    payment_type=utilities_item.payment_type,
                 )
-
                 results.append(entity_utility)
-            return results
-        except NoResultFound:
-            print("ERRROR:NoResultFound")
-            pass
+
+            return DAOResponse(
+                success=True,
+                data=[EntityBillableResponse.from_orm_model(r) for r in results],
+            )
+        except NoResultFound as e:
+            await db_session.rollback()
+            return DAOResponse(success=False, error=str(e))
+        except Exception as e:
+            await db_session.rollback()
+            return DAOResponse(success=False, error=f"Utility DAO Error: {str(e)}")

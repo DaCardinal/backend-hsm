@@ -1,17 +1,82 @@
 from uuid import UUID
 from datetime import datetime
-from typing import List, Optional, Annotated
+from typing import List, Optional, Annotated, Union
 from pydantic import BaseModel, ConfigDict, Field, constr, EmailStr
 
 # schemas
 from app.schema.enums import GenderEnum
+from app.schema.mixins.address_mixin import Address, AddressMixin
 
 # models
 from app.models.user import User as UserModel
+from app.models.rental_history import PastRentalHistory as PastRentalHistoryModel
 from app.models.property_assignment import PropertyAssignment as PropertyAssignmentModel
 
 
-class UserEmergencyInfo(BaseModel):
+class PastRentalHistoryCreateSchema(BaseModel):
+    address_hash: Optional[UUID] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    property_owner_name: str
+    property_owner_email: str
+    property_owner_mobile: Union[str | int]
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PastRentalHistoryBase(BaseModel, AddressMixin):
+    address: Optional[List[Address] | Address] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    property_owner_name: str
+    property_owner_email: str
+    property_owner_mobile: Union[str | int]
+    user_id: Optional[UUID] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PastRentalHistory(BaseModel, AddressMixin):
+    rental_history_id: Optional[UUID] = None
+    address_hash: Optional[UUID] = None
+    address: Optional[List[Address] | Address] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    property_owner_name: str
+    property_owner_email: str
+    property_owner_mobile: Union[str | int]
+    user_id: Optional[UUID] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PastRentalHistoryResponse(BaseModel, AddressMixin):
+    rental_history_id: UUID = None
+    address_hash: Optional[UUID] = None
+    address: Optional[List[Address] | Address] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    property_owner_name: str = None
+    property_owner_email: str = None
+    property_owner_mobile: Union[str | int] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+    @classmethod
+    def from_orm_model(cls, rental_history: PastRentalHistoryModel):
+        return cls(
+            rental_history_id=rental_history.rental_history_id,
+            property_owner_name=rental_history.property_owner_name,
+            property_owner_email=rental_history.property_owner_email,
+            property_owner_mobile=rental_history.property_owner_mobile,
+            start_date=rental_history.start_date,
+            end_date=rental_history.end_date,
+            address_hash=rental_history.address_hash,
+            address=cls.get_address_base(rental_history.addresses),
+        )
+
+
+class UserEmergencyInfo(BaseModel, AddressMixin):
     """
     Model for representing user emergency contact information.
 
@@ -27,7 +92,8 @@ class UserEmergencyInfo(BaseModel):
     emergency_contact_email: Optional[EmailStr] = None
     emergency_contact_relation: Optional[Annotated[str, constr(max_length=128)]] = None
     emergency_contact_number: Optional[Annotated[str, constr(max_length=128)]] = None
-    emergency_address_hash: Optional[UUID] = None
+    emergency_address_hash: Optional[UUID | str] = None
+    address: Optional[List[Address] | Address] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -39,6 +105,7 @@ class UserEmergencyInfo(BaseModel):
             emergency_contact_relation=user.emergency_contact_relation,
             emergency_contact_number=user.emergency_contact_number,
             emergency_address_hash=user.emergency_address_hash,
+            address=cls.get_address_base(user.emergency_addresses),
         )
 
 

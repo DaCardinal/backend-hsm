@@ -3,7 +3,6 @@ from typing import Any, List, Union
 from pydantic import ValidationError
 from typing_extensions import override
 from sqlalchemy.ext.asyncio import AsyncSession
-from asyncpg.exceptions import ForeignKeyViolationError
 
 # daos
 from app.dao.resources.base_dao import BaseDAO
@@ -95,10 +94,6 @@ class TransactionDAO(BaseDAO[Transaction]):
             db_session=db_session, offset=offset, limit=limit
         )
 
-        # check if no result
-        if not result:
-            return DAOResponse(success=True, data=[])
-
         return DAOResponse[List[TransactionResponse]](
             success=True, data=[TransactionResponse.from_orm_model(r) for r in result]
         )
@@ -109,12 +104,9 @@ class TransactionDAO(BaseDAO[Transaction]):
     ) -> DAOResponse[TransactionResponse]:
         result: Transaction = await super().get(db_session=db_session, id=id)
 
-        # check if no result
-        if not result:
-            return DAOResponse(success=True, data={})
-
         return DAOResponse[TransactionResponse](
-            success=True, data=TransactionResponse.from_orm_model(result)
+            success=bool(result),
+            data={} if result is None else TransactionResponse.from_orm_model(result),
         )
 
     async def get_transaction_status(self, db_session: AsyncSession):

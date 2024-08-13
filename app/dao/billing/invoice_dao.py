@@ -1,5 +1,4 @@
 from uuid import UUID
-from functools import partial
 from typing import Any, List, Union
 from pydantic import ValidationError
 from sqlalchemy.orm import joinedload
@@ -25,12 +24,12 @@ from app.schema.invoice import (
 
 # models
 from app.models.contract import Contract
-from app.models.invoice_item import InvoiceItem as InvoiceItemModel
 from app.models.contract_type import ContractType
 from app.models.contract import ContractStatusEnum
 from app.models.under_contract import UnderContract
 from app.models.contract_invoice import ContractInvoice
 from app.models.invoice import Invoice, PaymentStatusEnum
+from app.models.invoice_item import InvoiceItem as InvoiceItemModel
 
 
 CONTRACT_LEASE = "lease"
@@ -41,6 +40,8 @@ class InvoiceDAO(BaseDAO[Invoice]):
         self.model = Invoice
         self.primary_key = "invoice_number"
         self.invoice_item_dao = InvoiceItemDAO(InvoiceItemModel)
+
+        self.detail_mappings = {"invoice_items": self.add_invoice_details}
 
         super().__init__(self.model, nesting_degree=nesting_degree, excludes=excludes)
 
@@ -58,16 +59,15 @@ class InvoiceDAO(BaseDAO[Invoice]):
                 db_session=db_session, obj_in=invoice_info
             )
 
-            details_methods = {
-                "invoice_items": (
-                    partial(self.add_invoice_details, invoice=new_invoice),
-                    InvoiceItemBase,
-                )
-            }
-            if set(details_methods.keys()).issubset(set(obj_in.keys())):
-                await self.process_entity_details(
-                    db_session, new_invoice.invoice_number, obj_in, details_methods
-                )
+            # process any entity details
+            await self.handle_entity_details(
+                db_session=db_session,
+                entity_data=obj_in,
+                detail_mappings=self.detail_mappings,
+                entity_model=self.model.__name__,
+                entity_assoc_id=new_invoice.invoice_number,
+                invoice=new_invoice,
+            )
 
             # commit object to db session
             await self.commit_and_refresh(db_session, new_invoice)
@@ -95,16 +95,15 @@ class InvoiceDAO(BaseDAO[Invoice]):
                 obj_in=obj_in.model_dump(exclude=["invoice_items"]).items(),
             )
 
-            details_methods = {
-                "invoice_items": (
-                    partial(self.add_invoice_details, invoice=invoice),
-                    InvoiceItem,
-                )
-            }
-            if details_methods.keys() & set(invoice_info.keys()):
-                await self.process_entity_details(
-                    db_session, invoice.invoice_number, invoice_info, details_methods
-                )
+            # process any entity details
+            await self.handle_entity_details(
+                db_session=db_session,
+                entity_data=invoice_info,
+                detail_mappings=self.detail_mappings,
+                entity_model=self.model.__name__,
+                entity_assoc_id=invoice.invoice_number,
+                invoice=invoice,
+            )
             # commit object to db session
             await self.commit_and_refresh(db_session, invoice)
 
@@ -125,10 +124,6 @@ class InvoiceDAO(BaseDAO[Invoice]):
             db_session=db_session, offset=offset, limit=limit
         )
 
-        # check if no result
-        if not result:
-            return DAOResponse(success=True, data=[])
-
         return DAOResponse[List[InvoiceResponse]](
             success=True, data=[InvoiceResponse.from_orm_model(r) for r in result]
         )
@@ -139,12 +134,9 @@ class InvoiceDAO(BaseDAO[Invoice]):
     ) -> DAOResponse[InvoiceResponse]:
         result: Invoice = await super().get(db_session=db_session, id=id)
 
-        # check if no result
-        if not result:
-            return DAOResponse(success=True, data={})
-
         return DAOResponse[InvoiceResponse](
-            success=True, data=InvoiceResponse.from_orm_model(result)
+            success=bool(result),
+            data={} if result is None else InvoiceResponse.from_orm_model(result),
         )
 
     async def get_leases_due(
@@ -182,6 +174,8 @@ class InvoiceDAO(BaseDAO[Invoice]):
             filters=filters,
             join_conditions=join_conditions,
             options=options,
+            skip=offset,
+            limit=limit,
         )
 
         return DAOResponse[List[InvoiceDueResponse]](
@@ -192,7 +186,7 @@ class InvoiceDAO(BaseDAO[Invoice]):
     async def add_invoice_details(
         self,
         db_session: AsyncSession,
-        invoice_number: str,
+        entity_id: str,
         invoice_info: Union[InvoiceItem | InvoiceItemBase],
         invoice: Invoice = None,
     ):
@@ -206,7 +200,7 @@ class InvoiceDAO(BaseDAO[Invoice]):
 
                 invoice_item_obj = {
                     "description": invoice_item.description,
-                    "invoice_number": invoice_number,
+                    "invoice_number": entity_id,
                     "quantity": invoice_item.quantity,
                     "unit_price": invoice_item.unit_price,
                     "total_price": invoice_item.total_price,

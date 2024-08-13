@@ -1,7 +1,6 @@
 from sqlite3 import IntegrityError as SQLiteIntegrityError
 from pymysql import IntegrityError as PYIntegrityError
 from asyncpg.exceptions import (
-    ForeignKeyViolationError,
     IntegrityConstraintViolationError,
 )
 

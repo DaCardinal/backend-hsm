@@ -70,12 +70,12 @@ class AmenitiesBase(MediaInfoMixin):
     amenity_short_name: Annotated[str, constr(max_length=50)]
     amenity_value_type: Annotated[str, constr(max_length=50)]
     description: Optional[str] = None
-    media: Optional[List[Media] | Media] = []
+    media: Optional[List[MediaBase] | MediaBase] = []
 
     model_config = ConfigDict(from_attributes=True)
 
 
-class Amenities(AmenitiesBase):
+class Amenities(BaseModel):
     """
     Model for representing amenities with additional details.
 
@@ -84,6 +84,11 @@ class Amenities(AmenitiesBase):
     """
 
     amenity_id: UUID
+    amenity_name: Annotated[str, constr(max_length=255)]
+    amenity_short_name: Annotated[str, constr(max_length=50)]
+    amenity_value_type: Annotated[str, constr(max_length=50)]
+    description: Optional[str] = None
+    media: Optional[List[Media] | Media] = []
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -109,11 +114,17 @@ class AmenitiesCreateSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class AmenitiesUpdateSchema(AmenitiesBase):
+class AmenitiesUpdateSchema(BaseModel):
     """
     Schema for updating amenities.
 
     Inherits from AmenitiesBase.
     """
 
-    pass
+    amenity_name: Annotated[str, constr(max_length=255)]
+    amenity_short_name: Annotated[str, constr(max_length=50)]
+    amenity_value_type: Annotated[str, constr(max_length=50)]
+    description: Optional[str] = None
+    media: Optional[List[Media] | Media] = []
+
+    model_config = ConfigDict(from_attributes=True)

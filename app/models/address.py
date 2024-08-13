@@ -38,13 +38,24 @@ class Addresses(Base):
         back_populates="addresses",
         lazy="selectin",
     )
+
+    rental_history = relationship(
+        "PastRentalHistory",
+        secondary="entity_address",
+        primaryjoin="EntityAddress.address_id==Addresses.address_id",
+        secondaryjoin="and_(EntityAddress.entity_id==PastRentalHistory.address_hash, EntityAddress.entity_type=='PastRentalHistory')",
+        overlaps="users",
+        back_populates="addresses",
+        lazy="selectin",
+    )
+
     properties = relationship(
         "Property",
         secondary="entity_address",
         primaryjoin="EntityAddress.address_id==Addresses.address_id",
         secondaryjoin="and_(EntityAddress.entity_id==Property.property_unit_assoc_id, EntityAddress.entity_type=='Property')",
         back_populates="addresses",
-        overlaps="users",
+        overlaps="users,rental_history",
         lazy="selectin",
     )
 
@@ -52,5 +63,7 @@ class Addresses(Base):
     region = relationship("Region", back_populates="addresses", lazy="joined")
     country = relationship("Country", back_populates="addresses", lazy="joined")
     entity_addresses = relationship(
-        "EntityAddress", overlaps="users,properties", back_populates="address"
+        "EntityAddress",
+        overlaps="users,properties,rental_history",
+        back_populates="address",
     )

@@ -115,17 +115,17 @@ class TestUnits:
                 ],
                 "amenities": [
                     {
-                        "amenity_name": "string",
-                        "amenity_short_name": "string",
-                        "amenity_value_type": "string",
-                        "description": "string",
+                        "amenity_name": "Air Conditioning",
+                        "amenity_short_name": "Air Conditioning",
+                        "amenity_value_type": "boolean",
+                        "description": "no notes needed",
                         "media": [],
                     }
                 ],
                 "utilities": [
                     {
                         "billable_id": utility.get("utility_id"),
-                        "payment_type": "string",
+                        "payment_type": "one_time",
                         "billable_amount": 200,
                         "apply_to_units": False,
                     }
@@ -133,7 +133,6 @@ class TestUnits:
             },
         )
         assert response.status_code == 200
-
         TestUnits.default_unit = response.json()["data"]
 
     @pytest.mark.asyncio(scope="session")
@@ -176,7 +175,7 @@ class TestUnits:
                 "utilities": [
                     {
                         "billable_id": TestUnits.default_utility.get("utility_id"),
-                        "payment_type": "string",
+                        "payment_type": "one_time",
                         "billable_amount": 200,
                         "apply_to_units": False,
                     }

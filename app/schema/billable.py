@@ -1,11 +1,30 @@
 from uuid import UUID
+from typing import Any, Optional, Annotated, Union
 from pydantic import BaseModel, ConfigDict, constr
-from typing import Optional, Annotated
+
+from app.models.entity_billable import EntityBillable as EntityBillableModel
+from app.schema.enums import PaymentStatus
 
 
-class EntityBillableBase(BaseModel):
+class BillableBase(BaseModel):
     """
     Base model for entity billable information.
+
+    Attributes:
+        payment_type_id (UUID): The unique identifier for the payment type.
+        billable_amount (str): The amount for the billable entity.
+        apply_to_units (bool): Indicates whether the billable entity applies to units.
+    """
+
+    # billable_id: Optional[UUID] = None
+    payment_type: Optional[Annotated[str, constr(max_length=50)]] = None
+    billable_amount: Optional[int] = None
+    apply_to_units: Optional[bool] = False
+
+
+class Billable(BaseModel):
+    """
+    Base model for billable information.
 
     Attributes:
         billable_id (UUID): The unique identifier for the billable entity.
@@ -15,9 +34,21 @@ class EntityBillableBase(BaseModel):
     """
 
     billable_id: UUID
+    payment_type: Optional[Annotated[str, constr(max_length=50)]] = None
+    billable_amount: Optional[int] = None
+    apply_to_units: Optional[bool] = False
+
+
+class EntityBillableBase(BaseModel):
     payment_type_id: UUID
-    billable_amount: Annotated[str, constr(max_length=100)]
-    apply_to_units: bool
+    entity_assoc_id: UUID
+    entity_type: Annotated[str, constr(max_length=50)]
+    billable_assoc_id: UUID
+    billable_type: Annotated[str, constr(max_length=50)]
+    billable_amount: Optional[int | str] = None
+    apply_to_units: Optional[bool] = False
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class EntityBillable(BaseModel):
@@ -35,43 +66,56 @@ class EntityBillable(BaseModel):
         apply_to_units (Optional[bool]): Indicates whether the billable entity applies to units.
     """
 
-    entity_billable_id: UUID
-    payment_type_id: UUID
+    entity_billable_id: UUID = None
+    payment_type_id: Union[UUID | str | Any]
     entity_assoc_id: UUID
     entity_type: Annotated[str, constr(max_length=50)]
     billable_assoc_id: UUID
     billable_type: Annotated[str, constr(max_length=50)]
-    billable_amount: Optional[int] = None
+    billable_amount: Optional[int | str] = None
     apply_to_units: Optional[bool] = False
 
     model_config = ConfigDict(from_attributes=True)
 
 
-class EntityBillableCreate(BaseModel):
+class EntityBillableResponse(BaseModel):
     """
-    Schema for creating an entity billable.
+    Model for representing an entity billable with additional details.
 
     Attributes:
-        billable_id (Optional[UUID]): The unique identifier for the billable entity.
-        payment_type (Optional[str]): The type of payment for the billable entity.
+        entity_billable_id (UUID): The unique identifier for the entity billable.
+        payment_type_id (UUID): The unique identifier for the payment type.
+        entity_assoc_id (UUID): The unique identifier for the associated entity.
+        entity_type (str): The type of the entity.
+        billable_assoc_id (UUID): The unique identifier for the billable association.
+        billable_type (str): The type of the billable entity.
         billable_amount (Optional[int]): The amount for the billable entity.
         apply_to_units (Optional[bool]): Indicates whether the billable entity applies to units.
     """
 
-    billable_id: Optional[UUID] = None
-    payment_type: Optional[Annotated[str, constr(max_length=50)]] = None
-    billable_amount: Optional[int] = None
+    entity_billable_id: UUID = None
+    payment_type_id: Union[UUID | PaymentStatus]
+    entity_assoc_id: UUID
+    entity_type: Annotated[str, constr(max_length=50)]
+    billable_assoc_id: UUID
+    billable_type: Annotated[str, constr(max_length=50)]
+    billable_amount: Optional[int | str] = None
     apply_to_units: Optional[bool] = False
 
+    model_config = ConfigDict(from_attributes=True)
 
-class EntityBillableUpdate(EntityBillableBase):
-    """
-    Schema for updating an entity billable.
-
-    Inherits from EntityBillableBase.
-    """
-
-    pass
+    @classmethod
+    def from_orm_model(cls, entity_billable: EntityBillableModel):
+        return cls(
+            entity_billable_id=entity_billable.entity_billable_id,
+            payment_type_id=entity_billable.payment_type_id,
+            entity_assoc_id=entity_billable.entity_assoc_id,
+            entity_type=entity_billable.entity_type,
+            billable_assoc_id=entity_billable.billable_assoc_id,
+            billable_type=entity_billable.billable_type,
+            billable_amount=entity_billable.billable_amount,
+            apply_to_units=entity_billable.apply_to_units,
+        )
 
 
 class UtilitiesBase(BaseModel):

@@ -6,7 +6,7 @@ from typing import List, Optional, Annotated
 
 # schemas
 from app.schema.enums import ContractStatus
-from app.schema.billable import EntityBillableCreate
+from app.schema.billable import Billable
 
 # mixins
 from app.schema.mixins.billable_mixin import UtilityInfo
@@ -96,7 +96,7 @@ class ContractCreateSchema(BaseModel):
         start_date (Optional[datetime]): The start date of the contract.
         end_date (Optional[datetime]): The end date of the contract.
         contract_info (Optional[List[UnderContractSchema] | UnderContractSchema]): The information of the under-contract relationships.
-        utilities (Optional[List[EntityBillableCreate] | EntityBillableCreate]): The utilities associated with the contract.
+        utilities (Optional[List[Billable] | Billable]): The utilities associated with the contract.
     """
 
     contract_type: str
@@ -110,7 +110,7 @@ class ContractCreateSchema(BaseModel):
     start_date: Optional[datetime] = datetime.now()
     end_date: Optional[datetime] = None
     contract_info: Optional[List[UnderContractSchema] | UnderContractSchema] = None
-    utilities: Optional[List[EntityBillableCreate] | EntityBillableCreate] = None
+    utilities: Optional[List[Billable] | Billable] = None
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
@@ -131,7 +131,7 @@ class ContractUpdateSchema(BaseModel):
         start_date (Optional[datetime]): The start date of the contract.
         end_date (Optional[datetime]): The end date of the contract.
         contract_info (Optional[List[UnderContractSchema] | UnderContractSchema]): The information of the under-contract relationships.
-        utilities (Optional[List[EntityBillableCreate] | EntityBillableCreate]): The utilities associated with the contract.
+        utilities (Optional[List[Billable] | Billable]): The utilities associated with the contract.
     """
 
     contract_type: Optional[str] = None
@@ -145,7 +145,7 @@ class ContractUpdateSchema(BaseModel):
     start_date: Optional[datetime] = datetime.now()
     end_date: Optional[datetime] = None
     contract_info: Optional[List[UnderContractSchema] | UnderContractSchema] = None
-    utilities: Optional[List[EntityBillableCreate] | EntityBillableCreate] = None
+    utilities: Optional[List[Billable] | Billable] = None
 
     model_config = ConfigDict(from_attributes=True)
 

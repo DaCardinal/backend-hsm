@@ -16,6 +16,9 @@ from app.schema.mixins.contract_mixin import ContractInfoMixin
 from app.schema.mixins.property_mixin import Property, PropertyUnit
 from app.schema.mixins.address_mixin import AddressMixin, Address, AddressBase
 from app.schema.mixins.user_mixins import (
+    PastRentalHistory,
+    PastRentalHistoryBase,
+    PastRentalHistoryResponse,
     UserBase,
     UserAuthInfo,
     UserAuthCreateInfo,
@@ -91,6 +94,7 @@ class UserCreateSchema(UserBase):
     user_auth_info: Optional[UserAuthCreateInfo] = None
     user_emergency_info: Optional[UserEmergencyInfo] = None
     user_employer_info: Optional[UserEmployerInfo] = None
+    rental_history: Optional[Union[PastRentalHistory | PastRentalHistoryBase]] = None
     role: Optional[str] = None
 
     model_config = ConfigDict(
@@ -115,6 +119,7 @@ class UserUpdateSchema(UserBase):
     user_auth_info: Optional[UserAuthInfo] = None
     user_emergency_info: Optional[UserEmergencyInfo] = None
     user_employer_info: Optional[UserEmployerInfo] = None
+    rental_history: Optional[Union[PastRentalHistory | PastRentalHistoryBase]] = None
     role: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
@@ -159,6 +164,7 @@ class UserResponse(BaseModel, ContractInfoMixin):
     user_auth_info: Optional[UserAuthInfo] = None
     user_emergency_info: Optional[UserEmergencyInfo] = None
     user_employer_info: Optional[UserEmployerInfo] = None
+    rental_history: Optional[List[PastRentalHistory | PastRentalHistoryBase]] = None
     created_at: Optional[datetime] = datetime.now()
     date_of_birth: Optional[date] = None
     roles: Optional[List[Role]] = None
@@ -195,6 +201,10 @@ class UserResponse(BaseModel, ContractInfoMixin):
             user_auth_info=UserAuthInfo.get_user_auth_info(user),
             user_emergency_info=UserEmergencyInfo.get_user_emergency_info(user),
             user_employer_info=UserEmployerInfo.get_user_employer_info(user),
+            rental_history=[
+                PastRentalHistoryResponse.from_orm_model(r)
+                for r in user.rental_histories
+            ],
             created_at=user.created_at,
             date_of_birth=user.date_of_birth,
             roles=user.roles,
